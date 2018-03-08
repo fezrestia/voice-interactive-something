@@ -1,5 +1,6 @@
 package com.demo.pet.petapp
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -10,8 +11,8 @@ import android.os.Build
 import android.os.IBinder
 import android.view.View
 
-val REQUEST_START_OVERLAY = "com.demo.pet.petapp.action.REQUEST_START_OVERLAY"
-val REQUEST_STOP_OVERLAY = "com.demo.pet.petapp.action.REQUEST_STOP_OVERLAY"
+const val REQUEST_START_OVERLAY = "com.demo.pet.petapp.action.REQUEST_START_OVERLAY"
+const val REQUEST_STOP_OVERLAY = "com.demo.pet.petapp.action.REQUEST_STOP_OVERLAY"
 
 class OverlayService : Service() {
 
@@ -24,6 +25,7 @@ class OverlayService : Service() {
 
     private var rootView: OverlayRootView? = null
 
+    @SuppressLint("NewApi")
     override fun onCreate() {
         debugLog("OverlayService.onCreate()")
         super.onCreate()

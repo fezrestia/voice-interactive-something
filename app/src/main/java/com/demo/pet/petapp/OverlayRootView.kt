@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Handler
 import android.util.AttributeSet
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -42,8 +43,8 @@ class OverlayRootView : RelativeLayout {
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 overlayType,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                        or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+//                        or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                         or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
                         or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
                         or WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
@@ -94,7 +95,29 @@ class OverlayRootView : RelativeLayout {
         isOverlayActive = false
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+        if (event != null && event.repeatCount == 0) {
+            when (event.keyCode) {
+                KeyEvent.KEYCODE_Q -> {
+                    if (event.action == KeyEvent.ACTION_DOWN) {
+                        debugLog("onKeyDown() : KEYCODE_Q")
 
+
+                    }
+                    return true
+                }
+
+                else -> {
+                    debugLog("onKeyDown() : OTHER")
+                }
+            }
+
+
+
+        }
+
+        return false
+    }
 
     private class Pet(val targetView: ImageView) {
         val standDrawable = R.drawable.dog_stand_4
@@ -142,14 +165,15 @@ class OverlayRootView : RelativeLayout {
         override fun run() {
 //            debugLog("renderer.run() : E")
 
+/* DEMO
             if ((count / 30) % 2 == 0L) {
-//                debugLog("pet.sit()")
+                debugLog("pet.sit()")
                 pet.sit()
             } else {
-//                debugLog("pet.stand()")
+                debugLog("pet.stand()")
                 pet.stand()
             }
-
+*/
 
 
 

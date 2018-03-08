@@ -1,5 +1,6 @@
 package com.demo.pet.petapp
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -19,7 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         overlay_switch.isChecked = OverlayRootView.isActive()
         overlay_switch.setOnCheckedChangeListener { _: CompoundButton, is_checked: Boolean ->
-            debugLog("Overlay switch changed to : " + is_checked)
+            debugLog("Overlay switch changed to : $is_checked")
 
             val action: String = if (is_checked) {
                 // Enabled.
@@ -73,16 +74,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("InlinedApi")
     private fun checkMandatoryPermissions(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!isSystemAlertWindowPermissionGranted()) {
-                // Start permission setting.
-                val intent = Intent(
-                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + packageName))
-                startActivityForResult(intent, REQ_CODE_OVERLAY_PERMISSION)
-                return true
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && !isSystemAlertWindowPermissionGranted()) {
+            // Start permission setting.
+            val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName"))
+            startActivityForResult(intent, REQ_CODE_OVERLAY_PERMISSION)
+            return true
         }
         return false
     }
@@ -95,8 +96,6 @@ class MainActivity : AppCompatActivity() {
         }
         super.onActivityResult(requestCode, resultCode, intent)
     }
-
-
 
 
 
