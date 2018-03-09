@@ -3,18 +3,36 @@ package com.demo.pet.petapp
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import java.util.Locale
 
-class TTSController(val mContext: Context) {
-
+class TTSController(private val context: Context, private val ttsEngine: String) {
     private val tts: TextToSpeech
     private val MAX_TEXT_SIZE = TextToSpeech.getMaxSpeechInputLength()
     private var sequenceId = 0
 
+    companion object {
+        val DEFAULT_ENGINE = "default"
+
+        fun getSupportedEngines(context: Context): List<TextToSpeech.EngineInfo> {
+            val tts = TextToSpeech(context, null)
+            val supported = tts.engines
+            tts.shutdown()
+            return supported
+        }
+    }
+
+    // Default engine.
+    constructor(context: Context) : this(context, DEFAULT_ENGINE)
+
     init {
         debugLog("TTSCtrl.init()")
 
-        tts = TextToSpeech(mContext, TTSOnInitCallback())
+        if (ttsEngine == DEFAULT_ENGINE) {
+            debugLog("Init TTS with Default Engine.")
+            tts = TextToSpeech(context, TTSOnInitCallback())
+        } else {
+            debugLog("Init TTS with Engine = $ttsEngine.")
+            tts = TextToSpeech(context, TTSOnInitCallback(), ttsEngine)
+        }
         tts.setOnUtteranceProgressListener(TTSOnProgressCallback())
     }
 
@@ -44,19 +62,30 @@ class TTSController(val mContext: Context) {
             debugLog("    Engine = ${it.label}")
         }
 
-        debugLog("Default Lang = ${tts.defaultVoice.locale.displayName}")
-        debugLog("Available Languages:")
-        tts.availableLanguages.forEach {
-            debugLog("    Lang = ${it.displayName}")
+        try {
+            val defaultVoice = tts.defaultVoice
+            debugLog("Default Lang = ${tts.defaultVoice?.locale?.displayName}")
+            debugLog("Available Languages:")
+            tts.availableLanguages.forEach {
+                debugLog("    Lang = ${it.displayName}")
+            }
+        } catch (e: NullPointerException) {
+            debugLog("NPE")
+            e.printStackTrace()
         }
 
-        debugLog("Default Voice = ${tts.defaultVoice.name}")
-        debugLog("Voices:")
-        tts.voices.forEach {
-            debugLog("    Voice = ${it.name} / ${it.locale.displayName}")
-            it.features.forEach {
-//                debugLog("        Feature = ${it}")
+        try {
+            debugLog("Default Voice = ${tts.defaultVoice.name}")
+            debugLog("Voices:")
+            tts.voices.forEach {
+                debugLog("    Voice = ${it.name} / ${it.locale.displayName}")
+                it.features.forEach {
+                    debugLog("        Feature = ${it}")
+                }
             }
+        } catch (e: NullPointerException) {
+            debugLog("NPE")
+            e.printStackTrace()
         }
     }
 
@@ -115,7 +144,7 @@ class TTSController(val mContext: Context) {
 
     private fun getNextSequenceId(): String {
         ++sequenceId
-        return "${mContext.packageName}-TTS-$sequenceId"
+        return "${context.packageName}-TTS-$sequenceId"
     }
 
 }

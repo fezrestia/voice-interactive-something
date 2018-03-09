@@ -10,7 +10,6 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.overlay_root_view.view.*
 
 class OverlayRootView : RelativeLayout {
@@ -23,7 +22,7 @@ class OverlayRootView : RelativeLayout {
     companion object {
         private var isOverlayActive = false
 
-        public fun isActive(): Boolean {
+        fun isActive(): Boolean {
             return isOverlayActive
         }
     }
@@ -59,7 +58,7 @@ class OverlayRootView : RelativeLayout {
         uiHandler = Handler()
 
         // TTS.
-        ttsCtrl = TTSController(context)
+        ttsCtrl = TTSController(context, MainActivity.userTtsEngine)
     }
 
     constructor(context: Context) : super(context) {
@@ -182,9 +181,8 @@ class OverlayRootView : RelativeLayout {
         }
 
         override fun run() {
-//            debugLog("renderer.run() : E")
+            debugLog("renderer.run() : E")
 
-/* DEMO
             if ((count / 30) % 2 == 0L) {
                 debugLog("pet.sit()")
                 pet.sit()
@@ -192,8 +190,6 @@ class OverlayRootView : RelativeLayout {
                 debugLog("pet.stand()")
                 pet.stand()
             }
-*/
-
 
 
 

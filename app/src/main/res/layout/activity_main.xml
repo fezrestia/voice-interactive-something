@@ -7,70 +7,126 @@
     android:layout_height="match_parent"
     tools:context="com.demo.pet.petapp.MainActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-    >
-
-        <Switch
-            android:id="@+id/overlay_switch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/overlay_switch_label"
-        />
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
         >
-            <Button
-                android:id="@+id/script_a_0"
-                android:layout_width="0dp"
+
+            <include layout="@layout/scroll_view_separator" />
+
+            <!-- En/Disable -->
+            <Switch
+                android:id="@+id/overlay_switch"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="1"
+                android:text="@string/overlay_switch_label"
+            />
+
+            <include layout="@layout/scroll_view_separator" />
+
+            <!-- Manual speack -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Manual Speech Request"
+            />
+            <EditText
+                android:id="@+id/input_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
             />
             <Button
-                android:id="@+id/script_a_1"
-                android:layout_width="0dp"
+                android:id="@+id/speak_input_text"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="2"
+                android:text="Speak"
             />
-            <Button
-                android:id="@+id/script_a_2"
-                android:layout_width="0dp"
+
+            <include layout="@layout/scroll_view_separator" />
+
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="3"
+                android:text="Engine Select"
             />
-            <Button
-                android:id="@+id/script_a_3"
-                android:layout_width="0dp"
+
+            <RadioGroup
+                android:id="@+id/engine_selector"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="4"
-            />
-            <Button
-                android:id="@+id/script_a_4"
-                android:layout_width="0dp"
+            >
+            </RadioGroup>
+
+            <include layout="@layout/scroll_view_separator" />
+
+            <!-- Script 1 -->
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="5"
+                android:text="Script 1"
             />
-            <Button
-                android:id="@+id/script_a_5"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="6"
-            />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+            >
+                <Button
+                    android:id="@+id/script_a_0"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="1"
+                />
+                <Button
+                    android:id="@+id/script_a_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="2"
+                />
+                <Button
+                    android:id="@+id/script_a_2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="3"
+                />
+                <Button
+                    android:id="@+id/script_a_3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="4"
+                />
+                <Button
+                    android:id="@+id/script_a_4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="5"
+                />
+                <Button
+                    android:id="@+id/script_a_5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="6"
+                />
+            </LinearLayout>
+
+            <include layout="@layout/scroll_view_separator" />
+
+
+
 
         </LinearLayout>
 
 
-    </LinearLayout>
+    </ScrollView>
 
 </android.support.constraint.ConstraintLayout>

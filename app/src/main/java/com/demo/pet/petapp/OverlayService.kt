@@ -46,7 +46,7 @@ class OverlayService : Service() {
 
         val notification = builder
                 .setContentTitle(getText(R.string.app_name))
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.dog_sit)
                 .build()
 
         // Foreground service.

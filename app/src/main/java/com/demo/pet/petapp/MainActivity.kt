@@ -7,13 +7,24 @@ import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
+import android.speech.tts.TextToSpeech
 import android.widget.CompoundButton
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
 
 class MainActivity : AppCompatActivity() {
 
-    var ttsCtrl: TTSController? = null
+    private var ttsCtrl: TTSController? = null
+    private lateinit var installedEngines: List<TextToSpeech.EngineInfo>
+
+    companion object {
+        init {
+            System.loadLibrary("native-lib")
+        }
+
+        public var userTtsEngine: String = TTSController.DEFAULT_ENGINE
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         debugLog("onCreate()")
@@ -22,10 +33,22 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         overlay_switch.isChecked = OverlayRootView.isActive()
-        overlay_switch.setOnCheckedChangeListener { _: CompoundButton, is_checked: Boolean ->
-            debugLog("Overlay switch changed to : $is_checked")
+        overlay_switch.setOnCheckedChangeListener(OnCheckedChangeListenerImpl())
 
-            val action: String = if (is_checked) {
+        speak_input_text.setOnClickListener( { speakInputText() } )
+
+        // Supported engines.
+        installedEngines = TTSController.getSupportedEngines(this)
+        installedEngines.forEach {
+            debugLog("Installed Engine = ${it.label}")
+        }
+    }
+
+    private inner class OnCheckedChangeListenerImpl : CompoundButton.OnCheckedChangeListener {
+        override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+            debugLog("Overlay switch changed to : $isChecked")
+
+            val action: String = if (isChecked) {
                 // Enabled.
                 REQUEST_START_OVERLAY
             } else {
@@ -33,18 +56,13 @@ class MainActivity : AppCompatActivity() {
                 REQUEST_STOP_OVERLAY
             }
             val service = Intent(action)
-            service.setClass(this, OverlayService::class.java)
+            service.setClass(this@MainActivity, OverlayService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(service)
             } else {
                 startService(service)
             }
         }
-
-
-
-        // Example.
-        stringFromJNI()
     }
 
     override fun onResume() {
@@ -63,9 +81,35 @@ class MainActivity : AppCompatActivity() {
         ttsCtrl = TTSController(this)
 
         prepareButtons()
+
     }
 
     private fun prepareButtons() {
+        // Engine selector.
+        engine_selector.setOnCheckedChangeListener(
+                { _: RadioGroup, selectedId: Int ->
+                    when (selectedId) {
+                        -1 -> {
+                            userTtsEngine = TTSController.DEFAULT_ENGINE
+                        }
+                        else -> {
+                            val radioButton: RadioButton = this@MainActivity.findViewById(selectedId)
+                            userTtsEngine = radioButton.text.toString()
+                        }
+                    }
+
+                    ttsCtrl = TTSController(this@MainActivity, userTtsEngine)
+
+                    debugLog("TTS Engine selected = $userTtsEngine")
+                })
+        engine_selector.removeAllViews()
+        installedEngines.forEach {
+            val radioButton = RadioButton(this)
+            radioButton.text = it.name
+            engine_selector.addView(radioButton)
+        }
+
+        // Speak buttons.
         script_a_0.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_0)) } )
         script_a_1.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_1)) } )
         script_a_2.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_2)) } )
@@ -73,6 +117,14 @@ class MainActivity : AppCompatActivity() {
         script_a_4.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_4)) } )
         script_a_5.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_5)) } )
 
+    }
+
+    private fun speakInputText() {
+        val text = input_text.text.toString()
+
+        debugLog("speakInputText() : text = $text")
+
+        ttsCtrl?.speak(text)
     }
 
     override fun onPause() {
@@ -123,12 +175,4 @@ class MainActivity : AppCompatActivity() {
      * which is packaged with this application.
      */
     private external fun stringFromJNI(): String
-
-    companion object {
-
-        // Used to load the 'native-lib' library on application startup.
-        init {
-            System.loadLibrary("native-lib")
-        }
-    }
 }
