@@ -9,8 +9,11 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.CompoundButton
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.view.*
 
 class MainActivity : AppCompatActivity() {
+
+    var ttsCtrl: TTSController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         debugLog("onCreate()")
@@ -55,13 +58,29 @@ class MainActivity : AppCompatActivity() {
         if (checkMandatoryPermissions()) {
             return
         }
+
+        // TTS.
+        ttsCtrl = TTSController(this)
+
+        prepareButtons()
+    }
+
+    private fun prepareButtons() {
+        script_a_0.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_0)) } )
+        script_a_1.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_1)) } )
+        script_a_2.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_2)) } )
+        script_a_3.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_3)) } )
+        script_a_4.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_4)) } )
+        script_a_5.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_5)) } )
+
     }
 
     override fun onPause() {
         debugLog("onPause()")
         super.onPause()
 
-
+        ttsCtrl?.release()
+        ttsCtrl = null
     }
 
     private val REQ_CODE_OVERLAY_PERMISSION: Int = 1000

@@ -10,12 +10,15 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.overlay_root_view.view.*
 
 class OverlayRootView : RelativeLayout {
 
     private val winMng: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val winParams: WindowManager.LayoutParams
+
+    private val ttsCtrl: TTSController
 
     companion object {
         private var isOverlayActive = false
@@ -55,6 +58,8 @@ class OverlayRootView : RelativeLayout {
         // UI thread.
         uiHandler = Handler()
 
+        // TTS.
+        ttsCtrl = TTSController(context)
     }
 
     constructor(context: Context) : super(context) {
@@ -82,7 +87,7 @@ class OverlayRootView : RelativeLayout {
 
     fun release() {
         renderer.stop()
-
+        ttsCtrl.release()
     }
 
     fun addToOverlayWindow() {
@@ -96,27 +101,41 @@ class OverlayRootView : RelativeLayout {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-        if (event != null && event.repeatCount == 0) {
+        if (event != null && event.repeatCount == 0 && event.action == KeyEvent.ACTION_DOWN) {
             when (event.keyCode) {
                 KeyEvent.KEYCODE_Q -> {
-                    if (event.action == KeyEvent.ACTION_DOWN) {
-                        debugLog("onKeyDown() : KEYCODE_Q")
-
-
-                    }
-                    return true
+                    debugLog("onKeyDown() : KEYCODE_Q")
+                    ttsCtrl.speak(context.getString(R.string.script_a_0))
+                }
+                KeyEvent.KEYCODE_W -> {
+                    debugLog("onKeyDown() : KEYCODE_W")
+                    ttsCtrl.speak(context.getString(R.string.script_a_1))
+                }
+                KeyEvent.KEYCODE_E -> {
+                    debugLog("onKeyDown() : KEYCODE_E")
+                    ttsCtrl.speak(context.getString(R.string.script_a_2))
+                }
+                KeyEvent.KEYCODE_R -> {
+                    debugLog("onKeyDown() : KEYCODE_R")
+                    ttsCtrl.speak(context.getString(R.string.script_a_3))
+                }
+                KeyEvent.KEYCODE_T -> {
+                    debugLog("onKeyDown() : KEYCODE_T")
+                    ttsCtrl.speak(context.getString(R.string.script_a_4))
+                }
+                KeyEvent.KEYCODE_Y -> {
+                    debugLog("onKeyDown() : KEYCODE_Y")
+                    ttsCtrl.speak(context.getString(R.string.script_a_5))
                 }
 
                 else -> {
                     debugLog("onKeyDown() : OTHER")
+                    return false
                 }
             }
-
-
-
         }
 
-        return false
+        return true
     }
 
     private class Pet(val targetView: ImageView) {

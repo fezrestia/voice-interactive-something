@@ -3,4 +3,20 @@
 
     <string name="overlay_switch_label">En/Disable overlay pet</string>
 
+<!--
+    <string name="script_a_0">hello</string>
+    <string name="script_a_1">world</string>
+    <string name="script_a_2">it</string>
+    <string name="script_a_3">is</string>
+    <string name="script_a_4">fine</string>
+    <string name="script_a_5">today</string>
+-->
+
+    <string name="script_a_0">おはよう</string>
+    <string name="script_a_1">こんにちわ</string>
+    <string name="script_a_2">こんばんわ</string>
+    <string name="script_a_3">きょうのてんきは</string>
+    <string name="script_a_4">さんぽにいきたいー</string>
+    <string name="script_a_5">おなかすいたー</string>
+
 </resources>
