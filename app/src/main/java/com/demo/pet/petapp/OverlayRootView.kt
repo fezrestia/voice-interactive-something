@@ -2,6 +2,8 @@ package com.demo.pet.petapp
 
 import android.content.Context
 import android.graphics.PixelFormat
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.os.Build
 import android.os.Handler
 import android.util.AttributeSet
@@ -18,6 +20,10 @@ class OverlayRootView : RelativeLayout {
     private val winParams: WindowManager.LayoutParams
 
     private val ttsCtrl: TTSController
+
+    private val soundPool: SoundPool
+    private val soundWan: Int
+    private val soundKuun: Int
 
     companion object {
         private var isOverlayActive = false
@@ -58,7 +64,23 @@ class OverlayRootView : RelativeLayout {
         uiHandler = Handler()
 
         // TTS.
-        ttsCtrl = TTSController(context, MainActivity.userTtsEngine)
+        ttsCtrl = TTSController(context, MainActivity.userTtsEngine, SpeakStateCallbackImpl())
+
+        // Sound.
+        val audioAttr = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .build()
+        soundPool = SoundPool.Builder()
+                .setAudioAttributes(audioAttr)
+                .setMaxStreams(2)
+                .build()
+        soundPool.setOnLoadCompleteListener(SoundPool.OnLoadCompleteListener() { soundPool, sampleId, status ->
+            debugLog("SoundPool.onLoadComplete() : ID=$sampleId")
+        } )
+
+        soundWan = soundPool.load(context, R.raw.wan_wan, 1)
+        soundKuun = soundPool.load(context, R.raw.wan_kuun, 1)
     }
 
     constructor(context: Context) : super(context) {
@@ -87,6 +109,7 @@ class OverlayRootView : RelativeLayout {
     fun release() {
         renderer.stop()
         ttsCtrl.release()
+        soundPool.release()
     }
 
     fun addToOverlayWindow() {
@@ -101,31 +124,29 @@ class OverlayRootView : RelativeLayout {
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
         if (event != null && event.repeatCount == 0 && event.action == KeyEvent.ACTION_DOWN) {
+            debugLog("onKeyDown() : KEYCODE = ${event.displayLabel}")
+
             when (event.keyCode) {
-                KeyEvent.KEYCODE_Q -> {
-                    debugLog("onKeyDown() : KEYCODE_Q")
-                    ttsCtrl.speak(context.getString(R.string.script_a_0))
-                }
-                KeyEvent.KEYCODE_W -> {
-                    debugLog("onKeyDown() : KEYCODE_W")
-                    ttsCtrl.speak(context.getString(R.string.script_a_1))
-                }
-                KeyEvent.KEYCODE_E -> {
-                    debugLog("onKeyDown() : KEYCODE_E")
-                    ttsCtrl.speak(context.getString(R.string.script_a_2))
-                }
-                KeyEvent.KEYCODE_R -> {
-                    debugLog("onKeyDown() : KEYCODE_R")
-                    ttsCtrl.speak(context.getString(R.string.script_a_3))
-                }
-                KeyEvent.KEYCODE_T -> {
-                    debugLog("onKeyDown() : KEYCODE_T")
-                    ttsCtrl.speak(context.getString(R.string.script_a_4))
-                }
-                KeyEvent.KEYCODE_Y -> {
-                    debugLog("onKeyDown() : KEYCODE_Y")
-                    ttsCtrl.speak(context.getString(R.string.script_a_5))
-                }
+                KeyEvent.KEYCODE_Q -> { ttsCtrl.speak(context.getString(R.string.key_q)) }
+                KeyEvent.KEYCODE_W -> { ttsCtrl.speak(context.getString(R.string.key_w)) }
+                KeyEvent.KEYCODE_E -> { ttsCtrl.speak(context.getString(R.string.key_e)) }
+                KeyEvent.KEYCODE_R -> { ttsCtrl.speak(context.getString(R.string.key_r)) }
+                KeyEvent.KEYCODE_T -> { ttsCtrl.speak(context.getString(R.string.key_t)) }
+
+                KeyEvent.KEYCODE_A -> { ttsCtrl.speak(context.getString(R.string.key_a)) }
+                KeyEvent.KEYCODE_S -> { ttsCtrl.speak(context.getString(R.string.key_s)) }
+                KeyEvent.KEYCODE_D -> { ttsCtrl.speak(context.getString(R.string.key_d)) }
+                KeyEvent.KEYCODE_F -> { ttsCtrl.speak(context.getString(R.string.key_f)) }
+                KeyEvent.KEYCODE_G -> { ttsCtrl.speak(context.getString(R.string.key_g)) }
+                KeyEvent.KEYCODE_H -> { ttsCtrl.speak(context.getString(R.string.key_h)) }
+                KeyEvent.KEYCODE_J -> { ttsCtrl.speak(context.getString(R.string.key_j)) }
+                KeyEvent.KEYCODE_K -> { ttsCtrl.speak(context.getString(R.string.key_k)) }
+                KeyEvent.KEYCODE_L -> { ttsCtrl.speak(context.getString(R.string.key_l)) }
+
+                KeyEvent.KEYCODE_Z -> { ttsCtrl.speak(context.getString(R.string.key_z)) }
+
+                KeyEvent.KEYCODE_1 -> { soundPool.play(soundWan, 1.0f, 1.0f, 0, 0, 1.0f) }
+                KeyEvent.KEYCODE_2 -> { soundPool.play(soundKuun, 1.0f, 1.0f, 0, 0, 1.0f) }
 
                 else -> {
                     debugLog("onKeyDown() : OTHER")
@@ -137,11 +158,24 @@ class OverlayRootView : RelativeLayout {
         return true
     }
 
+    private inner class SpeakStateCallbackImpl : TTSController.SpeakStateCallback {
+        override fun onStarted() {
+            pet.startSpeak()
+        }
+
+        override fun onCompleted(isSucceeded: Boolean) {
+            pet.stopSpeak()
+        }
+    }
+
     private class Pet(val targetView: ImageView) {
         val standDrawable = R.drawable.dog_stand_4
         val sitDrawable = R.drawable.dog_sit
+        val sitSpeakDrawable = R.drawable.dog_sit_speaking
 
         var currentDrawable = sitDrawable
+
+        var isSpeaking = false
 
         init {
             targetView.setImageResource(currentDrawable)
@@ -164,6 +198,43 @@ class OverlayRootView : RelativeLayout {
                 draw()
             }
         }
+
+        fun sitSpeak() {
+            if (currentDrawable != sitSpeakDrawable) {
+                currentDrawable = sitSpeakDrawable
+                draw()
+            }
+        }
+
+        fun render(count: Long) {
+            if (isSpeaking) {
+                if ((count / 5L) % 2 == 0L) {
+                    sit()
+                } else {
+                    sitSpeak()
+                }
+            } else {
+                sit()
+            }
+
+/* DEMO
+            if ((count / 30) % 2 == 0L) {
+                debugLog("pet.sit()")
+                pet.sit()
+            } else {
+                debugLog("pet.stand()")
+                pet.stand()
+            }
+*/
+        }
+
+        fun startSpeak() {
+            isSpeaking = true
+        }
+
+        fun stopSpeak() {
+            isSpeaking = false
+        }
     }
 
     private class RenderingTask(val pet: Pet, val handler: Handler) : Runnable {
@@ -183,15 +254,7 @@ class OverlayRootView : RelativeLayout {
         override fun run() {
             debugLog("renderer.run() : E")
 
-            if ((count / 30) % 2 == 0L) {
-                debugLog("pet.sit()")
-                pet.sit()
-            } else {
-                debugLog("pet.stand()")
-                pet.stand()
-            }
-
-
+            pet.render(count)
 
             ++count
 

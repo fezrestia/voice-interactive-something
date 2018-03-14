@@ -2,6 +2,8 @@ package com.demo.pet.petapp
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.net.Uri
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
@@ -18,12 +20,16 @@ class MainActivity : AppCompatActivity() {
     private var ttsCtrl: TTSController? = null
     private lateinit var installedEngines: List<TextToSpeech.EngineInfo>
 
+    private lateinit var soundPool: SoundPool
+    private var soundWan: Int = 0
+    private var soundKuun: Int = 0
+
     companion object {
         init {
             System.loadLibrary("native-lib")
         }
 
-        public var userTtsEngine: String = TTSController.DEFAULT_ENGINE
+        var userTtsEngine: String = TTSController.DEFAULT_ENGINE
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,19 +88,39 @@ class MainActivity : AppCompatActivity() {
 
         prepareButtons()
 
+        prepareSoundPool()
+
+    }
+
+    private fun prepareSoundPool() {
+        // Sound.
+        val audioAttr = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .build()
+        soundPool = SoundPool.Builder()
+                .setAudioAttributes(audioAttr)
+                .setMaxStreams(2)
+                .build()
+        soundPool.setOnLoadCompleteListener(SoundPool.OnLoadCompleteListener() { soundPool, sampleId, status ->
+            debugLog("SoundPool.onLoadComplete() : ID=$sampleId")
+        } )
+
+        soundWan = soundPool.load(this, R.raw.wan_wan, 1)
+        soundKuun = soundPool.load(this, R.raw.wan_kuun, 1)
     }
 
     private fun prepareButtons() {
         // Engine selector.
         engine_selector.setOnCheckedChangeListener(
                 { _: RadioGroup, selectedId: Int ->
-                    when (selectedId) {
+                    userTtsEngine = when (selectedId) {
                         -1 -> {
-                            userTtsEngine = TTSController.DEFAULT_ENGINE
+                            TTSController.DEFAULT_ENGINE
                         }
                         else -> {
                             val radioButton: RadioButton = this@MainActivity.findViewById(selectedId)
-                            userTtsEngine = radioButton.text.toString()
+                            radioButton.text.toString()
                         }
                     }
 
@@ -110,13 +136,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Speak buttons.
-        script_a_0.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_0)) } )
-        script_a_1.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_1)) } )
-        script_a_2.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_2)) } )
-        script_a_3.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_3)) } )
-        script_a_4.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_4)) } )
-        script_a_5.setOnClickListener( { ttsCtrl?.speak(getString(R.string.script_a_5)) } )
+        key_q.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_q)) } )
+        key_w.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_w)) } )
+        key_e.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_e)) } )
+        key_r.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_r)) } )
+        key_t.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_t)) } )
 
+        key_a.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_a)) } )
+        key_s.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_s)) } )
+        key_d.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_d)) } )
+        key_f.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_f)) } )
+        key_g.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_g)) } )
+        key_h.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_h)) } )
+        key_j.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_j)) } )
+        key_k.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_k)) } )
+        key_l.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_l)) } )
+
+        key_z.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_z)) } )
+
+        key_1.setOnClickListener( { soundPool.play(soundWan, 1.0f, 1.0f, 0, 0, 1.0f) } )
+        key_2.setOnClickListener( { soundPool.play(soundKuun, 1.0f, 1.0f, 0, 0, 1.0f) } )
     }
 
     private fun speakInputText() {
@@ -133,6 +172,8 @@ class MainActivity : AppCompatActivity() {
 
         ttsCtrl?.release()
         ttsCtrl = null
+
+        soundPool.release()
     }
 
     private val REQ_CODE_OVERLAY_PERMISSION: Int = 1000

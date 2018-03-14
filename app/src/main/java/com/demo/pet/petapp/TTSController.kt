@@ -4,7 +4,10 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 
-class TTSController(private val context: Context, private val ttsEngine: String) {
+class TTSController(
+        private val context: Context,
+        ttsEngine: String,
+        var stateCallback: SpeakStateCallback?) {
     private val tts: TextToSpeech
     private val MAX_TEXT_SIZE = TextToSpeech.getMaxSpeechInputLength()
     private var sequenceId = 0
@@ -20,8 +23,10 @@ class TTSController(private val context: Context, private val ttsEngine: String)
         }
     }
 
-    // Default engine.
-    constructor(context: Context) : this(context, DEFAULT_ENGINE)
+    // Default engine with no callback.
+    constructor(context: Context) : this(context, DEFAULT_ENGINE, null)
+    // Specific engine with no callback.
+    constructor(context: Context, ttsEngine: String) : this(context, ttsEngine, null)
 
     init {
         debugLog("TTSCtrl.init()")
@@ -34,6 +39,11 @@ class TTSController(private val context: Context, private val ttsEngine: String)
             tts = TextToSpeech(context, TTSOnInitCallback(), ttsEngine)
         }
         tts.setOnUtteranceProgressListener(TTSOnProgressCallback())
+    }
+
+    public interface SpeakStateCallback {
+        fun onStarted()
+        fun onCompleted(isSucceeded: Boolean)
     }
 
     private inner class TTSOnInitCallback : TextToSpeech.OnInitListener {
@@ -97,6 +107,8 @@ class TTSController(private val context: Context, private val ttsEngine: String)
     private inner class TTSOnProgressCallback : UtteranceProgressListener() {
         override fun onStart(utteranceId: String?) {
             debugLog("TTSCtrl.Progress.onStart()")
+
+            stateCallback?.onStarted()
         }
 
         override fun onError(utteranceId: String?) {
@@ -105,10 +117,14 @@ class TTSController(private val context: Context, private val ttsEngine: String)
 
         override fun onError(utteranceId: String?, errorCode: Int) {
             debugLog("TTSCtrl.Progress.onError()")
+
+            stateCallback?.onCompleted(false)
         }
 
         override fun onDone(utteranceId: String?) {
             debugLog("TTSCtrl.Progress.onDone()")
+
+            stateCallback?.onCompleted(true)
         }
     }
 
@@ -129,6 +145,7 @@ class TTSController(private val context: Context, private val ttsEngine: String)
             debugLog("TTSCtrl.speak() : Text is too long.")
         }
 
+        debugLog("TTSCtrl.speak() : text = $text")
         val ret = tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, getNextSequenceId())
 
         when (ret) {

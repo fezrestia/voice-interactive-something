@@ -10,7 +10,6 @@
     <string name="script_a_3">is</string>
     <string name="script_a_4">fine</string>
     <string name="script_a_5">today</string>
--->
 
     <string name="script_a_0">おはよう</string>
     <string name="script_a_1">こんにちわ</string>
@@ -18,5 +17,34 @@
     <string name="script_a_3">きょうのてんきは</string>
     <string name="script_a_4">さんぽにいきたいー</string>
     <string name="script_a_5">おなかすいたー</string>
+-->
+
+    <!-- Passive Speak. -->
+    <!--
+    <string name="key_q">hello there it is fine today. this is a long sentence speaking test and verification.</string>
+    <string name="key_w">passive speaking</string>
+    <string name="key_e">active speak ?</string>
+    -->
+    <string name="key_q">おはよう！</string>
+    <string name="key_w">今は晴れてるけど、雨が降るかもしれないから傘を持って行った方がいいよ！</string>
+    <string name="key_e">絶好の散歩日和だよ、いってらっしゃい！</string>
+    <string name="key_r">大丈夫？無理しないでね！病院行ったら？</string>
+    <string name="key_t">すぐに良い人見つけて結婚するよ！</string>
+
+    <!-- Active Speak. -->
+    <string name="key_a">おはよう、今日はいい天気だね。でも夕方から雨が降るみたい</string>
+    <string name="key_s">大変！大杉漣さんが亡くなったんだって。悲しいね。</string>
+    <string name="key_d">最近だいぶ暖かくなってきたね。花粉症の人は大丈夫かな？</string>
+    <string name="key_f">タケノコが旬の季節だね。どんな料理にするとおいしいかなぁ？</string>
+    <string name="key_g">お腹が減ったよー</string>
+    <string name="key_h">今日は大相撲の千秋楽だね。 稀勢の里関は優勝出来るかなぁ？</string>
+    <string name="key_j">今日は七夕だね。夜の天気はいいみたい。天の川がキレイに見えるかなぁ？</string>
+    <string name="key_k">今日は3丁目のお肉屋さんで特売セールがあるよ</string>
+    <string name="key_l">今日は２丁目のお寺でお祭りがあるよ。楽しみだね！</string>
+
+    <!-- TV Watch -->
+    <string name="key_z">羽生君、オリンピック2大会連続金メダルだね、スゴイね！</string>
+
+
 
 </resources>
