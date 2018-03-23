@@ -2,6 +2,7 @@
     <string name="app_name">PetApp</string>
 
     <string name="overlay_switch_label">En/Disable overlay pet</string>
+    <string name="title_activity_black_screen">BlackScreenActivity</string>
 
     <!--
     <string name="script_a_0">hello</string>
@@ -41,7 +42,6 @@
     <string name="key_l">きょうは、2ちょうめの、おてらで、おまつりがあるよ。たのしみだね！</string>
 
     <string name="key_z">はにゅうくん、オリンピック2たいかいれんぞくきんメダルだね、スゴイね！</string>
-    <string name="title_activity_black_screen">BlackScreenActivity</string>
 
     <!--
     <string name="key_q">おはよう！</string>
