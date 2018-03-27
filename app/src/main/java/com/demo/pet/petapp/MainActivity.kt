@@ -1,6 +1,7 @@
 package com.demo.pet.petapp
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.SoundPool
@@ -30,6 +31,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         var userTtsEngine: String = TTSController.DEFAULT_ENGINE
+
+        public fun togglePet(isEnabled: Boolean, context:Context) {
+            val action: String = if (isEnabled) {
+                REQUEST_START_OVERLAY
+            } else {
+                REQUEST_STOP_OVERLAY
+            }
+            val service = Intent(action)
+            service.setClass(context , OverlayService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(service)
+            } else {
+                context.startService(service)
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,19 +70,10 @@ class MainActivity : AppCompatActivity() {
         override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
             debugLog("Overlay switch changed to : $isChecked")
 
-            val action: String = if (isChecked) {
-                // Enabled.
-                REQUEST_START_OVERLAY
-            } else {
-                // Disabled.
-                REQUEST_STOP_OVERLAY
-            }
-            val service = Intent(action)
-            service.setClass(this@MainActivity, OverlayService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(service)
-            } else {
-                startService(service)
+            togglePet(isChecked, this@MainActivity)
+
+            if (isChecked) {
+                finish()
             }
         }
     }
@@ -156,6 +163,9 @@ class MainActivity : AppCompatActivity() {
 
         key_1.setOnClickListener( { soundPool.play(soundWan, 1.0f, 1.0f, 0, 0, 1.0f) } )
         key_2.setOnClickListener( { soundPool.play(soundKuun, 1.0f, 1.0f, 0, 0, 1.0f) } )
+
+        key_5.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_5)) } )
+
     }
 
     private fun speakInputText() {

@@ -1,6 +1,7 @@
 package com.demo.pet.petapp
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.PixelFormat
 import android.media.AudioAttributes
 import android.media.SoundPool
@@ -147,6 +148,25 @@ class OverlayRootView : RelativeLayout {
 
                 KeyEvent.KEYCODE_1 -> { soundPool.play(soundWan, 1.0f, 1.0f, 0, 0, 1.0f) }
                 KeyEvent.KEYCODE_2 -> { soundPool.play(soundKuun, 1.0f, 1.0f, 0, 0, 1.0f) }
+
+                KeyEvent.KEYCODE_5 -> { ttsCtrl.speak(context.getString(R.string.key_5)) }
+
+                // Life-Cycle.
+                KeyEvent.KEYCODE_0 -> { MainActivity.togglePet(false, context) }
+                KeyEvent.KEYCODE_8 -> {
+                    val intent = Intent(context, BlackScreenActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                    context.startActivity(intent)
+                }
+                KeyEvent.KEYCODE_9 -> { BlackScreenActivity.finishAll() }
+                KeyEvent.KEYCODE_7 -> {
+                    val intent = Intent(Intent.ACTION_MAIN)
+                    intent.addCategory(Intent.CATEGORY_HOME)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                    context.startActivity(intent)
+                }
 
                 else -> {
                     debugLog("onKeyDown() : OTHER")
