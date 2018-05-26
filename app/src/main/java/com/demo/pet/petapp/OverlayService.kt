@@ -16,6 +16,8 @@ const val REQUEST_STOP_OVERLAY = "com.demo.pet.petapp.action.REQUEST_STOP_OVERLA
 
 class OverlayService : Service() {
 
+    private val IS_DEBUG = false || Log.IS_DEBUG
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -27,7 +29,7 @@ class OverlayService : Service() {
 
     @SuppressLint("NewApi")
     override fun onCreate() {
-        debugLog("OverlayService.onCreate()")
+        if (IS_DEBUG) debugLog("OverlayService.onCreate()")
         super.onCreate()
 
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -54,12 +56,12 @@ class OverlayService : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        debugLog("OverlayService.onStartCommand()")
+        if (IS_DEBUG) debugLog("OverlayService.onStartCommand()")
 
         val action = intent.action
 
         if (action == null) {
-            debugLog("Unexpected Intent action = null")
+            if (IS_DEBUG) debugLog("Unexpected Intent action = null")
         } else when (action) {
             REQUEST_START_OVERLAY -> {
                 rootView = View.inflate(this, R.layout.overlay_root_view, null) as OverlayRootView
@@ -84,7 +86,7 @@ class OverlayService : Service() {
     }
 
     override fun onDestroy() {
-        debugLog("OverlayService.onDestroy()")
+        if (IS_DEBUG) debugLog("OverlayService.onDestroy()")
         super.onDestroy()
 
         stopForeground(true)

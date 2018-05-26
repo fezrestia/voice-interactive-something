@@ -17,10 +17,13 @@ import kotlinx.android.synthetic.main.overlay_root_view.view.*
 
 class OverlayRootView : RelativeLayout {
 
+    private val IS_DEBUG = false || Log.IS_DEBUG
+
     private val winMng: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val winParams: WindowManager.LayoutParams
 
     private val ttsCtrl: TTSController
+    private val sttCtrl: STTController
 
     private val soundPool: SoundPool
     private val soundWan: Int
@@ -66,6 +69,8 @@ class OverlayRootView : RelativeLayout {
 
         // TTS.
         ttsCtrl = TTSController(context, MainActivity.userTtsEngine, SpeakStateCallbackImpl())
+        sttCtrl = STTController(context)
+        sttCtrl.startRecog()
 
         // Sound.
         val audioAttr = AudioAttributes.Builder()
@@ -77,7 +82,7 @@ class OverlayRootView : RelativeLayout {
                 .setMaxStreams(2)
                 .build()
         soundPool.setOnLoadCompleteListener(SoundPool.OnLoadCompleteListener() { soundPool, sampleId, status ->
-            debugLog("SoundPool.onLoadComplete() : ID=$sampleId")
+            if (IS_DEBUG) debugLog("SoundPool.onLoadComplete() : ID=$sampleId")
         } )
 
         soundWan = soundPool.load(context, R.raw.wan_wan, 1)
@@ -85,15 +90,15 @@ class OverlayRootView : RelativeLayout {
     }
 
     constructor(context: Context) : super(context) {
-        debugLog("OverlayRootView.CONSTRUCTOR_1")
+        if (IS_DEBUG) debugLog("OverlayRootView.CONSTRUCTOR_1")
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        debugLog("OverlayRootView.CONSTRUCTOR_2")
+        if (IS_DEBUG) debugLog("OverlayRootView.CONSTRUCTOR_2")
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
-        debugLog("OverlayRootView.CONSTRUCTOR_3")
+        if (IS_DEBUG) debugLog("OverlayRootView.CONSTRUCTOR_3")
     }
 
     fun initialize() {
@@ -110,6 +115,8 @@ class OverlayRootView : RelativeLayout {
     fun release() {
         renderer.stop()
         ttsCtrl.release()
+        sttCtrl.stopRecog()
+        sttCtrl.release()
         soundPool.release()
     }
 
@@ -125,7 +132,7 @@ class OverlayRootView : RelativeLayout {
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
         if (event != null && event.repeatCount == 0 && event.action == KeyEvent.ACTION_DOWN) {
-            debugLog("onKeyDown() : KEYCODE = ${event.displayLabel}")
+            if (IS_DEBUG) debugLog("onKeyDown() : KEYCODE = ${event.displayLabel}")
 
             when (event.keyCode) {
                 KeyEvent.KEYCODE_Q -> { ttsCtrl.speak(context.getString(R.string.key_q)) }
@@ -169,7 +176,7 @@ class OverlayRootView : RelativeLayout {
                 }
 
                 else -> {
-                    debugLog("onKeyDown() : OTHER")
+                    if (IS_DEBUG) debugLog("onKeyDown() : OTHER")
                     return false
                 }
             }
@@ -239,10 +246,10 @@ class OverlayRootView : RelativeLayout {
 
 /* DEMO
             if ((count / 30) % 2 == 0L) {
-                debugLog("pet.sit()")
+                if (IS_DEBUG) debugLog("pet.sit()")
                 pet.sit()
             } else {
-                debugLog("pet.stand()")
+                if (IS_DEBUG) debugLog("pet.stand()")
                 pet.stand()
             }
 */
@@ -257,7 +264,7 @@ class OverlayRootView : RelativeLayout {
         }
     }
 
-    private class RenderingTask(val pet: Pet, val handler: Handler) : Runnable {
+    private inner class RenderingTask(val pet: Pet, val handler: Handler) : Runnable {
         private var isActive = true
         private val INTERVAL = 1000L / 30
         private var count: Long = 0
@@ -272,7 +279,7 @@ class OverlayRootView : RelativeLayout {
         }
 
         override fun run() {
-            debugLog("renderer.run() : E")
+            if (IS_DEBUG) debugLog("renderer.run() : E")
 
             pet.render(count)
 
@@ -281,7 +288,7 @@ class OverlayRootView : RelativeLayout {
             if (isActive) {
                 handler.postDelayed(this, INTERVAL)
             }
-//            debugLog("renderer.run() : X")
+            if (IS_DEBUG) debugLog("renderer.run() : X")
         }
 
     }

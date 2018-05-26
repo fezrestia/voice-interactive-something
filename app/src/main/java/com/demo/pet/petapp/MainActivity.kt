@@ -18,6 +18,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    private val IS_DEBUG = false || Log.IS_DEBUG
+
     private var ttsCtrl: TTSController? = null
     private lateinit var installedEngines: List<TextToSpeech.EngineInfo>
 
@@ -49,7 +51,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        debugLog("onCreate()")
+        if (IS_DEBUG) debugLog("onCreate()")
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
@@ -62,13 +64,13 @@ class MainActivity : AppCompatActivity() {
         // Supported engines.
         installedEngines = TTSController.getSupportedEngines(this)
         installedEngines.forEach {
-            debugLog("Installed Engine = ${it.label}")
+            if (IS_DEBUG) debugLog("Installed Engine = ${it.label}")
         }
     }
 
     private inner class OnCheckedChangeListenerImpl : CompoundButton.OnCheckedChangeListener {
         override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
-            debugLog("Overlay switch changed to : $isChecked")
+            if (IS_DEBUG) debugLog("Overlay switch changed to : $isChecked")
 
             togglePet(isChecked, this@MainActivity)
 
@@ -79,7 +81,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        debugLog("onResume()")
+        if (IS_DEBUG) debugLog("onResume()")
         super.onResume()
 
         // Mandatory permission check.
@@ -110,7 +112,7 @@ class MainActivity : AppCompatActivity() {
                 .setMaxStreams(2)
                 .build()
         soundPool.setOnLoadCompleteListener(SoundPool.OnLoadCompleteListener() { soundPool, sampleId, status ->
-            debugLog("SoundPool.onLoadComplete() : ID=$sampleId")
+            if (IS_DEBUG) debugLog("SoundPool.onLoadComplete() : ID=$sampleId")
         } )
 
         soundWan = soundPool.load(this, R.raw.wan_wan, 1)
@@ -133,7 +135,7 @@ class MainActivity : AppCompatActivity() {
 
                     ttsCtrl = TTSController(this@MainActivity, userTtsEngine)
 
-                    debugLog("TTS Engine selected = $userTtsEngine")
+                    if (IS_DEBUG) debugLog("TTS Engine selected = $userTtsEngine")
                 })
         engine_selector.removeAllViews()
         installedEngines.forEach {
@@ -171,13 +173,13 @@ class MainActivity : AppCompatActivity() {
     private fun speakInputText() {
         val text = input_text.text.toString()
 
-        debugLog("speakInputText() : text = $text")
+        if (IS_DEBUG) debugLog("speakInputText() : text = $text")
 
         ttsCtrl?.speak(text)
     }
 
     override fun onPause() {
-        debugLog("onPause()")
+        if (IS_DEBUG) debugLog("onPause()")
         super.onPause()
 
         ttsCtrl?.release()
