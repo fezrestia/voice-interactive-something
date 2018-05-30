@@ -13,6 +13,8 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import com.demo.pet.petapp.conversations.OhayouKatchy
+import com.demo.pet.petapp.conversations.VoiceInteractionStrategy
 import kotlinx.android.synthetic.main.overlay_root_view.view.*
 
 class OverlayRootView : RelativeLayout {
@@ -24,6 +26,8 @@ class OverlayRootView : RelativeLayout {
 
     private val ttsCtrl: TTSController
     private val sttCtrl: STTController
+
+    private val strategy: VoiceInteractionStrategy
 
     private val soundPool: SoundPool
     private val soundWan: Int
@@ -70,6 +74,25 @@ class OverlayRootView : RelativeLayout {
         // TTS.
         ttsCtrl = TTSController(context, MainActivity.userTtsEngine, SpeakStateCallbackImpl())
         sttCtrl = STTController(context)
+        // Strategy.
+        strategy = OhayouKatchy(context)
+        strategy.configureKeywordFilter(sttCtrl)
+        strategy.setSpeakOutRequestCallback( { text: String ->
+
+                if (!text.isEmpty()) {
+
+                    if (sttCtrl.isResumed()) {
+                        sttCtrl.pauseRecog()
+                    }
+
+                    ttsCtrl.speak(text)
+
+                    handler.postDelayed({ sttCtrl.resumeRecog() }, 2000)
+
+
+                }
+
+        } )
         sttCtrl.startRecog()
 
         // Sound.
@@ -115,6 +138,7 @@ class OverlayRootView : RelativeLayout {
     fun release() {
         renderer.stop()
         ttsCtrl.release()
+        strategy.release(sttCtrl)
         sttCtrl.stopRecog()
         sttCtrl.release()
         soundPool.release()

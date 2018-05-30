@@ -7,9 +7,22 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 
+/**
+ * Speech to Text function controller.
+ */
 class STTController(context: Context) {
 
     private val IS_DEBUG = true || Log.IS_DEBUG
+
+    /**
+     * Keyword filter interface for Speech2Text converter.
+     */
+    public interface KeywordFilterCallback {
+        /**
+         * Keyword is detected.
+         */
+        fun onDetected(keyword: String)
+    }
 
     companion object {
         public fun isSupported(context: Context): Boolean {
@@ -19,6 +32,10 @@ class STTController(context: Context) {
 
     private val speechRecogIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
     private val speechRecog: SpeechRecognizer
+
+    private val keywordVsFilter: MutableMap<String, KeywordFilterCallback> = HashMap()
+
+    private var isEnabled = true
 
     init {
         speechRecogIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -30,12 +47,39 @@ class STTController(context: Context) {
 
     }
 
+    public fun registerKeywordFilter(keywords: List<String>, filter: KeywordFilterCallback) {
+        keywords.forEach { keyword: String -> keywordVsFilter[keyword] = filter }
+    }
+
+    public fun unregisterKeywordFilter(keywords: List<String>) {
+        keywords.forEach { keyword: String -> keywordVsFilter.remove(keyword) }
+    }
+
+    public fun clearFilter() {
+        keywordVsFilter.clear()
+    }
+
+    public fun pauseRecog() {
+        if (IS_DEBUG) debugLog("recog PAUSE")
+        isEnabled = false
+    }
+
+    public fun resumeRecog() {
+        if (IS_DEBUG) debugLog("recog RESUME")
+        isEnabled = true
+    }
+
+    public fun isResumed(): Boolean {
+        return isEnabled
+    }
+
     public fun release() {
         stopRecog()
         speechRecog.destroy()
+        keywordVsFilter.clear()
     }
 
-    inner class SpeechRecognitionListenerImpl : RecognitionListener {
+    private inner class SpeechRecognitionListenerImpl : RecognitionListener {
         override fun onBufferReceived(buffer: ByteArray?) {
             if (IS_DEBUG) debugLog("STTCtrl.Callback.onBufferReceived()")
 
@@ -119,6 +163,14 @@ class STTController(context: Context) {
                 for (text in recogTexts) {
                     if (IS_DEBUG) debugLog("    $text")
                 }
+
+
+                if (isEnabled) {
+                    keywordVsFilter.values.first().onDetected(recogTexts.first())
+                }
+
+
+
             }
         }
 

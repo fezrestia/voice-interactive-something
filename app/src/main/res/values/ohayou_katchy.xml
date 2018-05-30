@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array
+        name="ohayou_katchy_keywords"
+    >
+        <item>hi</item>
+        <item>hello</item>
+    </string-array>
+
+</resources>
