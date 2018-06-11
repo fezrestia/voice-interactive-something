@@ -15,6 +15,9 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import com.demo.pet.petapp.conversations.OhayouKatchy
 import com.demo.pet.petapp.conversations.VoiceInteractionStrategy
+import com.demo.pet.petapp.stt.STTController
+import com.demo.pet.petapp.stt.STTType
+import com.demo.pet.petapp.stt.createSTTController
 import kotlinx.android.synthetic.main.overlay_root_view.view.*
 
 class OverlayRootView : RelativeLayout {
@@ -73,23 +76,14 @@ class OverlayRootView : RelativeLayout {
 
         // TTS.
         ttsCtrl = TTSController(context, MainActivity.userTtsEngine, SpeakStateCallbackImpl())
-        sttCtrl = STTController(context)
+        sttCtrl = createSTTController(context, STTType.POCKET_SPHINX)
         // Strategy.
         strategy = OhayouKatchy(context)
         strategy.configureKeywordFilter(sttCtrl)
         strategy.setSpeakOutRequestCallback( { text: String ->
 
                 if (!text.isEmpty()) {
-
-                    if (sttCtrl.isResumed()) {
-                        sttCtrl.pauseRecog()
-                    }
-
-                    ttsCtrl.speak(text)
-
-                    handler.postDelayed({ sttCtrl.resumeRecog() }, 2000)
-
-
+//                    ttsCtrl.speak(text)
                 }
 
         } )

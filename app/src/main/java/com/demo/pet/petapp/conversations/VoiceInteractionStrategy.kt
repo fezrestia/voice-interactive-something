@@ -1,6 +1,6 @@
 package com.demo.pet.petapp.conversations
 
-import com.demo.pet.petapp.STTController
+import com.demo.pet.petapp.stt.STTController
 
 /**
  * Voice interaction strategy interface.

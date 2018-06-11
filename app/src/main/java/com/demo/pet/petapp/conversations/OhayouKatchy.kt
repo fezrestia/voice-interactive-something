@@ -3,7 +3,7 @@ package com.demo.pet.petapp.conversations
 import android.content.Context
 import android.widget.Toast
 import com.demo.pet.petapp.R
-import com.demo.pet.petapp.STTController
+import com.demo.pet.petapp.stt.STTController
 import com.demo.pet.petapp.debugLog
 
 class OhayouKatchy(val context: Context) : VoiceInteractionStrategy {
