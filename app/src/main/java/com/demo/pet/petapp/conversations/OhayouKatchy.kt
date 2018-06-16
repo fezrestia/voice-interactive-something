@@ -25,13 +25,22 @@ class OhayouKatchy(val context: Context) : VoiceInteractionStrategy {
 
             debugLog("## KEYWORD = $keyword is DETECTED")
 
-            Toast.makeText(context, "## KEYWORD = $keyword is DETECTED", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "KATCHY << $keyword", Toast.LENGTH_SHORT).show()
 
-            val speakOut = speakOutCallback
-            if (speakOut != null) {
-                speakOut(keyword)
+            val outword = when (keyword) {
+                "ohayou" -> {
+                    "おはようございます"
+                }
+                "konnichiwa" -> {
+                    "こんばんわ"
+                }
+                else -> {
+                    "よくわかりません"
+                }
             }
 
+            val speakOut = speakOutCallback
+            speakOut?.invoke(outword)
         }
     }
 

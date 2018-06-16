@@ -4,8 +4,8 @@
     <string-array
         name="ohayou_katchy_keywords"
     >
-        <item>hi</item>
-        <item>hello</item>
+        <item>konnichiwa</item>
+        <item>ohayou</item>
     </string-array>
 
 </resources>

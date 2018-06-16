@@ -76,6 +76,7 @@ class STTControllerPocketSphinx(val context: Context) : STTController {
     }
 
     override fun stopRecog() {
+        recognizer.cancel()
         recognizer.stop()
         isActive = false
     }
@@ -90,8 +91,6 @@ class STTControllerPocketSphinx(val context: Context) : STTController {
     }
 
     private inner class RecognitionListenerImpl : RecognitionListener {
-        private var isSpeaking = false
-
         override fun onResult(hypothesis: Hypothesis?) {
             if (hypothesis == null) {
                 return
@@ -108,15 +107,17 @@ class STTControllerPocketSphinx(val context: Context) : STTController {
             if (hypothesis == null) {
                 return
             }
-            if (!isSpeaking) {
-                debugLog("onPartialResult() : NOT on Speaking")
-                return
-            }
 
             val phrase = hypothesis.hypstr
-
             debugLog("## PARTIAL DETECT = $phrase")
 
+            keywordVsFilter.forEach { key, value ->
+                if (key == phrase) {
+                    value.onDetected(key)
+                }
+            }
+
+            restartRecog()
         }
 
         override fun onTimeout() {
@@ -127,15 +128,10 @@ class STTControllerPocketSphinx(val context: Context) : STTController {
 
         override fun onBeginningOfSpeech() {
             debugLog("onBeginningOfSpeech()")
-
-            isSpeaking = true
         }
 
         override fun onEndOfSpeech() {
             debugLog("onEndOfSpeech()")
-
-            isSpeaking = false
-            restartRecog()
         }
 
         override fun onError(error: Exception?) {

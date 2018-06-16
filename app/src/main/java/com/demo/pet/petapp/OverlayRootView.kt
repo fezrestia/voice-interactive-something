@@ -80,13 +80,8 @@ class OverlayRootView : RelativeLayout {
         // Strategy.
         strategy = OhayouKatchy(context)
         strategy.configureKeywordFilter(sttCtrl)
-        strategy.setSpeakOutRequestCallback( { text: String ->
-
-                if (!text.isEmpty()) {
-//                    ttsCtrl.speak(text)
-                }
-
-        } )
+        strategy.setSpeakOutRequestCallback( { text: String -> ttsCtrl.speak(text) } )
+        sttCtrl.ready()
         sttCtrl.startRecog()
 
         // Sound.
