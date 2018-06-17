@@ -11,9 +11,9 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.speech.tts.TextToSpeech
-import android.widget.CompoundButton
-import android.widget.RadioButton
-import android.widget.RadioGroup
+import android.view.View
+import android.widget.*
+import com.demo.pet.petapp.stt.STTType
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -65,6 +65,45 @@ class MainActivity : AppCompatActivity() {
         installedEngines = TTSController.getSupportedEngines(this)
         installedEngines.forEach {
             if (IS_DEBUG) debugLog("Installed Engine = ${it.label}")
+        }
+
+        setupSTTEngineSelector(this)
+    }
+
+    private fun setupSTTEngineSelector(context: Context) {
+        val spinner: Spinner = findViewById(R.id.stt_eigine_selector)
+        spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                PetApplication.getSP().edit().putString(
+                        Constants.KEY_STT_TYPE,
+                        Constants.VAL_STT_TYPE_SPHINX)
+                        .apply()
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val item: String = parent?.getSelectedItem() as String
+                when (item) {
+                    "Android" -> {
+                        PetApplication.getSP().edit().putString(
+                                Constants.KEY_STT_TYPE,
+                                Constants.VAL_STT_TYPE_ANDROID)
+                                .apply()
+
+                    }
+                    "PocketSphinx" -> {
+                        PetApplication.getSP().edit().putString(
+                                Constants.KEY_STT_TYPE,
+                                Constants.VAL_STT_TYPE_SPHINX)
+                                .apply()
+                    }
+                    else -> {
+                        PetApplication.getSP().edit().putString(
+                                Constants.KEY_STT_TYPE,
+                                Constants.VAL_STT_TYPE_SPHINX)
+                                .apply()
+                    }
+                }
+            }
         }
     }
 

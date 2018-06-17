@@ -412,6 +412,15 @@
                         android:text="@string/key_5"/>
                 </LinearLayout>
             </LinearLayout>
+
+            <!-- Select SST Engine -->
+            <Spinner
+                android:id="@+id/stt_eigine_selector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/stt_engine_options"
+            />
+
         </LinearLayout>
 
     </ScrollView>

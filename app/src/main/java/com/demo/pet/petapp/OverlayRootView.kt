@@ -74,9 +74,22 @@ class OverlayRootView : RelativeLayout {
         // UI thread.
         uiHandler = Handler()
 
-        // TTS.
+        // TTS and STT.
         ttsCtrl = TTSController(context, MainActivity.userTtsEngine, SpeakStateCallbackImpl())
-        sttCtrl = createSTTController(context, STTType.POCKET_SPHINX)
+        val sttType = PetApplication.getSP().getString(
+                Constants.KEY_STT_TYPE,
+                Constants.VAL_STT_TYPE_SPHINX)
+        sttCtrl = when (sttType) {
+            Constants.VAL_STT_TYPE_ANDROID -> {
+                createSTTController(context, STTType.ANDROID_SPEECH_RECOGNIZER)
+            }
+            Constants.VAL_STT_TYPE_SPHINX -> {
+                createSTTController(context, STTType.POCKET_SPHINX)
+            }
+            else -> {
+                createSTTController(context, STTType.POCKET_SPHINX)
+            }
+        }
         // Strategy.
         strategy = OhayouKatchy(context)
         strategy.configureKeywordFilter(sttCtrl)
