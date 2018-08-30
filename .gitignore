@@ -6,3 +6,4 @@
 /build
 /captures
 .externalNativeBuild
+/pocketsphinx-models/build

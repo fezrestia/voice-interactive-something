@@ -20,6 +20,8 @@ import com.demo.pet.petapp.stt.STTType
 import com.demo.pet.petapp.stt.createSTTController
 import kotlinx.android.synthetic.main.overlay_root_view.view.*
 
+import com.demo.pet.petapp.activespeak.FaceTrigger
+
 class OverlayRootView : RelativeLayout {
 
     private val IS_DEBUG = false || Log.IS_DEBUG
@@ -48,6 +50,9 @@ class OverlayRootView : RelativeLayout {
     private lateinit var renderer: RenderingTask
 
     private val uiHandler: Handler
+
+    private var faceTrigger: FaceTrigger? = null
+    private var faceTriggerCallback: FaceTriggerCallback? = null
 
     init {
         var overlayType: Int
@@ -154,6 +159,37 @@ class OverlayRootView : RelativeLayout {
     fun removeFromOverlayWindow() {
         winMng.removeView(this)
         isOverlayActive = false
+    }
+
+    fun setFaceTrigger(trigger: FaceTrigger?) {
+        if (trigger == null) {
+            faceTrigger?.setCallback(null)
+        } else {
+            trigger.setCallback(FaceTriggerCallback())
+        }
+        faceTrigger = trigger
+    }
+
+    var lastFaceDetectedTimeMillis : Long = 0
+    val faceDetectionTimeoutMillis : Long = 60 * 1000
+
+    private inner class FaceTriggerCallback : FaceTrigger.Callback {
+        override fun onFaceDetected() {
+
+            val now = System.currentTimeMillis()
+            if (now - lastFaceDetectedTimeMillis > faceDetectionTimeoutMillis) {
+
+
+                lastFaceDetectedTimeMillis = now
+
+
+                ttsCtrl.speak(context.getString(R.string.key_a))
+
+
+            }
+
+
+        }
     }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
