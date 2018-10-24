@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 PetApplication.getSP().edit().putString(
                         Constants.KEY_STT_TYPE,
-                        Constants.VAL_STT_TYPE_SPHINX)
+                        STTType.POCKET_SPHINX.toString())
                         .apply()
             }
 
@@ -86,20 +86,26 @@ class MainActivity : AppCompatActivity() {
                     "Android" -> {
                         PetApplication.getSP().edit().putString(
                                 Constants.KEY_STT_TYPE,
-                                Constants.VAL_STT_TYPE_ANDROID)
+                                STTType.ANDROID_SPEECH_RECOGNIZER.toString())
                                 .apply()
 
                     }
                     "PocketSphinx" -> {
                         PetApplication.getSP().edit().putString(
                                 Constants.KEY_STT_TYPE,
-                                Constants.VAL_STT_TYPE_SPHINX)
+                                STTType.POCKET_SPHINX.toString())
+                                .apply()
+                    }
+                    "GoogleWebApi" -> {
+                        PetApplication.getSP().edit().putString(
+                                Constants.KEY_STT_TYPE,
+                                STTType.GOOGLE_WEB_API.toString())
                                 .apply()
                     }
                     else -> {
                         PetApplication.getSP().edit().putString(
                                 Constants.KEY_STT_TYPE,
-                                Constants.VAL_STT_TYPE_SPHINX)
+                                STTType.POCKET_SPHINX.toString())
                                 .apply()
                     }
                 }

@@ -28,12 +28,22 @@ class OhayouKatchy(val context: Context) : VoiceInteractionStrategy {
             Toast.makeText(context, "KATCHY << $keyword", Toast.LENGTH_SHORT).show()
 
             val outword = when (keyword) {
+                // Sphinx
                 "ohayou" -> {
                     "おはようございます"
                 }
                 "konnichiwa" -> {
                     "こんばんわ"
                 }
+
+                // Google Speech API.
+                "おはよう" -> {
+                    "おはようございます"
+                }
+                "こんにちは" -> {
+                    "こんにちわ"
+                }
+
                 else -> {
                     "よくわかりません"
                 }

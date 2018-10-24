@@ -9,3 +9,7 @@ object Log {
 fun debugLog(msg: String) {
     android.util.Log.e("TraceLog", msg)
 }
+
+fun errorLog(msg: String) {
+    android.util.Log.e("TraceLog", "ERROR: $msg")
+}

@@ -1,5 +1,6 @@
 package com.demo.pet.petapp.activespeak
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.ImageFormat
 import android.hardware.camera2.*
@@ -66,6 +67,7 @@ class FaceTrigger(val context: Context) {
     private inner class OpenTask : Runnable {
         val done = CountDownLatch(1)
 
+        @SuppressLint("MissingPermission")
         override fun run() {
             if (Log.IS_DEBUG) debugLog("FaceTrigger.OpenTask : E")
 
@@ -96,21 +98,21 @@ class FaceTrigger(val context: Context) {
 
         private inner class StateCallback() : CameraDevice.StateCallback() {
             override fun onDisconnected(camera: CameraDevice?) {
-                debugLog("FaceTrigger.OpenTask.onDisconnected()")
+                if (Log.IS_DEBUG) debugLog("FaceTrigger.OpenTask.onDisconnected()")
             }
 
             override fun onError(camera: CameraDevice?, error: Int) {
-                debugLog("FaceTrigger.OpenTask.onError()")
+                if (Log.IS_DEBUG) debugLog("FaceTrigger.OpenTask.onError()")
             }
 
             override fun onOpened(camera: CameraDevice?) {
-                debugLog("FaceTrigger.OpenTask.onOpened() : E")
+                if (Log.IS_DEBUG) debugLog("FaceTrigger.OpenTask.onOpened() : E")
 
                 cameraDevice = camera
 
                 done.countDown()
 
-                debugLog("FaceTrigger.OpenTask.onOpened() : X")
+                if (Log.IS_DEBUG) debugLog("FaceTrigger.OpenTask.onOpened() : X")
             }
         }
     }
@@ -192,11 +194,11 @@ class FaceTrigger(val context: Context) {
             if (Log.IS_DEBUG) debugLog("FaceTrigger.CaptureCallback.onCaptureCompleted() : E")
                 super.onCaptureCompleted(session, request, result)
 
-                debugLog("FaceTrigger.CaptureCallback.onCaptureCompleted() : E")
+                if (Log.IS_DEBUG) debugLog("FaceTrigger.CaptureCallback.onCaptureCompleted() : E")
 
                 val faces = result?.get(CaptureResult.STATISTICS_FACES)
 
-                debugLog("FaceTrigger DETECTED FACES = " + faces?.size)
+                if (Log.IS_DEBUG) debugLog("FaceTrigger DETECTED FACES = " + faces?.size)
 
 
                 if (faces != null) {

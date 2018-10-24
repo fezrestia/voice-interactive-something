@@ -4,8 +4,14 @@
     <string-array
         name="ohayou_katchy_keywords"
     >
+        <!-- Sphinx -->
         <item>konnichiwa</item>
         <item>ohayou</item>
+
+        <!-- Google Speech API -->
+        <item>おはよう</item>
+        <item>こんにちは</item>
+
     </string-array>
 
 </resources>

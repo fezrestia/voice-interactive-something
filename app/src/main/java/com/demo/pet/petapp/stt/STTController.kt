@@ -9,6 +9,7 @@ import com.demo.pet.petapp.debugLog
 enum class STTType {
     ANDROID_SPEECH_RECOGNIZER,
     POCKET_SPHINX,
+    GOOGLE_WEB_API,
 }
 
 fun createSTTController(context: Context, type: STTType): STTController {
@@ -22,6 +23,12 @@ fun createSTTController(context: Context, type: STTType): STTController {
         }
         STTType.POCKET_SPHINX -> {
             STTControllerPocketSphinx(context)
+        }
+        STTType.GOOGLE_WEB_API -> {
+            STTControllerGoogleCloudApi(context)
+        }
+        else -> {
+            throw RuntimeException("Unsupported STT Engine. $type")
         }
     }
 }
