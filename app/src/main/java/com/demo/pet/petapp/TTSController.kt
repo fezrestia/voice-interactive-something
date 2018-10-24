@@ -4,10 +4,18 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 
+/**
+ * Text to Speech implementation type.
+ */
+enum class TTSType {
+    ANDROID,
+}
+
 class TTSController(
         private val context: Context,
-        ttsEngine: String,
-        var stateCallback: SpeakStateCallback?) {
+        private var ttsType: TTSType,
+        private var subType: String?,
+        private var stateCallback: SpeakStateCallback?) {
     private val IS_DEBUG = false || Log.IS_DEBUG
 
     private val tts: TextToSpeech
@@ -26,20 +34,25 @@ class TTSController(
     }
 
     // Default engine with no callback.
-    constructor(context: Context) : this(context, DEFAULT_ENGINE, null)
+    constructor(context: Context) : this(context, TTSType.ANDROID, null, null)
     // Specific engine with no callback.
-    constructor(context: Context, ttsEngine: String) : this(context, ttsEngine, null)
+    constructor(context: Context, ttsEngine: String) : this(context, TTSType.ANDROID, ttsEngine, null)
 
     init {
         if (IS_DEBUG) debugLog("TTSCtrl.init()")
 
-        if (ttsEngine == DEFAULT_ENGINE) {
-            if (IS_DEBUG) debugLog("Init TTS with Default Engine.")
-            tts = TextToSpeech(context, TTSOnInitCallback())
-        } else {
-            if (IS_DEBUG) debugLog("Init TTS with Engine = $ttsEngine.")
-            tts = TextToSpeech(context, TTSOnInitCallback(), ttsEngine)
+        when (ttsType) {
+            TTSType.ANDROID -> {
+                if (subType == null) {
+                    if (IS_DEBUG) debugLog("Init TTS with Default Engine.")
+                    tts = TextToSpeech(context, TTSOnInitCallback())
+                } else {
+                    if (IS_DEBUG) debugLog("Init TTS with Engine = $subType")
+                    tts = TextToSpeech(context, TTSOnInitCallback(), subType)
+                }
+            }
         }
+
         tts.setOnUtteranceProgressListener(TTSOnProgressCallback())
     }
 

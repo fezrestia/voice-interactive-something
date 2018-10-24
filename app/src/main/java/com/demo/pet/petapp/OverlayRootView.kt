@@ -52,7 +52,6 @@ class OverlayRootView : RelativeLayout {
     private val uiHandler: Handler
 
     private var faceTrigger: FaceTrigger? = null
-    private var faceTriggerCallback: FaceTriggerCallback? = null
 
     init {
         var overlayType: Int
@@ -80,10 +79,17 @@ class OverlayRootView : RelativeLayout {
         uiHandler = Handler()
 
         // TTS and STT.
-        ttsCtrl = TTSController(context, MainActivity.userTtsEngine, SpeakStateCallbackImpl())
+        val ttsType = PetApplication.getSP().getString(
+                Constants.KEY_TTS_TYPE,
+                TTSType.ANDROID.toString())
+        ttsCtrl = TTSController(
+                context,
+                TTSType.valueOf(ttsType),
+                null,
+                SpeakStateCallbackImpl())
         val sttType = PetApplication.getSP().getString(
                 Constants.KEY_STT_TYPE,
-                STTType.POCKET_SPHINX.toString())
+                STTType.GOOGLE_WEB_API.toString())
         sttCtrl = createSTTController(context, STTType.valueOf(sttType))
 
         // Strategy.

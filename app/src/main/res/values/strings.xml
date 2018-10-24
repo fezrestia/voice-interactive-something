@@ -4,6 +4,9 @@
     <string name="overlay_switch_label">En/Disable overlay pet</string>
     <string name="title_activity_black_screen">BlackScreenActivity</string>
 
+    <string name="main_activity_label">PetApp</string>
+    <string name="main_activity_2_label">PetApp2</string>
+
     <!--
     <string name="script_a_0">hello</string>
     <string name="script_a_1">world</string>
