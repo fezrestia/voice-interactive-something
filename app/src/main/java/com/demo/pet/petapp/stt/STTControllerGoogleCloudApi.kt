@@ -3,6 +3,7 @@
 package com.demo.pet.petapp.stt
 
 import android.content.Context
+import android.widget.TextView
 import com.demo.pet.petapp.debugLog
 
 /**
@@ -18,6 +19,8 @@ class STTControllerGoogleCloudApi(val context: Context) : STTController {
     private val keywordVsFilter: MutableMap<String, STTController.KeywordFilterCallback> = HashMap()
 
     private var isActive = false
+
+    var debugMsg: TextView? = null
 
     init {
         val api = GoogleSpeechApi(context)
@@ -95,6 +98,9 @@ class STTControllerGoogleCloudApi(val context: Context) : STTController {
             } else {
                 if (IS_DEBUG) debugLog("RECOG = $text")
             }
+
+            // Debug.
+            debugMsg?.text = text
 
             if (isEnd) {
                 keywordVsFilter.forEach { key, filter ->

@@ -6,36 +6,41 @@
     android:layout_height="match_parent"
     tools:context="com.demo.pet.petapp.MainActivity">
 
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+    >
 
-        <LinearLayout
+        <include layout="@layout/scroll_view_separator" />
+
+        <!-- En/Disable -->
+        <Switch
+            android:id="@+id/overlay_switch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-        >
+            android:text="@string/overlay_switch_label"
+        />
 
-            <include layout="@layout/scroll_view_separator" />
+        <include layout="@layout/scroll_view_separator" />
 
-            <!-- En/Disable -->
-            <Switch
-                android:id="@+id/overlay_switch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/overlay_switch_label"
-            />
+        <ListView
+            android:id="@+id/conversation_protocol_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+        />
 
-            <include layout="@layout/scroll_view_separator" />
+        <include layout="@layout/scroll_view_separator" />
 
+        <include layout="@layout/conversation_protocol_list_item_input" />
 
+        <Button
+            android:id="@+id/add_protocol"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ADD"
+        />
 
-
-
-
-
-        </LinearLayout>
-
-    </ScrollView>
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

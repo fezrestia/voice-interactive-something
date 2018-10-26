@@ -13,6 +13,7 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.TextView
 import com.demo.pet.petapp.conversations.OhayouKatchy
 import com.demo.pet.petapp.conversations.VoiceInteractionStrategy
 import com.demo.pet.petapp.stt.STTController
@@ -21,6 +22,8 @@ import com.demo.pet.petapp.stt.createSTTController
 import kotlinx.android.synthetic.main.overlay_root_view.view.*
 
 import com.demo.pet.petapp.activespeak.FaceTrigger
+import com.demo.pet.petapp.conversations.UserDefinitions
+import com.demo.pet.petapp.stt.STTControllerGoogleCloudApi
 
 class OverlayRootView : RelativeLayout {
 
@@ -93,9 +96,18 @@ class OverlayRootView : RelativeLayout {
         sttCtrl = createSTTController(context, STTType.valueOf(sttType))
 
         // Strategy.
-        strategy = OhayouKatchy(context)
+        strategy = when(STTType.valueOf(sttType)) {
+            STTType.GOOGLE_WEB_API -> {
+                UserDefinitions(context)
+            }
+            STTType.ANDROID_SPEECH_RECOGNIZER, STTType.POCKET_SPHINX -> {
+                OhayouKatchy(context)
+            }
+        }
         strategy.configureKeywordFilter(sttCtrl)
-        strategy.setSpeakOutRequestCallback( { text: String -> ttsCtrl.speak(text) } )
+        strategy.setSpeakOutRequestCallback { text: String -> ttsCtrl.speak(text) }
+
+        // Start.
         sttCtrl.ready()
         sttCtrl.startRecog()
 
@@ -137,6 +149,10 @@ class OverlayRootView : RelativeLayout {
         renderer = RenderingTask(pet, uiHandler)
         renderer.start()
 
+        // Debug msg.
+        if (sttCtrl is STTControllerGoogleCloudApi) {
+            sttCtrl.debugMsg = debug_msg
+        }
     }
 
     fun release() {
