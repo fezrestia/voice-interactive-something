@@ -2,9 +2,11 @@
 
 package com.demo.pet.petapp
 
-import android.annotation.SuppressLint
+import android.Manifest
+import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
@@ -76,7 +78,7 @@ class MainActivity2 : AppCompatActivity() {
         }
     }
 
-    private inner class OnAddProtocolClickListenerImpl() : View.OnClickListener {
+    private inner class OnAddProtocolClickListenerImpl : View.OnClickListener {
         override fun onClick(view: View?) {
 
             val inKeyword = input_in_keyword.text.toString()
@@ -172,20 +174,14 @@ class MainActivity2 : AppCompatActivity() {
         private val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
         override fun getView(position: Int, view: View?, parent: ViewGroup?): View {
-            val itemView: View
-
             // Initialize.
-            if (view == null) {
-                itemView = inflater.inflate(itemLayoutId, parent, false)
-            } else {
-                itemView = view
-            }
+            val itemView = view ?: inflater.inflate(itemLayoutId, parent, false)
 
             val protocol = keywordProtocols[position]
             itemView.in_keyword.text = protocol.inKeyword
             itemView.out_keyword.text = protocol.outKeyword
 
-            itemView.del_button.setOnClickListener { _: View ->
+            itemView.del_button.setOnClickListener {
                 keywordProtocols.removeAt(position)
                 notifyDataSetChanged()
             }
@@ -208,43 +204,94 @@ class MainActivity2 : AppCompatActivity() {
 
     //// RUNTIME PERMISSION SUPPORT.
 
-    @Suppress("PrivatePropertyName")
-    private val REQ_CODE_OVERLAY_PERMISSION: Int = 1000
+    private val requestCodeManageOverlayPermission = 100
+    private val requestCodeManagePermissions = 200
 
-    @SuppressLint("ObsoleteSdkInt")
-    private fun isSystemAlertWindowPermissionGranted(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Settings.canDrawOverlays(this)
-        } else {
-            true
-        }
-    }
+    private val isRuntimePermissionRequired: Boolean
+        get() = Build.VERSION_CODES.M <= Build.VERSION.SDK_INT
 
-    @SuppressLint("InlinedApi", "ObsoleteSdkInt")
+    private val isSystemAlertWindowPermissionGranted: Boolean
+        @TargetApi(Build.VERSION_CODES.M)
+        get() = Settings.canDrawOverlays(this)
+
+    private val isCameraPermissionGranted: Boolean
+        @TargetApi(Build.VERSION_CODES.M)
+        get() = (checkSelfPermission(Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED)
+
+    private val isMicPermissionGranted: Boolean
+        @TargetApi(Build.VERSION_CODES.M)
+        get() = (checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_GRANTED)
+
+    /**
+     * Check permission.
+     *
+     * @return immediateReturnRequired
+     */
+    @TargetApi(Build.VERSION_CODES.M)
     private fun checkMandatoryPermissions(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                && !isSystemAlertWindowPermissionGranted()) {
-            // Start permission setting.
-            val intent = Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName"))
-            startActivityForResult(intent, REQ_CODE_OVERLAY_PERMISSION)
-            return true
+        if (Log.IS_DEBUG) debugLog("checkMandatoryPermissions()")
+
+        if (isRuntimePermissionRequired) {
+            if (!isSystemAlertWindowPermissionGranted) {
+                // Start permission setting.
+                val intent = Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName"))
+                startActivityForResult(intent, requestCodeManageOverlayPermission)
+
+                return true
+            }
+
+            val permissions = mutableListOf<String>()
+
+            if (!isCameraPermissionGranted) {
+                permissions.add(Manifest.permission.CAMERA)
+            }
+            if (!isMicPermissionGranted) {
+                permissions.add(Manifest.permission.RECORD_AUDIO)
+            }
+
+            return if (!permissions.isEmpty()) {
+                requestPermissions(
+                        permissions.toTypedArray(),
+                        requestCodeManagePermissions)
+                true
+            } else {
+                false
+            }
+        } else {
+            return false
         }
-        return false
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
-        if (requestCode == REQ_CODE_OVERLAY_PERMISSION) {
-            if (!isSystemAlertWindowPermissionGranted()) {
+        if (Log.IS_DEBUG) debugLog("onActivityResult()")
+
+        if (requestCode == requestCodeManageOverlayPermission) {
+            if (!isSystemAlertWindowPermissionGranted) {
+                if (Log.IS_DEBUG) debugLog("  Overlay permission is not granted yet.")
                 finish()
             }
         }
-        super.onActivityResult(requestCode, resultCode, intent)
     }
 
+    override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<String>,
+            grantResults: IntArray) {
+        if (Log.IS_DEBUG) debugLog("onRequestPermissionsResult()")
+
+        if (requestCode == requestCodeManagePermissions) {
+            if (!isCameraPermissionGranted) {
+                if (Log.IS_DEBUG) debugLog("  Camera permission is not granted yet.")
+                finish()
+            }
+            if (!isMicPermissionGranted) {
+                if (Log.IS_DEBUG) debugLog("  Mic permission is not granted yet.")
+                finish()
+            }
+        }
+    }
 }
-
-
-
-
