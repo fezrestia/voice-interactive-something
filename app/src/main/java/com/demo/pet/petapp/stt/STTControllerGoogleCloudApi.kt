@@ -3,6 +3,8 @@
 package com.demo.pet.petapp.stt
 
 import android.content.Context
+import android.graphics.Color
+import android.view.View
 import android.widget.TextView
 import com.demo.pet.petapp.debugLog
 
@@ -21,6 +23,7 @@ class STTControllerGoogleCloudApi(val context: Context) : STTController {
     private var isActive = false
 
     var debugMsg: TextView? = null
+    var voiceLevel: View? = null
 
     init {
         val api = GoogleSpeechApi(context)
@@ -73,6 +76,7 @@ class STTControllerGoogleCloudApi(val context: Context) : STTController {
             isActive = true
             webApi?.startRecog(samplingRate)
 
+            voiceLevel?.setBackgroundColor(Color.RED)
         }
 
         override fun onStopped() {
@@ -81,6 +85,17 @@ class STTControllerGoogleCloudApi(val context: Context) : STTController {
             isActive = false
             webApi?.stopRecog()
 
+            voiceLevel?.setBackgroundColor(Color.WHITE)
+        }
+
+        override fun onSoundLevelChanged(level: Int, min: Int, max: Int) {
+            // Debug.
+            val target = voiceLevel
+            if (target != null) {
+                val rate = level.toFloat() / (max.toFloat() - min.toFloat())
+                target.pivotX = 0.0f
+                target.scaleX = rate
+            }
         }
 
         override fun onRecorded(buffer: ByteArray, format: Int, size: Int) {

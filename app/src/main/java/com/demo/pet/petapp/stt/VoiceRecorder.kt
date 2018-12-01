@@ -70,6 +70,15 @@ class VoiceRecorder(val context: Context) {
         fun onStopped()
 
         /**
+         * Callback for sound level changed.
+         *
+         * @param level Current sound level.
+         * @param min Minimum sound level.
+         * @param max Maximum sound level.
+         */
+        fun onSoundLevelChanged(level: Int, min: Int, max: Int)
+
+        /**
          * Recorded data callback.
          *
          * @param buffer Data
@@ -206,8 +215,7 @@ class VoiceRecorder(val context: Context) {
 
                     if (soundUpTimeMillis == 0L) {
                         // Voice rec started.
-                        callback?.onStarted(samplingRate)
-                        soundUpTimeMillis = now
+                        onStart(now)
                     }
 
                     soundDownTimeMillis = Long.MAX_VALUE
@@ -242,6 +250,11 @@ class VoiceRecorder(val context: Context) {
             }
         }
 
+        private fun onStart(now: Long) {
+            callback?.onStarted(samplingRate)
+            soundUpTimeMillis = now
+        }
+
         private fun onEnd() {
             callback?.onStopped()
             soundUpTimeMillis = 0L
@@ -272,6 +285,12 @@ class VoiceRecorder(val context: Context) {
         val average = total.toFloat() / size.toFloat()
 
 //        debugLog("VoiceRecorder.isSounded() : Level = $average")
+
+        // Sound level callback.
+        callback?.onSoundLevelChanged(
+                average.toInt(),
+               0,
+                (AMPLITUDE_THRESHOLD * 5.0f / 4.0f).toInt())
 
         // Check sound level.
         return average > AMPLITUDE_THRESHOLD

@@ -23,4 +23,35 @@
         android:background="#AAAAAA"
     />
 
+    <LinearLayout
+        android:id="@+id/voice_level_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="64px"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/debug_msg"
+    >
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="64px"
+            android:layout_weight="20"
+            android:background="#AAFFAA"
+        />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="64px"
+            android:layout_weight="80"
+            android:background="#FFAAAA"
+        />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/voice_level"
+        android:layout_width="match_parent"
+        android:layout_height="48px"
+        android:layout_alignBottom="@id/voice_level_indicator"
+        android:layout_alignParentLeft="true"
+        android:background="#FFFFFF"
+    />
+
 </com.demo.pet.petapp.OverlayRootView>

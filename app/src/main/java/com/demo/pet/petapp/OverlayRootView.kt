@@ -152,6 +152,7 @@ class OverlayRootView : RelativeLayout {
         // Debug msg.
         if (sttCtrl is STTControllerGoogleCloudApi) {
             sttCtrl.debugMsg = debug_msg
+            sttCtrl.voiceLevel = voice_level
         }
     }
 
