@@ -13,6 +13,7 @@ import com.demo.pet.petapp.debugLog
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
+@Suppress("ConstantConditionIf")
 class FaceTrigger(val context: Context) {
 
     private var callback: Callback? = null
@@ -20,6 +21,8 @@ class FaceTrigger(val context: Context) {
     interface Callback {
         fun onFaceDetected()
     }
+
+    private val isCameraSupported: Boolean
 
     private val backHandler: Handler
     private val callbackHandler: Handler
@@ -39,6 +42,9 @@ class FaceTrigger(val context: Context) {
         callbackHandler = Handler(callbackThread.looper)
 
         cameraMng = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
+        val ids: Array<String> = cameraMng.cameraIdList
+        isCameraSupported = ids.isNotEmpty()
     }
 
     fun release() {
@@ -47,16 +53,17 @@ class FaceTrigger(val context: Context) {
     }
 
     fun resume() {
-        backHandler.post(OpenTask())
+        if (!isCameraSupported) return
 
+        backHandler.post(OpenTask())
         backHandler.post(StartFaceDetectionTask())
 
     }
 
     fun pause() {
+        if (!isCameraSupported) return
 
         backHandler.post(StopFaceDetectionTask())
-
         backHandler.post(CloseTask())
     }
 
@@ -73,7 +80,7 @@ class FaceTrigger(val context: Context) {
 
             // Detect front camera.
             val ids: Array<String> = cameraMng.cameraIdList
-            var frontCamId: String = ""
+            var frontCamId = ""
             for (id in ids) {
                 val camChars = cameraMng.getCameraCharacteristics(id)
                 if (camChars.get(CameraCharacteristics.LENS_FACING)
@@ -83,9 +90,9 @@ class FaceTrigger(val context: Context) {
                     break
                 }
             }
-
             if (frontCamId.isEmpty()) {
-                throw RuntimeException("Front Camera is not available.")
+                if (Log.IS_DEBUG) debugLog("Front Camera is not available.")
+                frontCamId = ids.first()
             }
 
             // Request open.
@@ -96,7 +103,7 @@ class FaceTrigger(val context: Context) {
             if (Log.IS_DEBUG) debugLog("FaceTrigger.OpenTask : X")
         }
 
-        private inner class StateCallback() : CameraDevice.StateCallback() {
+        private inner class StateCallback : CameraDevice.StateCallback() {
             override fun onDisconnected(camera: CameraDevice?) {
                 if (Log.IS_DEBUG) debugLog("FaceTrigger.OpenTask.onDisconnected()")
             }
@@ -156,10 +163,7 @@ class FaceTrigger(val context: Context) {
             }
 
             override fun onConfigured(session: CameraCaptureSession?) {
-                val device = cameraDevice
-                if (device == null) {
-                    throw RuntimeException("cameraDevice is null")
-                }
+                val device = cameraDevice ?: throw RuntimeException("cameraDevice is null")
 
                 captureSession = session
 
@@ -202,7 +206,7 @@ class FaceTrigger(val context: Context) {
 
 
                 if (faces != null) {
-                    if (faces.size > 0) {
+                    if (faces.isNotEmpty()) {
                         callback?.onFaceDetected()
                     }
                 }
