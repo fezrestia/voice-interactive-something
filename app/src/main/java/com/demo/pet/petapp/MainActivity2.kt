@@ -145,6 +145,11 @@ class MainActivity2 : AppCompatActivity() {
                 Constants.SPEAK_THRESHOLD_DEFAULT)
         sound_level_threshold.progress = curThreshold - Constants.SPEAK_THRESHOLD_MIN
 
+        // Immersive mode.
+        root_view.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_IMMERSIVE)
+
         if (IS_DEBUG) debugLog("onResume() : X")
     }
 

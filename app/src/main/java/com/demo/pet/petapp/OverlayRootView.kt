@@ -64,6 +64,11 @@ class OverlayRootView : RelativeLayout {
             overlayType = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
         }
 
+        // Immersive mode.
+        systemUiVisibility = (SYSTEM_UI_FLAG_FULLSCREEN
+                or SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or SYSTEM_UI_FLAG_IMMERSIVE)
+
         winParams = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
