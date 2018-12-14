@@ -24,6 +24,30 @@
 
         <include layout="@layout/scroll_view_separator" />
 
+        <!-- Speak Sound Level Threshold -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Speak Threshold = "
+            />
+            <TextView
+                android:id="@+id/speak_threshold_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+            />
+        </LinearLayout>
+        <SeekBar
+            android:id="@+id/sound_level_threshold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+        />
+
+        <include layout="@layout/scroll_view_separator" />
+
         <ListView
             android:id="@+id/conversation_protocol_list"
             android:layout_width="match_parent"

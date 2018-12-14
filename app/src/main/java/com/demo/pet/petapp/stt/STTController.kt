@@ -1,6 +1,8 @@
 package com.demo.pet.petapp.stt
 
 import android.content.Context
+import com.demo.pet.petapp.Constants
+import com.demo.pet.petapp.PetApplication
 import com.demo.pet.petapp.debugLog
 
 /**
@@ -25,7 +27,10 @@ fun createSTTController(context: Context, type: STTType): STTController {
             STTControllerPocketSphinx(context)
         }
         STTType.GOOGLE_WEB_API -> {
-            STTControllerGoogleCloudApi(context)
+            val speakThreshold = PetApplication.getSP().getInt(
+                    Constants.KEY_SPEAK_THRESHOLD,
+                    Constants.SPEAK_THRESHOLD_DEFAULT)
+            STTControllerGoogleCloudApi(context, speakThreshold)
         }
         else -> {
             throw RuntimeException("Unsupported STT Engine. $type")

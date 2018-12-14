@@ -18,7 +18,7 @@ import kotlin.concurrent.withLock
 /**
  * Continuous sound (voice) recorder.
  */
-class VoiceRecorder(val context: Context) {
+class VoiceRecorder(context: Context, private val speakThreshold: Int) {
     @Suppress("PrivatePropertyName", "SimplifyBooleanWithConstants")
     private val IS_DEBUG = false || Log.IS_DEBUG
 
@@ -26,7 +26,6 @@ class VoiceRecorder(val context: Context) {
         private const val CHANNEL = AudioFormat.CHANNEL_IN_MONO
         private const val ENCODING = AudioFormat.ENCODING_PCM_16BIT
 
-        private const val AMPLITUDE_THRESHOLD = 1500.0f
         private const val SPEECH_TIMEOUT_MILLIS = 2000
         private const val MAX_SPEECH_LENGTH_MILLIS = 30 * 1000
 
@@ -446,10 +445,10 @@ class VoiceRecorder(val context: Context) {
         callback?.onSoundLevelChanged(
                 average.toInt(),
                0,
-                (AMPLITUDE_THRESHOLD * 5.0f / 4.0f).toInt())
+                (speakThreshold.toFloat() * 5.0f / 4.0f).toInt())
 
         // Check sound level.
-        return average > AMPLITUDE_THRESHOLD
+        return average > speakThreshold.toFloat()
     }
 
 }

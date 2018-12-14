@@ -68,6 +68,24 @@ class MainActivity2 : AppCompatActivity() {
 
         add_protocol.setOnClickListener(OnAddProtocolClickListenerImpl())
 
+        // Sound level threshold.
+        sound_level_threshold.max = Constants.SPEAK_THRESHOLD_MAX - Constants.SPEAK_THRESHOLD_MIN
+        sound_level_threshold.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, isFromUser: Boolean) {
+                val cur = progress + Constants.SPEAK_THRESHOLD_MIN
+                speak_threshold_indicator.text = cur.toString()
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                // NOP.
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                val cur: Int = seekBar.progress + Constants.SPEAK_THRESHOLD_MIN
+                PetApplication.getSP().edit().putInt(Constants.KEY_SPEAK_THRESHOLD, cur).apply()
+            }
+        })
+
         if (IS_DEBUG) debugLog("onCreate() : X")
     }
 
@@ -120,6 +138,12 @@ class MainActivity2 : AppCompatActivity() {
                 Constants.KEY_STT_TYPE,
                 STTType.GOOGLE_WEB_API.toString())
                 .apply()
+
+        // Speak level threshold.
+        val curThreshold = PetApplication.getSP().getInt(
+                Constants.KEY_SPEAK_THRESHOLD,
+                Constants.SPEAK_THRESHOLD_DEFAULT)
+        sound_level_threshold.progress = curThreshold - Constants.SPEAK_THRESHOLD_MIN
 
         if (IS_DEBUG) debugLog("onResume() : X")
     }

@@ -11,7 +11,7 @@ import com.demo.pet.petapp.debugLog
 /**
  * Speech to Text function controller on Android API.
  */
-class STTControllerGoogleCloudApi(val context: Context) : STTController {
+class STTControllerGoogleCloudApi(val context: Context, speakThreshold: Int) : STTController {
     @Suppress("PrivatePropertyName")
     private val IS_DEBUG = true // Log.IS_DEBUG
 
@@ -30,7 +30,7 @@ class STTControllerGoogleCloudApi(val context: Context) : STTController {
         api.callback = GoogleSpeechApiCallback()
         webApi = api
 
-        val vr = VoiceRecorder(context)
+        val vr = VoiceRecorder(context, speakThreshold)
         vr.callback = VoiceRecorderCallback()
         voiceRec = vr
     }

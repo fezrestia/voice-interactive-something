@@ -6,4 +6,9 @@ object Constants {
 
     val KEY_KEYWORD_PROTOCOLS = "key-keyword-protocols"
 
+    val KEY_SPEAK_THRESHOLD = "key-speak-threshold"
+
+    val SPEAK_THRESHOLD_MIN: Int = 500
+    val SPEAK_THRESHOLD_MAX: Int = 1500
+    val SPEAK_THRESHOLD_DEFAULT: Int = 1000
 }
