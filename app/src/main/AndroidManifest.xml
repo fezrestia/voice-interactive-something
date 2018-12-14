@@ -42,6 +42,7 @@
 -->
 
         <activity
+            android:theme="@style/AppTheme.Fullscreen"
             android:name=".MainActivity2"
             android:icon="@drawable/dog_sit_speaking"
             android:label="@string/main_activity_2_label"

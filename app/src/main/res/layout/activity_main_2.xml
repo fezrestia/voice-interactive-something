@@ -6,65 +6,86 @@
     android:layout_height="match_parent"
     tools:context="com.demo.pet.petapp.MainActivity">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
     >
 
-        <include layout="@layout/scroll_view_separator" />
-
-        <!-- En/Disable -->
-        <Switch
-            android:id="@+id/overlay_switch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/overlay_switch_label"
-        />
-
-        <include layout="@layout/scroll_view_separator" />
-
-        <!-- Speak Sound Level Threshold -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
+            android:orientation="vertical"
+        >
+
+            <include layout="@layout/scroll_view_separator" />
+
+            <!-- En/Disable -->
+            <Switch
+                android:id="@+id/overlay_switch"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Speak Threshold = "
+                android:text="@string/overlay_switch_label"
             />
-            <TextView
-                android:id="@+id/speak_threshold_indicator"
-                android:layout_width="wrap_content"
+
+            <include layout="@layout/scroll_view_separator" />
+
+            <!-- Speak Sound Level Threshold -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Speak Threshold = "
+                />
+                <TextView
+                    android:id="@+id/speak_threshold_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                />
+            </LinearLayout>
+            <SeekBar
+                android:id="@+id/sound_level_threshold"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
             />
+
+            <include layout="@layout/scroll_view_separator" />
+
+            <ListView
+                android:id="@+id/conversation_protocol_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+            />
+
+            <include layout="@layout/scroll_view_separator" />
+
+            <include layout="@layout/conversation_protocol_list_item_input" />
+
+            <Button
+                android:id="@+id/add_protocol"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ADD"
+            />
+
+            <!-- Spacer -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="540px"
+            />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/background_mado"
+                android:adjustViewBounds="true"
+            />
+
         </LinearLayout>
-        <SeekBar
-            android:id="@+id/sound_level_threshold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-        />
 
-        <include layout="@layout/scroll_view_separator" />
-
-        <ListView
-            android:id="@+id/conversation_protocol_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-        />
-
-        <include layout="@layout/scroll_view_separator" />
-
-        <include layout="@layout/conversation_protocol_list_item_input" />
-
-        <Button
-            android:id="@+id/add_protocol"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="ADD"
-        />
-
-    </LinearLayout>
+    </ScrollView>
 
 </android.support.constraint.ConstraintLayout>
