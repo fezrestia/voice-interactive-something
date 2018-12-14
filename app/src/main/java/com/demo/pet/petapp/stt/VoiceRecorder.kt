@@ -3,6 +3,7 @@
 package com.demo.pet.petapp.stt
 
 import android.content.Context
+import android.media.AudioDeviceInfo
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioRecord
@@ -38,7 +39,84 @@ class VoiceRecorder(val context: Context) {
         val am = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         samplingRate = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE).toInt()
 
-        debugLog("## samplingRat = $samplingRate")
+        debugLog("## samplingRate = $samplingRate")
+
+        // Check devices.
+        val devices = am.getDevices(AudioManager.GET_DEVICES_INPUTS)
+        debugLog("## Devices")
+        devices.forEach { it ->
+            debugLog("#### DEVICE = ${it.productName}")
+            if (AudioDeviceInfo.TYPE_AUX_LINE and it.type != 0) debugLog("         TYPE = TYPE_AUX_LINE")
+            if (AudioDeviceInfo.TYPE_BLUETOOTH_A2DP and it.type != 0) debugLog("         TYPE = TYPE_BLUETOOTH_A2DP")
+            if (AudioDeviceInfo.TYPE_BLUETOOTH_SCO and it.type != 0) debugLog("         TYPE = TYPE_BLUETOOTH_SCO")
+            if (AudioDeviceInfo.TYPE_BUILTIN_EARPIECE and it.type != 0) debugLog("         TYPE = TYPE_BUILTIN_EARPIECE")
+            if (AudioDeviceInfo.TYPE_BUILTIN_MIC and it.type != 0) debugLog("         TYPE = TYPE_BUILTIN_MIC")
+            if (AudioDeviceInfo.TYPE_BUILTIN_SPEAKER and it.type != 0) debugLog("         TYPE = TYPE_BUILTIN_SPEAKER")
+            if (AudioDeviceInfo.TYPE_BUS and it.type != 0) debugLog("         TYPE = TYPE_BUS")
+            if (AudioDeviceInfo.TYPE_DOCK and it.type != 0) debugLog("         TYPE = TYPE_DOCK")
+            if (AudioDeviceInfo.TYPE_FM and it.type != 0) debugLog("         TYPE = TYPE_FM")
+            if (AudioDeviceInfo.TYPE_FM_TUNER and it.type != 0) debugLog("         TYPE = TYPE_FM_TUNER")
+            if (AudioDeviceInfo.TYPE_HDMI and it.type != 0) debugLog("         TYPE = TYPE_HDMI")
+            if (AudioDeviceInfo.TYPE_HDMI_ARC and it.type != 0) debugLog("         TYPE = TYPE_HDMI_ARC")
+            if (AudioDeviceInfo.TYPE_IP and it.type != 0) debugLog("         TYPE = TYPE_IP")
+            if (AudioDeviceInfo.TYPE_LINE_ANALOG and it.type != 0) debugLog("         TYPE = TYPE_LINE_ANALOG")
+            if (AudioDeviceInfo.TYPE_LINE_DIGITAL and it.type != 0) debugLog("         TYPE = TYPE_LINE_DIGITAL")
+            if (AudioDeviceInfo.TYPE_TELEPHONY and it.type != 0) debugLog("         TYPE = TYPE_TELEPHONY")
+            if (AudioDeviceInfo.TYPE_TV_TUNER and it.type != 0) debugLog("         TYPE = TYPE_TV_TUNER")
+            if (AudioDeviceInfo.TYPE_UNKNOWN and it.type != 0) debugLog("         TYPE = TYPE_UNKNOWN")
+            if (AudioDeviceInfo.TYPE_USB_ACCESSORY and it.type != 0) debugLog("         TYPE = TYPE_USB_ACCESSORY")
+            if (AudioDeviceInfo.TYPE_USB_DEVICE and it.type != 0) debugLog("         TYPE = TYPE_USB_DEVICE")
+            if (AudioDeviceInfo.TYPE_USB_HEADSET and it.type != 0) debugLog("         TYPE = TYPE_USB_HEADSET")
+            if (AudioDeviceInfo.TYPE_WIRED_HEADPHONES and it.type != 0) debugLog("         TYPE = TYPE_WIRED_HEADPHONES")
+            if (AudioDeviceInfo.TYPE_WIRED_HEADSET and it.type != 0) debugLog("         TYPE = TYPE_WIRED_HEADSET")
+
+            var chCnt = ""
+            it.channelCounts.forEach { cnt ->
+                chCnt += "$cnt, "
+            }
+            debugLog("         CHANNEL COUNT = $chCnt")
+
+            debugLog("         CHANNEL MASKS :")
+            it.channelMasks.forEach { chMask ->
+                if (AudioFormat.CHANNEL_IN_BACK and chMask != 0) debugLog("             CHANNEL_IN_BACK")
+                if (AudioFormat.CHANNEL_IN_BACK_PROCESSED and chMask != 0) debugLog("             CHANNEL_IN_BACK_PROCESSED")
+                if (AudioFormat.CHANNEL_IN_FRONT and chMask != 0) debugLog("             CHANNEL_IN_FRONT")
+                if (AudioFormat.CHANNEL_IN_FRONT_PROCESSED and chMask != 0) debugLog("             CHANNEL_IN_FRONT_PROCESSED")
+                if (AudioFormat.CHANNEL_IN_LEFT and chMask != 0) debugLog("             CHANNEL_IN_LEFT")
+                if (AudioFormat.CHANNEL_IN_LEFT_PROCESSED and chMask != 0) debugLog("             CHANNEL_IN_LEFT_PROCESSED")
+                if (AudioFormat.CHANNEL_IN_MONO and chMask != 0) debugLog("             CHANNEL_IN_MONO")
+                if (AudioFormat.CHANNEL_IN_PRESSURE and chMask != 0) debugLog("             CHANNEL_IN_PRESSURE")
+                if (AudioFormat.CHANNEL_IN_RIGHT and chMask != 0) debugLog("             CHANNEL_IN_RIGHT")
+                if (AudioFormat.CHANNEL_IN_RIGHT_PROCESSED and chMask != 0) debugLog("             CHANNEL_IN_RIGHT_PROCESSED")
+                if (AudioFormat.CHANNEL_IN_STEREO and chMask != 0) debugLog("             CHANNEL_IN_STEREO")
+                if (AudioFormat.CHANNEL_IN_VOICE_DNLINK and chMask != 0) debugLog("             CHANNEL_IN_VOICE_DNLINK")
+                if (AudioFormat.CHANNEL_IN_VOICE_UPLINK and chMask != 0) debugLog("             CHANNEL_IN_VOICE_UPLINK")
+                if (AudioFormat.CHANNEL_IN_X_AXIS and chMask != 0) debugLog("             CHANNEL_IN_X_AXIS")
+                if (AudioFormat.CHANNEL_IN_Y_AXIS and chMask != 0) debugLog("             CHANNEL_IN_Y_AXIS")
+                if (AudioFormat.CHANNEL_IN_Z_AXIS and chMask != 0) debugLog("             CHANNEL_IN_Z_AXIS")
+            }
+
+            debugLog("         ENCODINGS :")
+            it.encodings.forEach { enc ->
+                if (AudioFormat.ENCODING_AC3 and enc != 0) debugLog("             ENCODING_AC3")
+                if (AudioFormat.ENCODING_DOLBY_TRUEHD and enc != 0) debugLog("             ENCODING_DOLBY_TRUEHD")
+                if (AudioFormat.ENCODING_DTS and enc != 0) debugLog("             ENCODING_DTS")
+                if (AudioFormat.ENCODING_DTS_HD and enc != 0) debugLog("             ENCODING_DTS_HD")
+                if (AudioFormat.ENCODING_E_AC3 and enc != 0) debugLog("             ENCODING_E_AC3")
+                if (AudioFormat.ENCODING_IEC61937 and enc != 0) debugLog("             ENCODING_IEC61937")
+                if (AudioFormat.ENCODING_PCM_16BIT and enc != 0) debugLog("             ENCODING_PCM_16BIT")
+                if (AudioFormat.ENCODING_PCM_8BIT and enc != 0) debugLog("             ENCODING_PCM_8BIT")
+                if (AudioFormat.ENCODING_PCM_FLOAT and enc != 0) debugLog("             ENCODING_PCM_FLOAT")
+            }
+
+            var samplingRates = ""
+            it.sampleRates.forEach { rate ->
+                samplingRates += "$rate, "
+            }
+            debugLog("         SAMPLING RATES = $samplingRates")
+        }
+
+
 
     }
 
@@ -102,12 +180,12 @@ class VoiceRecorder(val context: Context) {
      fun start() {
         if (IS_DEBUG) debugLog("VoiceRecorder.start() : E")
 
-        // Stop before re-start.
-        stop()
-
         // Create new recording session.
         val isSuccess = createAudioRecord()
-        if (!isSuccess) throw RuntimeException("Failed to create AudioRecord.")
+        if (!isSuccess) {
+            errorLog("Failed to create AudioRecord. Could not activate VoiceRecorder.")
+            return
+        }
 
         // Start.
         audioRec?.startRecording()
@@ -165,12 +243,90 @@ class VoiceRecorder(val context: Context) {
             return false
         }
 
-        val ar = AudioRecord(
-                MediaRecorder.AudioSource.MIC,
+        // 1st priority.
+        var ar = AudioRecord(
+                MediaRecorder.AudioSource.VOICE_RECOGNITION,
                 samplingRate,
                 CHANNEL,
                 ENCODING,
                 minBufSize)
+
+        if (ar.state != AudioRecord.STATE_INITIALIZED) {
+            ar = AudioRecord(
+                    MediaRecorder.AudioSource.MIC,
+                    samplingRate,
+                    CHANNEL,
+                    ENCODING,
+                    minBufSize)
+        }
+
+//        if (ar.state != AudioRecord.STATE_INITIALIZED) {
+//            ar = AudioRecord(
+//                    MediaRecorder.AudioSource.CAMCORDER,
+//                    samplingRate,
+//                    CHANNEL,
+//                    ENCODING,
+//                    minBufSize)
+//        }
+//        if (ar.state != AudioRecord.STATE_INITIALIZED) {
+//            ar = AudioRecord(
+//                    MediaRecorder.AudioSource.REMOTE_SUBMIX,
+//                    samplingRate,
+//                    CHANNEL,
+//                    ENCODING,
+//                    minBufSize)
+//        }
+//        if (ar.state != AudioRecord.STATE_INITIALIZED) {
+//            ar = AudioRecord(
+//                    MediaRecorder.AudioSource.UNPROCESSED,
+//                    samplingRate,
+//                    CHANNEL,
+//                    ENCODING,
+//                    minBufSize)
+//        }
+//        if (ar.state != AudioRecord.STATE_INITIALIZED) {
+//            ar = AudioRecord(
+//                    MediaRecorder.AudioSource.VOICE_CALL,
+//                    samplingRate,
+//                    CHANNEL,
+//                    ENCODING,
+//                    minBufSize)
+//        }
+//        if (ar.state != AudioRecord.STATE_INITIALIZED) {
+//            ar = AudioRecord(
+//                    MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+//                    samplingRate,
+//                    CHANNEL,
+//                    ENCODING,
+//                    minBufSize)
+//        }
+//        if (ar.state != AudioRecord.STATE_INITIALIZED) {
+//            ar = AudioRecord(
+//                    MediaRecorder.AudioSource.VOICE_DOWNLINK,
+//                    samplingRate,
+//                    CHANNEL,
+//                    ENCODING,
+//                    minBufSize)
+//        }
+//        if (ar.state != AudioRecord.STATE_INITIALIZED) {
+//            ar = AudioRecord(
+//                    MediaRecorder.AudioSource.VOICE_UPLINK,
+//                    samplingRate,
+//                    CHANNEL,
+//                    ENCODING,
+//                    minBufSize)
+//        }
+
+        // Fallback to default.
+        if (ar.state != AudioRecord.STATE_INITIALIZED) {
+            ar = AudioRecord(
+                    MediaRecorder.AudioSource.DEFAULT,
+                    samplingRate,
+                    CHANNEL,
+                    ENCODING,
+                    minBufSize)
+        }
+
         // Check.
         return if (ar.state == AudioRecord.STATE_INITIALIZED) {
             buffer = ByteArray(minBufSize)

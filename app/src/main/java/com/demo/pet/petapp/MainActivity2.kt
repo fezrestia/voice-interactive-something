@@ -4,6 +4,7 @@ package com.demo.pet.petapp
 
 import android.Manifest
 import android.annotation.TargetApi
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -239,7 +240,13 @@ class MainActivity2 : AppCompatActivity() {
                 val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:$packageName"))
-                startActivityForResult(intent, requestCodeManageOverlayPermission)
+
+                try {
+                    startActivityForResult(intent, requestCodeManageOverlayPermission)
+                } catch (e: RuntimeException) {
+                    errorLog("startActivityForResult ERR : ${e.printStackTrace()}")
+                    return false
+                }
 
                 return true
             }

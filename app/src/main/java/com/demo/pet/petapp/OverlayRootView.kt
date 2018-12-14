@@ -13,7 +13,6 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import android.widget.TextView
 import com.demo.pet.petapp.conversations.OhayouKatchy
 import com.demo.pet.petapp.conversations.VoiceInteractionStrategy
 import com.demo.pet.petapp.stt.STTController
@@ -27,7 +26,7 @@ import com.demo.pet.petapp.stt.STTControllerGoogleCloudApi
 
 class OverlayRootView : RelativeLayout {
 
-    private val IS_DEBUG = false || Log.IS_DEBUG
+    private val IS_DEBUG = Log.IS_DEBUG
 
     private val winMng: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val winParams: WindowManager.LayoutParams
