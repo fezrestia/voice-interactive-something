@@ -46,10 +46,10 @@ class UserDefinitions(val context: Context) : VoiceInteractionStrategy {
     private inner class KeywordFilterCallbackImpl : STTController.KeywordFilterCallback {
         override fun onDetected(keyword: String) {
             debugLog("## KEYWORD = $keyword is DETECTED")
-            Toast.makeText(context, "KATCHY << $keyword", Toast.LENGTH_SHORT).show()
 
             val outKeyword = keywordMap[keyword]
             if (outKeyword != null) {
+                Toast.makeText(context, "KATCHY << $outKeyword", Toast.LENGTH_SHORT).show()
                 speakOutCallback?.invoke(outKeyword)
             }
         }

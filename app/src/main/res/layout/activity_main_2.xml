@@ -55,7 +55,7 @@
 
             <include layout="@layout/scroll_view_separator" />
 
-            <ListView
+            <com.demo.pet.petapp.UnscrollableListView
                 android:id="@+id/conversation_protocol_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
