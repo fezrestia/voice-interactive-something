@@ -26,7 +26,7 @@ class VoiceRecorder(context: Context, private val speakThreshold: Int) {
         private const val CHANNEL = AudioFormat.CHANNEL_IN_MONO
         private const val ENCODING = AudioFormat.ENCODING_PCM_16BIT
 
-        private const val SPEECH_TIMEOUT_MILLIS = 2000
+        private const val SPEECH_TIMEOUT_MILLIS = 1000
         private const val MAX_SPEECH_LENGTH_MILLIS = 30 * 1000
 
     }
