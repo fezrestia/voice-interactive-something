@@ -29,6 +29,9 @@ class VoiceRecorder(context: Context, private val speakThreshold: Int) {
         private const val SPEECH_TIMEOUT_MILLIS = 1000
         private const val MAX_SPEECH_LENGTH_MILLIS = 30 * 1000
 
+        // Buffer cache size millis before speak detected.
+        private const val LAST_BUFFER_CACHE_MILLIS = 500
+
     }
 
     private val samplingRate: Int
@@ -344,6 +347,23 @@ class VoiceRecorder(context: Context, private val speakThreshold: Int) {
      * Continuous recorded audio processing task.
      */
     private inner class AudioProc: Runnable {
+
+        val lastBufCaches = mutableListOf<ByteArray>()
+        val lastBufSizeBytes: Int
+
+        init {
+            when (ENCODING) {
+                AudioFormat.ENCODING_PCM_16BIT -> {
+                    val secBytes = samplingRate * 16 / 8
+                    lastBufSizeBytes = (secBytes * (LAST_BUFFER_CACHE_MILLIS / 1000))
+                }
+
+                else -> {
+                    throw RuntimeException("Unsupported Encoding")
+                }
+            }
+        }
+
         override fun run () {
             // Loop.
             while (true) {
@@ -360,6 +380,16 @@ class VoiceRecorder(context: Context, private val speakThreshold: Int) {
 
                 // Read data.
                 val size = ar.read(buf, 0, buf.size)
+
+                // Cache last buffer.
+                val totalCacheBytes = lastBufCaches.sumBy { it ->
+                    it.size
+                }
+                if (lastBufSizeBytes < totalCacheBytes) {
+                    // Cache out.
+                    lastBufCaches.removeAt(0)
+                }
+                lastBufCaches.add(buf.copyOf())
 
                 val now = SystemClock.uptimeMillis()
 
@@ -408,6 +438,11 @@ class VoiceRecorder(context: Context, private val speakThreshold: Int) {
         private fun onStart(now: Long) {
             callback?.onStarted(samplingRate)
             soundUpTimeMillis = now
+
+            // Callback last recored audio frames before speak started.
+            lastBufCaches.forEach { buf ->
+                callback?.onRecorded(buf, ENCODING, buf.size)
+            }
         }
 
         private fun onEnd() {
