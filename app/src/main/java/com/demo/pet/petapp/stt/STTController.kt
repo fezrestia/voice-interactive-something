@@ -14,8 +14,14 @@ enum class STTType {
     GOOGLE_WEB_API,
 }
 
-fun createSTTController(context: Context, type: STTType): STTController {
-    return when (type) {
+/**
+ * Static factory method.
+ */
+fun createSTTController(
+        context: Context,
+        type: STTType,
+        callback: STTController.Callback): STTController {
+    val stt = when (type) {
         STTType.ANDROID_SPEECH_RECOGNIZER -> {
             if (STTControllerAndroid.isSupported(context)) {
                 STTControllerAndroid(context)
@@ -32,56 +38,78 @@ fun createSTTController(context: Context, type: STTType): STTController {
                     Constants.SPEAK_THRESHOLD_DEFAULT)
             STTControllerGoogleCloudApi(context, speakThreshold)
         }
-        else -> {
-            throw RuntimeException("Unsupported STT Engine. $type")
-        }
     }
+    stt.callback = callback
+    return stt
 }
 
 /**
  * Speech to Text interface.
  */
 interface STTController {
-    fun registerKeywordFilter(keywords: List<String>, filter: KeywordFilterCallback)
-    fun unregisterKeywordFilter(keywords: List<String>)
-    fun clearKeywordFilter()
+    /**
+     * Listening callback interface.
+     */
+    interface Callback {
+        /**
+         * Indicates detection progress.
+         */
+        fun onDetecting(detecting: String)
 
-    fun ready()
+        /**
+         * Indicates detection result.
+         */
+        fun onDetected(sentence: String, keywords: List<String>)
+
+        /**
+         * Indicates sound recording is started.
+         */
+        fun onSoundRecStarted()
+
+        /**
+         * Indicates sound recording is stopped.
+         */
+        fun onSoundRecStopped()
+
+        /**
+         * Normalized sound level is changed between min and max.
+         */
+        fun onSoundLevelChanged(level: Int, min: Int, max: Int)
+    }
+
+    var callback: Callback?
+
+    fun registerKeywords(keywords: List<String>)
+    fun unregisterKeywords(keywords: List<String>)
+    fun clearKeywords()
+
+    fun prepare()
 
     fun startRecog()
     fun stopRecog()
-    fun isActive(): Boolean
+    var isActive: Boolean
 
     fun release()
 
-    /**
-     * Keyword filter interface for Speech2Text converter.
-     */
-    interface KeywordFilterCallback {
-        /**
-         * Keyword is detected.
-         * @keyword
-         */
-        fun onDetected(keyword: String)
-    }
 }
 
 private class STTControllerUnAvailable : STTController {
-    override fun registerKeywordFilter(
-            keywords: List<String>,
-            filter: STTController.KeywordFilterCallback) {
+    override var callback: STTController.Callback? = null
+    override var isActive: Boolean = false
+
+    override fun registerKeywords(keywords: List<String>) {
         debugLog("Function UnAvailable")
     }
 
-    override fun unregisterKeywordFilter(keywords: List<String>) {
+    override fun unregisterKeywords(keywords: List<String>) {
         debugLog("Function UnAvailable")
     }
 
-    override fun clearKeywordFilter() {
+    override fun clearKeywords() {
         debugLog("Function UnAvailable")
     }
 
-    override fun ready() {
+    override fun prepare() {
         debugLog("Function UnAvailable")
     }
 
@@ -91,11 +119,6 @@ private class STTControllerUnAvailable : STTController {
 
     override fun stopRecog() {
         debugLog("Function UnAvailable")
-    }
-
-    override fun isActive(): Boolean {
-        debugLog("Function UnAvailable")
-        return false
     }
 
     override fun release() {

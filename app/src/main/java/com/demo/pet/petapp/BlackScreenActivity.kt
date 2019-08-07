@@ -9,7 +9,7 @@ class BlackScreenActivity : AppCompatActivity() {
     companion object {
         val activeActivitySet = HashSet<Activity>()
 
-        public fun finishAll() {
+        fun finishAll() {
             activeActivitySet.forEach { it.finish() }
         }
     }

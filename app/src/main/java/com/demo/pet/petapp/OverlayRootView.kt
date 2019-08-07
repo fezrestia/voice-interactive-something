@@ -1,7 +1,13 @@
+@file:Suppress(
+        "PrivatePropertyName",
+        "SimplifyBooleanWithConstants",
+        "ConstantConditionIf")
+
 package com.demo.pet.petapp
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.media.AudioAttributes
 import android.media.SoundPool
@@ -13,20 +19,23 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import com.demo.pet.petapp.conversations.OhayouKatchy
-import com.demo.pet.petapp.conversations.VoiceInteractionStrategy
+
+import kotlinx.android.synthetic.main.overlay_root_view.view.*
+
+import com.demo.pet.petapp.conversations.ConversationStrategy
+import com.demo.pet.petapp.conversations.ConversationType
+import com.demo.pet.petapp.conversations.createConversationStrategy
 import com.demo.pet.petapp.stt.STTController
 import com.demo.pet.petapp.stt.STTType
 import com.demo.pet.petapp.stt.createSTTController
-import kotlinx.android.synthetic.main.overlay_root_view.view.*
-
+import com.demo.pet.petapp.tts.TTSController
+import com.demo.pet.petapp.tts.TTSType
+import com.demo.pet.petapp.tts.createTTSController
 import com.demo.pet.petapp.activespeak.FaceTrigger
-import com.demo.pet.petapp.conversations.UserDefinitions
-import com.demo.pet.petapp.stt.STTControllerGoogleCloudApi
 
 class OverlayRootView : RelativeLayout {
 
-    private val IS_DEBUG = Log.IS_DEBUG
+    private val IS_DEBUG = Log.IS_DEBUG || false
 
     private val winMng: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val winParams: WindowManager.LayoutParams
@@ -34,7 +43,7 @@ class OverlayRootView : RelativeLayout {
     private val ttsCtrl: TTSController
     private val sttCtrl: STTController
 
-    private val strategy: VoiceInteractionStrategy
+    private val conversation: ConversationStrategy
 
     private val soundPool: SoundPool
     private val soundWan: Int
@@ -85,34 +94,39 @@ class OverlayRootView : RelativeLayout {
         // UI thread.
         uiHandler = Handler()
 
-        // TTS and STT.
+        // TTS
         val ttsType = PetApplication.getSP().getString(
                 Constants.KEY_TTS_TYPE,
-                TTSType.ANDROID.toString())
-        ttsCtrl = TTSController(
+                TTSType.ANDROID.toString()) as String
+        ttsCtrl = createTTSController(
                 context,
                 TTSType.valueOf(ttsType),
-                null,
-                SpeakStateCallbackImpl())
+                TTSCallbackImpl())
+
+        // STT
         val sttType = PetApplication.getSP().getString(
                 Constants.KEY_STT_TYPE,
-                STTType.GOOGLE_WEB_API.toString())
-        sttCtrl = createSTTController(context, STTType.valueOf(sttType))
+                STTType.GOOGLE_WEB_API.toString()) as String
+        sttCtrl = createSTTController(
+                context,
+                STTType.valueOf(sttType),
+                STTCallbackImpl())
 
         // Strategy.
-        strategy = when(STTType.valueOf(sttType)) {
+        val convType = when(STTType.valueOf(sttType)) {
             STTType.GOOGLE_WEB_API -> {
-                UserDefinitions(context)
+                ConversationType.USER_DEF
             }
             STTType.ANDROID_SPEECH_RECOGNIZER, STTType.POCKET_SPHINX -> {
-                OhayouKatchy(context)
+                ConversationType.OHAYOU_KATCHY
             }
         }
-        strategy.configureKeywordFilter(sttCtrl)
-        strategy.setSpeakOutRequestCallback { text: String -> ttsCtrl.speak(text) }
+        conversation = createConversationStrategy(context, convType)
+
+        sttCtrl.registerKeywords(conversation.getFilterKeywords())
 
         // Start.
-        sttCtrl.ready()
+        sttCtrl.prepare()
         sttCtrl.startRecog()
 
         // Sound.
@@ -124,9 +138,9 @@ class OverlayRootView : RelativeLayout {
                 .setAudioAttributes(audioAttr)
                 .setMaxStreams(2)
                 .build()
-        soundPool.setOnLoadCompleteListener(SoundPool.OnLoadCompleteListener() { soundPool, sampleId, status ->
+        soundPool.setOnLoadCompleteListener { _, sampleId, _ ->
             if (IS_DEBUG) debugLog("SoundPool.onLoadComplete() : ID=$sampleId")
-        } )
+        }
 
         soundWan = soundPool.load(context, R.raw.wan_wan, 1)
         soundKuun = soundPool.load(context, R.raw.wan_kuun, 1)
@@ -153,17 +167,12 @@ class OverlayRootView : RelativeLayout {
         renderer = RenderingTask(pet, uiHandler)
         renderer.start()
 
-        // Debug msg.
-        if (sttCtrl is STTControllerGoogleCloudApi) {
-            sttCtrl.debugMsg = debug_msg
-            sttCtrl.voiceLevel = voice_level
-        }
     }
 
     fun release() {
         renderer.stop()
         ttsCtrl.release()
-        strategy.release(sttCtrl)
+        conversation.release()
         sttCtrl.stopRecog()
         sttCtrl.release()
         soundPool.release()
@@ -265,14 +274,40 @@ class OverlayRootView : RelativeLayout {
         return true
     }
 
-    private inner class SpeakStateCallbackImpl : TTSController.SpeakStateCallback {
-        override fun onStarted() {
+    private inner class TTSCallbackImpl : TTSController.Callback {
+        override fun onSpeechStarted() {
             pet.startSpeak()
         }
 
-        override fun onCompleted(isSucceeded: Boolean) {
+        override fun onSpeechDone(isSucceeded: Boolean) {
             pet.stopSpeak()
         }
+    }
+
+    private inner class STTCallbackImpl : STTController.Callback {
+        override fun onDetecting(detecting: String) {
+            debug_msg.text = detecting
+        }
+
+        override fun onDetected(sentence: String, keywords: List<String>) {
+            val outText = conversation.conversate(sentence, keywords)
+            ttsCtrl.speak(outText)
+        }
+
+        override fun onSoundRecStarted() {
+            voice_level.setBackgroundColor(Color.RED)
+        }
+
+        override fun onSoundRecStopped() {
+            voice_level.setBackgroundColor(Color.WHITE)
+        }
+
+        override fun onSoundLevelChanged(level: Int, min: Int, max: Int) {
+            val rate = level.toFloat() / (max.toFloat() - min.toFloat())
+            voice_level.pivotX = 0.0f
+            voice_level.scaleX = rate
+        }
+
     }
 
     private class Pet(val targetView: ImageView) {
@@ -292,12 +327,12 @@ class OverlayRootView : RelativeLayout {
             targetView.setImageResource(currentDrawable)
         }
 
-        fun stand() {
-            if (currentDrawable != standDrawable) {
-                currentDrawable = standDrawable
-                draw()
-            }
-        }
+//        fun stand() {
+//            if (currentDrawable != standDrawable) {
+//                currentDrawable = standDrawable
+//                draw()
+//            }
+//        }
 
         fun sit() {
             if (currentDrawable != sitDrawable) {
@@ -324,15 +359,14 @@ class OverlayRootView : RelativeLayout {
                 sit()
             }
 
-/* DEMO
-            if ((count / 30) % 2 == 0L) {
-                if (IS_DEBUG) debugLog("pet.sit()")
-                pet.sit()
-            } else {
-                if (IS_DEBUG) debugLog("pet.stand()")
-                pet.stand()
-            }
-*/
+//            if ((count / 30) % 2 == 0L) {
+//                if (IS_DEBUG) debugLog("pet.sit()")
+//                pet.sit()
+//            } else {
+//                if (IS_DEBUG) debugLog("pet.stand()")
+//                pet.stand()
+//            }
+
         }
 
         fun startSpeak() {

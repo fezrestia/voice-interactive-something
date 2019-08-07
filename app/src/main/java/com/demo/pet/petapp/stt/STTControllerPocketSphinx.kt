@@ -12,14 +12,16 @@ import java.lang.Exception
  */
 class STTControllerPocketSphinx(val context: Context) : STTController {
     private lateinit var recognizer: SpeechRecognizer
-    private val keywordVsFilter: MutableMap<String, STTController.KeywordFilterCallback> = HashMap()
-    private var isActive = false
+    private val keywords: MutableList<String> = ArrayList()
+
+    override var callback: STTController.Callback? = null
+    override var isActive: Boolean = false
 
     init {
         // NOP.
     }
 
-    override fun ready() {
+    override fun prepare() {
         val assets = Assets(context)
         val assetsDir = assets.syncAssets()
 
@@ -41,30 +43,30 @@ class STTControllerPocketSphinx(val context: Context) : STTController {
         recognizer.shutdown()
     }
 
-    override fun registerKeywordFilter(
-            keywords: List<String>,
-            filter: STTController.KeywordFilterCallback) {
+    override fun registerKeywords(keywords: List<String>) {
         keywords.forEach { keyword: String ->
             // Cache.
-            keywordVsFilter[keyword] = filter
+            if (!this.keywords.contains(keyword)) {
+                this.keywords.add(keyword)
+            }
 
             //TODO: Register recog target string to .keyword file in assets dir.
 
         }
     }
 
-    override fun unregisterKeywordFilter(keywords: List<String>) {
+    override fun unregisterKeywords(keywords: List<String>) {
         keywords.forEach { keyword: String ->
             // Cache.
-            keywordVsFilter.remove(keyword)
+            this.keywords.remove(keyword)
 
             //TODO: Unregister recog target string from .keyword file in assets dir.
 
         }
     }
 
-    override fun clearKeywordFilter() {
-        keywordVsFilter.clear()
+    override fun clearKeywords() {
+        keywords.clear()
 
         //TODO: Clear recog target string in .keyword file in assets dir.
 
@@ -84,10 +86,6 @@ class STTControllerPocketSphinx(val context: Context) : STTController {
     private fun restartRecog() {
         stopRecog()
         startRecog()
-    }
-
-    override fun isActive(): Boolean {
-        return isActive
     }
 
     private inner class RecognitionListenerImpl : RecognitionListener {
@@ -111,9 +109,9 @@ class STTControllerPocketSphinx(val context: Context) : STTController {
             val phrase = hypothesis.hypstr
             debugLog("## PARTIAL DETECT = $phrase")
 
-            keywordVsFilter.forEach { key, value ->
-                if (key == phrase) {
-                    value.onDetected(key)
+            keywords.forEach { keyword ->
+                if (keyword == phrase) {
+                    callback?.onDetected(phrase, listOf(keyword))
                 }
             }
 

@@ -1,64 +1,27 @@
-package com.demo.pet.petapp
+@file:Suppress("PrivatePropertyName", "ConstantConditionIf", "SimplifyBooleanWithConstants")
+
+package com.demo.pet.petapp.tts
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import com.demo.pet.petapp.Log
+import com.demo.pet.petapp.debugLog
 
-/**
- * Text to Speech implementation type.
- */
-enum class TTSType {
-    ANDROID,
-}
-
-class TTSController(
-        private val context: Context,
-        private var ttsType: TTSType,
-        private var subType: String?,
-        private var stateCallback: SpeakStateCallback?) {
+class TTSControllerAndroid(var context: Context?) : TTSController {
     private val IS_DEBUG = false || Log.IS_DEBUG
+
+    override var callback: TTSController.Callback? = null
 
     private val tts: TextToSpeech
     private val MAX_TEXT_SIZE = TextToSpeech.getMaxSpeechInputLength()
     private var sequenceId = 0
 
-    companion object {
-        val DEFAULT_ENGINE = "default"
-
-        fun getSupportedEngines(context: Context): List<TextToSpeech.EngineInfo> {
-            val tts = TextToSpeech(context, null)
-            val supported = tts.engines
-            tts.shutdown()
-            return supported
-        }
-    }
-
-    // Default engine with no callback.
-    constructor(context: Context) : this(context, TTSType.ANDROID, null, null)
-    // Specific engine with no callback.
-    constructor(context: Context, ttsEngine: String) : this(context, TTSType.ANDROID, ttsEngine, null)
-
     init {
         if (IS_DEBUG) debugLog("TTSCtrl.init()")
-
-        when (ttsType) {
-            TTSType.ANDROID -> {
-                if (subType == null) {
-                    if (IS_DEBUG) debugLog("Init TTS with Default Engine.")
-                    tts = TextToSpeech(context, TTSOnInitCallback())
-                } else {
-                    if (IS_DEBUG) debugLog("Init TTS with Engine = $subType")
-                    tts = TextToSpeech(context, TTSOnInitCallback(), subType)
-                }
-            }
-        }
-
+        if (IS_DEBUG) debugLog("Init TTS with Default Engine.")
+        tts = TextToSpeech(context, TTSOnInitCallback())
         tts.setOnUtteranceProgressListener(TTSOnProgressCallback())
-    }
-
-    public interface SpeakStateCallback {
-        fun onStarted()
-        fun onCompleted(isSucceeded: Boolean)
     }
 
     private inner class TTSOnInitCallback : TextToSpeech.OnInitListener {
@@ -88,7 +51,6 @@ class TTSController(
         }
 
         try {
-            val defaultVoice = tts.defaultVoice
             debugLog("Default Lang = ${tts.defaultVoice?.locale?.displayName}")
             debugLog("Available Languages:")
             tts.availableLanguages.forEach {
@@ -102,10 +64,10 @@ class TTSController(
         try {
             debugLog("Default Voice = ${tts.defaultVoice.name}")
             debugLog("Voices:")
-            tts.voices.forEach {
-                debugLog("    Voice = ${it.name} / ${it.locale.displayName}")
-                it.features.forEach {
-                    debugLog("        Feature = ${it}")
+            tts.voices.forEach { voice ->
+                debugLog("    Voice = ${voice.name} / ${voice.locale.displayName}")
+                voice.features.forEach { f ->
+                    debugLog("        Feature = $f")
                 }
             }
         } catch (e: NullPointerException) {
@@ -123,27 +85,27 @@ class TTSController(
         override fun onStart(utteranceId: String?) {
             if (IS_DEBUG) debugLog("TTSCtrl.Progress.onStart()")
 
-            stateCallback?.onStarted()
+            callback?.onSpeechStarted()
         }
 
         override fun onError(utteranceId: String?) {
-            // NOP.
+            // NOP. Deprecated.
         }
 
         override fun onError(utteranceId: String?, errorCode: Int) {
             if (IS_DEBUG) debugLog("TTSCtrl.Progress.onError()")
 
-            stateCallback?.onCompleted(false)
+            callback?.onSpeechDone(false)
         }
 
         override fun onDone(utteranceId: String?) {
             if (IS_DEBUG) debugLog("TTSCtrl.Progress.onDone()")
 
-            stateCallback?.onCompleted(true)
+            callback?.onSpeechDone(true)
         }
     }
 
-    public fun release() {
+    override fun release() {
         if (tts.isSpeaking) {
             tts.stop()
         }
@@ -151,7 +113,7 @@ class TTSController(
         tts.shutdown()
     }
 
-    public fun speak(text: String) {
+    override fun speak(text: String) {
         if (tts.isSpeaking) {
             tts.stop()
         }
@@ -161,13 +123,16 @@ class TTSController(
         }
 
         if (IS_DEBUG) debugLog("TTSCtrl.speak() : text = $text")
-        val ret = tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, getNextSequenceId())
-
+        val ret = tts.speak(
+                text,
+                TextToSpeech.QUEUE_FLUSH,
+               null,
+                getNextSequenceId())
+        if (IS_DEBUG) debugLog("TTSCtrl.speak() : done = $ret")
         when (ret) {
             TextToSpeech.SUCCESS -> {
                 if (IS_DEBUG) debugLog("TTSCtrl.speak() : SUCCESS")
             }
-
             TextToSpeech.ERROR -> {
                 debugLog("TTSCtrl.speak() : ERROR")
             }
@@ -176,7 +141,7 @@ class TTSController(
 
     private fun getNextSequenceId(): String {
         ++sequenceId
-        return "${context.packageName}-TTS-$sequenceId"
+        return "${context?.packageName}-TTS-$sequenceId"
     }
 
 }

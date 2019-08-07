@@ -9,7 +9,7 @@ class PetApplication : Application() {
     companion object {
         private lateinit var gsp: SharedPreferences
 
-        public fun getSP(): SharedPreferences {
+        fun getSP(): SharedPreferences {
             return gsp
         }
     }
@@ -19,10 +19,6 @@ class PetApplication : Application() {
 
         // SharedPreferences.
         gsp = getSharedPreferences(packageName, Context.MODE_PRIVATE)
-    }
-
-    override fun onTerminate() {
-        super.onTerminate()
     }
 
 }

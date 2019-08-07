@@ -164,13 +164,14 @@ class FaceTrigger(val context: Context) {
 
             override fun onConfigured(session: CameraCaptureSession?) {
                 val device = cameraDevice ?: throw RuntimeException("cameraDevice is null")
+                val ps = previewStream ?: throw RuntimeException("PreviewStream is null")
 
                 captureSession = session
 
                 // Request.
                 val builder: CaptureRequest.Builder = device.createCaptureRequest(
                         CameraDevice.TEMPLATE_PREVIEW)
-                builder.addTarget(previewStream?.surface)
+                builder.addTarget(ps.surface)
                 builder.set(
                         CaptureRequest.CONTROL_MODE,
                         CaptureRequest.CONTROL_MODE_AUTO)
@@ -195,15 +196,16 @@ class FaceTrigger(val context: Context) {
                     session: CameraCaptureSession?,
                     request: CaptureRequest?,
                     result: TotalCaptureResult?) {
-            if (Log.IS_DEBUG) debugLog("FaceTrigger.CaptureCallback.onCaptureCompleted() : E")
-                super.onCaptureCompleted(session, request, result)
-
                 if (Log.IS_DEBUG) debugLog("FaceTrigger.CaptureCallback.onCaptureCompleted() : E")
+                val s = session ?: throw RuntimeException("session is null")
+                val req = request ?: throw RuntimeException("request is null")
+                val res = result ?: throw RuntimeException("result is null")
 
-                val faces = result?.get(CaptureResult.STATISTICS_FACES)
+                super.onCaptureCompleted(s, req, res)
+
+                val faces = res.get(CaptureResult.STATISTICS_FACES)
 
                 if (Log.IS_DEBUG) debugLog("FaceTrigger DETECTED FACES = " + faces?.size)
-
 
                 if (faces != null) {
                     if (faces.isNotEmpty()) {

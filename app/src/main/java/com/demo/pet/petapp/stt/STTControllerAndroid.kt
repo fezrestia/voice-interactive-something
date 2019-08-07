@@ -1,3 +1,8 @@
+@file:Suppress(
+        "ConstantConditionIf",
+        "SimplifyBooleanWithConstants",
+        "PrivatePropertyName")
+
 package com.demo.pet.petapp.stt
 
 import android.content.Context
@@ -15,6 +20,9 @@ import com.demo.pet.petapp.debugLog
 class STTControllerAndroid(context: Context) : STTController {
     private val IS_DEBUG = true || Log.IS_DEBUG
 
+    override var callback: STTController.Callback? = null
+    override var isActive: Boolean = false
+
     companion object {
         fun isSupported(context: Context): Boolean {
             return SpeechRecognizer.isRecognitionAvailable(context)
@@ -24,9 +32,7 @@ class STTControllerAndroid(context: Context) : STTController {
     private val speechRecogIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
     private val speechRecog: SpeechRecognizer
 
-    private val keywordVsFilter: MutableMap<String, STTController.KeywordFilterCallback> = HashMap()
-
-    private var isActive = false
+    private val keywords: MutableList<String> = ArrayList()
 
     init {
         speechRecogIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -38,28 +44,30 @@ class STTControllerAndroid(context: Context) : STTController {
 
     }
 
-    override fun registerKeywordFilter(
-            keywords: List<String>,
-            filter: STTController.KeywordFilterCallback) {
-        keywords.forEach { keyword: String -> keywordVsFilter[keyword] = filter }
+    override fun registerKeywords(keywords: List<String>) {
+        keywords.forEach { keyword: String ->
+            if (!this.keywords.contains(keyword)) {
+                this.keywords.add(keyword)
+            }
+        }
     }
 
-    override fun unregisterKeywordFilter(keywords: List<String>) {
-        keywords.forEach { keyword: String -> keywordVsFilter.remove(keyword) }
+    override fun unregisterKeywords(keywords: List<String>) {
+        keywords.forEach { keyword: String -> this.keywords.remove(keyword) }
     }
 
-    override fun clearKeywordFilter() {
-        keywordVsFilter.clear()
+    override fun clearKeywords() {
+        this.keywords.clear()
     }
 
-    override fun ready() {
+    override fun prepare() {
         // NOP.
     }
 
     override fun release() {
         stopRecog()
         speechRecog.destroy()
-        keywordVsFilter.clear()
+        keywords.clear()
     }
 
     private inner class SpeechRecognitionListenerImpl : RecognitionListener {
@@ -117,10 +125,12 @@ class STTControllerAndroid(context: Context) : STTController {
             if (IS_DEBUG) debugLog("STTCtrl.Callback.onResults()")
 
             if (results != null) {
-                val recogTexts: List<String> = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                val recogTexts: List<String>? = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (IS_DEBUG) debugLog("Total Results:")
-                for (text in recogTexts) {
-                    if (IS_DEBUG) debugLog("    $text")
+                if (recogTexts != null) {
+                    for (text in recogTexts) {
+                        if (IS_DEBUG) debugLog("    $text")
+                    }
                 }
             }
 
@@ -141,14 +151,17 @@ class STTControllerAndroid(context: Context) : STTController {
             if (IS_DEBUG) debugLog("STTCtrl.Callback.onPartialResults()")
 
             if (partialResults != null) {
-                val recogTexts: List<String> = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                val recogTexts: List<String>? = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (IS_DEBUG) debugLog("Partial Results:")
-                for (text in recogTexts) {
-                    if (IS_DEBUG) debugLog("    $text")
+                if (recogTexts != null) {
+                    for (text in recogTexts) {
+                        if (IS_DEBUG) debugLog("    $text")
+                    }
+
+                    callback?.onDetected(recogTexts.first(), recogTexts)
+                } else {
+                    if (IS_DEBUG) debugLog("    Result is null")
                 }
-
-                keywordVsFilter.values.first().onDetected(recogTexts.first())
-
             }
         }
 
@@ -165,10 +178,6 @@ class STTControllerAndroid(context: Context) : STTController {
     override fun stopRecog() {
         speechRecog.stopListening()
         isActive = false
-    }
-
-    override fun isActive(): Boolean {
-        return isActive
     }
 
 }

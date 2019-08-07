@@ -6,6 +6,7 @@
 
     <string name="main_activity_label">PetApp</string>
     <string name="main_activity_2_label">PetApp2</string>
+    <string name="main_activity_3_label">PetApp3</string>
 
     <!--
     <string name="script_a_0">hello</string>

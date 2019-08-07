@@ -3,59 +3,58 @@ package com.demo.pet.petapp.conversations
 import android.content.Context
 import android.widget.Toast
 import com.demo.pet.petapp.R
-import com.demo.pet.petapp.stt.STTController
 import com.demo.pet.petapp.debugLog
 
-class OhayouKatchy(val context: Context) : VoiceInteractionStrategy {
-    private val keywords: List<String> = context.resources.getStringArray(R.array.ohayou_katchy_keywords).toList()
-    private val filterCallback = KeywordFilterCallbackImpl()
-    private var speakOutCallback: ((String) -> Unit)? = null
+class OhayouKatchy(var context: Context?) : ConversationStrategy {
+    private val keywords: List<String>
 
-    override fun configureKeywordFilter(stt: STTController) {
-        stt.registerKeywordFilter(keywords, filterCallback)
-    }
-
-    override fun release(stt: STTController) {
-        stt.unregisterKeywordFilter(keywords)
-        speakOutCallback = null
-    }
-
-    private inner class KeywordFilterCallbackImpl : STTController.KeywordFilterCallback {
-        override fun onDetected(keyword: String) {
-
-            debugLog("## KEYWORD = $keyword is DETECTED")
-
-            Toast.makeText(context, "KATCHY << $keyword", Toast.LENGTH_SHORT).show()
-
-            val outword = when (keyword) {
-                // Sphinx
-                "ohayou" -> {
-                    "おはようございます"
-                }
-                "konnichiwa" -> {
-                    "こんばんわ"
-                }
-
-                // Google Speech API.
-                "おはよう" -> {
-                    "おはようございます"
-                }
-                "こんにちは" -> {
-                    "こんにちわ"
-                }
-
-                else -> {
-                    "よくわかりません"
-                }
-            }
-
-            val speakOut = speakOutCallback
-            speakOut?.invoke(outword)
+    init {
+        val ctx = context
+        if (ctx != null) {
+            keywords = ctx.resources.getStringArray(R.array.ohayou_katchy_keywords).toList()
+        } else {
+            keywords = ArrayList()
         }
     }
 
-    override fun setSpeakOutRequestCallback(callback: (String) -> Unit) {
-        speakOutCallback = callback
+    override fun getFilterKeywords(): List<String> {
+        return keywords
+    }
+
+    override fun release() {
+        context = null
+    }
+
+    override fun conversate(sentence: String, keywords: List<String>): String {
+        val keyword = keywords.first()
+
+        debugLog("## KEYWORD = $keyword is DETECTED")
+
+        Toast.makeText(context, "KATCHY << $keyword", Toast.LENGTH_SHORT).show()
+
+        val outword = when (keyword) {
+            // Sphinx
+            "ohayou" -> {
+                "おはようございます"
+            }
+            "konnichiwa" -> {
+                "こんばんわ"
+            }
+
+            // Google Speech API.
+            "おはよう" -> {
+                "おはようございます"
+            }
+            "こんにちは" -> {
+                "こんにちわ"
+            }
+
+            else -> {
+                "よくわかりません"
+            }
+        }
+
+        return outword
     }
 
 }

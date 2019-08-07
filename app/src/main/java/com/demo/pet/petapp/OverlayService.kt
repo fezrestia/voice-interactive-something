@@ -1,3 +1,8 @@
+@file:Suppress(
+        "SimplifyBooleanWithConstants",
+        "PrivatePropertyName",
+        "ConstantConditionIf")
+
 package com.demo.pet.petapp
 
 import android.annotation.SuppressLint

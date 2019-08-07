@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.demo.pet.petapp.OverlayRootView3
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+>
+
+    <ImageView
+        android:id="@+id/pet_icon"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_alignParentEnd="true"
+    />
+
+    <TextView
+        android:id="@+id/debug_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/pet_icon"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:background="#AAAAAA"
+    />
+
+    <LinearLayout
+        android:id="@+id/voice_level_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="64px"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/debug_msg"
+    >
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="64px"
+            android:layout_weight="20"
+            android:background="#AAFFAA"
+        />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="64px"
+            android:layout_weight="80"
+            android:background="#FFAAAA"
+        />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/voice_level"
+        android:layout_width="match_parent"
+        android:layout_height="48px"
+        android:layout_alignBottom="@id/voice_level_indicator"
+        android:layout_alignParentLeft="true"
+        android:background="#FFFFFF"
+    />
+
+</com.demo.pet.petapp.OverlayRootView3>

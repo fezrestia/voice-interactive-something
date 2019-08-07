@@ -6,9 +6,8 @@ import com.demo.pet.petapp.Constants
 import com.demo.pet.petapp.MainActivity2.KeywordProtocol
 import com.demo.pet.petapp.PetApplication
 import com.demo.pet.petapp.debugLog
-import com.demo.pet.petapp.stt.STTController
 
-class UserDefinitions(val context: Context) : VoiceInteractionStrategy {
+class UserDefinitions(var context: Context?) : ConversationStrategy {
     private val keywordProtocols: Set<KeywordProtocol>
     private val detectTargets: List<String>
     private val keywordMap: Map<String, String>
@@ -17,7 +16,7 @@ class UserDefinitions(val context: Context) : VoiceInteractionStrategy {
     init {
         val protocolSet = PetApplication.getSP().getStringSet(
                 Constants.KEY_KEYWORD_PROTOCOLS,
-                setOf<String>())
+                setOf<String>()) as Set<String>
 
         keywordProtocols = mutableSetOf()
         keywordMap = mutableMapOf()
@@ -34,29 +33,34 @@ class UserDefinitions(val context: Context) : VoiceInteractionStrategy {
         }
     }
 
-    override fun configureKeywordFilter(stt: STTController) {
-        stt.registerKeywordFilter(detectTargets, KeywordFilterCallbackImpl())
+    override fun getFilterKeywords(): List<String> {
+        return keywordMap.keys.toList()
     }
 
-    override fun release(stt: STTController) {
-        stt.unregisterKeywordFilter(detectTargets)
-        speakOutCallback = null
+    override fun release() {
+        context = null
     }
 
-    private inner class KeywordFilterCallbackImpl : STTController.KeywordFilterCallback {
-        override fun onDetected(keyword: String) {
-            debugLog("## KEYWORD = $keyword is DETECTED")
-
-            val outKeyword = keywordMap[keyword]
-            if (outKeyword != null) {
-                Toast.makeText(context, "KATCHY << $outKeyword", Toast.LENGTH_SHORT).show()
-                speakOutCallback?.invoke(outKeyword)
-            }
+    override fun conversate(sentence: String, keywords: List<String>): String {
+        if (keywords.isEmpty()) {
+            debugLog("## KEYWORD is EMPTY")
+            return ConversationStrategy.SILENT_RESPONSE
         }
-    }
 
-    override fun setSpeakOutRequestCallback(callback: (String) -> Unit) {
-        speakOutCallback = callback
+        val keyword = keywords.first()
+
+        debugLog("## KEYWORD = $keyword is DETECTED")
+
+        val outKeyword = keywordMap[keyword]
+
+        return if (outKeyword != null) {
+            Toast.makeText(context, "KATCHY << $outKeyword", Toast.LENGTH_SHORT).show()
+            speakOutCallback?.invoke(outKeyword)
+
+            outKeyword
+        } else {
+            "invalid"
+        }
     }
 
 }

@@ -12,36 +12,26 @@ import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
+import com.demo.pet.petapp.conversations.ConversationType
 import com.demo.pet.petapp.stt.STTType
 import com.demo.pet.petapp.tts.TTSType
-import kotlinx.android.synthetic.main.activity_main_2.*
-import kotlinx.android.synthetic.main.conversation_protocol_list_item.view.*
-import kotlinx.android.synthetic.main.conversation_protocol_list_item_input.*
+import kotlinx.android.synthetic.main.activity_main_3.*
 
-class MainActivity2 : AppCompatActivity() {
-
+class MainActivity3 : AppCompatActivity() {
     @Suppress("PrivatePropertyName")
     private val IS_DEBUG = Log.IS_DEBUG
-
-    data class KeywordProtocol(val inKeyword: String, val outKeyword: String)
-
-    private val keywordProtocols = ArrayList<KeywordProtocol>()
-
-    private lateinit var protocolListAdapter: ConversationProtocolListViewAdapter
 
     companion object {
         fun togglePet(isEnabled: Boolean, context: Context) {
             val action: String = if (isEnabled) {
-                REQUEST_START_OVERLAY
+                REQUEST_START_OVERLAY_3
             } else {
-                REQUEST_STOP_OVERLAY
+                REQUEST_STOP_OVERLAY_3
             }
             val service = Intent(action)
-            service.setClass(context , OverlayService::class.java)
+            service.setClass(context , OverlayService3::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(service)
             } else {
@@ -54,37 +44,42 @@ class MainActivity2 : AppCompatActivity() {
         if (IS_DEBUG) debugLog("onCreate() : E")
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_main_2)
+        setContentView(R.layout.activity_main_3)
 
+        // En/Disable switch.
         overlay_switch.isChecked = OverlayRootView.isActive()
         overlay_switch.setOnCheckedChangeListener(OnCheckedChangeListenerImpl())
 
-        protocolListAdapter = ConversationProtocolListViewAdapter(
-            this,
-            R.layout.conversation_protocol_list_item,
-            keywordProtocols)
-
-        conversation_protocol_list.adapter = protocolListAdapter
-
-        add_protocol.setOnClickListener(OnAddProtocolClickListenerImpl())
-
         // Sound level threshold.
         sound_level_threshold.max = Constants.SPEAK_THRESHOLD_MAX - Constants.SPEAK_THRESHOLD_MIN
-        sound_level_threshold.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, isFromUser: Boolean) {
-                val cur = progress + Constants.SPEAK_THRESHOLD_MIN
-                speak_threshold_indicator.text = cur.toString()
-            }
+        sound_level_threshold.setOnSeekBarChangeListener(OnSeekBarChangeListenerImpl())
 
-            override fun onStartTrackingTouch(seekBar: SeekBar) {
-                // NOP.
-            }
+        // STT Engine selector.
+        val sttAdapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                STTType.values().map { type -> type.toString() } )
+        sttAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        stt_engine_selector.adapter = sttAdapter
+        stt_engine_selector.onItemSelectedListener = OnItemSelectedListenerImpl(Constants.KEY_STT_TYPE)
 
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                val cur: Int = seekBar.progress + Constants.SPEAK_THRESHOLD_MIN
-                PetApplication.getSP().edit().putInt(Constants.KEY_SPEAK_THRESHOLD, cur).apply()
-            }
-        })
+        // TTS Engine selector.
+        val ttsAdapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                TTSType.values().map { type -> type.toString() } )
+        ttsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        tts_engine_selector.adapter = ttsAdapter
+        tts_engine_selector.onItemSelectedListener = OnItemSelectedListenerImpl(Constants.KEY_TTS_TYPE)
+
+        // Conversation Engine selector.
+        val conversationAdapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                ConversationType.values().map { type -> type.toString() } )
+        conversationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        conversation_engine_selector.adapter = conversationAdapter
+        conversation_engine_selector.onItemSelectedListener = OnItemSelectedListenerImpl(Constants.KEY_CONVERSATION_TYPE)
 
         if (IS_DEBUG) debugLog("onCreate() : X")
     }
@@ -93,22 +88,37 @@ class MainActivity2 : AppCompatActivity() {
         override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
             if (IS_DEBUG) debugLog("Overlay switch changed to : $isChecked")
 
-            togglePet(isChecked, this@MainActivity2)
+            togglePet(isChecked, this@MainActivity3)
         }
     }
 
-    private inner class OnAddProtocolClickListenerImpl : View.OnClickListener {
-        override fun onClick(view: View?) {
+    private inner class OnSeekBarChangeListenerImpl : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar, progress: Int, isFromUser: Boolean) {
+            val cur = progress + Constants.SPEAK_THRESHOLD_MIN
+            speak_threshold_indicator.text = cur.toString()
+        }
 
-            val inKeyword = input_in_keyword.text.toString()
-            val outKeyword = input_out_keyword.text.toString()
+        override fun onStartTrackingTouch(seekBar: SeekBar) {
+            // NOP.
+        }
 
-            if (IS_DEBUG) debugLog("Add Protocol : IN=$inKeyword, OUT=$outKeyword")
+        override fun onStopTrackingTouch(seekBar: SeekBar) {
+            val cur: Int = seekBar.progress + Constants.SPEAK_THRESHOLD_MIN
+            PetApplication.getSP().edit().putInt(Constants.KEY_SPEAK_THRESHOLD, cur).apply()
+        }
+    }
 
-            keywordProtocols.add(KeywordProtocol(inKeyword, outKeyword))
+    private inner class OnItemSelectedListenerImpl(val spKey: String)
+            : AdapterView.OnItemSelectedListener {
+        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            val spinner = parent as Spinner
+            val selected: String = spinner.selectedItem as String
 
-            protocolListAdapter.notifyDataSetChanged()
+            PetApplication.getSP().edit().putString(spKey, selected).apply()
+        }
 
+        override fun onNothingSelected(parent: AdapterView<*>?) {
+            // NOP.
         }
     }
 
@@ -124,20 +134,7 @@ class MainActivity2 : AppCompatActivity() {
             return
         }
 
-        // Load protocol.
-        loadKeywordProtocols()
-
-        // TTS fixed.
-        PetApplication.getSP().edit().putString(
-                Constants.KEY_TTS_TYPE,
-                TTSType.ANDROID.toString())
-                .apply()
-
-        // STT fixed.
-        PetApplication.getSP().edit().putString(
-                Constants.KEY_STT_TYPE,
-                STTType.GOOGLE_WEB_API.toString())
-                .apply()
+        loadConfigs()
 
         // Speak level threshold.
         val curThreshold = PetApplication.getSP().getInt(
@@ -153,83 +150,43 @@ class MainActivity2 : AppCompatActivity() {
         if (IS_DEBUG) debugLog("onResume() : X")
     }
 
-    private fun loadKeywordProtocols() {
-        keywordProtocols.clear()
+    private fun loadConfigs() {
+        // TTS.
+        val tts = PetApplication.getSP().getString(
+                Constants.KEY_TTS_TYPE,
+                TTSType.ANDROID.toString()) as String
+        tts_engine_selector.setSelection(TTSType.valueOf(tts).ordinal)
 
-        val protocolSet = PetApplication.getSP().getStringSet(
-                Constants.KEY_KEYWORD_PROTOCOLS,
-                setOf<String>()) as Set<String>
+        // STT.
+        val stt = PetApplication.getSP().getString(
+                Constants.KEY_STT_TYPE,
+                STTType.GOOGLE_WEB_API.toString()) as String
+        stt_engine_selector.setSelection(STTType.valueOf(stt).ordinal)
 
-        protocolSet.forEach { protocol: String ->
-            val keywords = protocol.split("=")
-            keywordProtocols.add(KeywordProtocol(keywords[0], keywords[1]))
-        }
+        // Conversation.
+        val conversation = PetApplication.getSP().getString(
+                Constants.KEY_CONVERSATION_TYPE,
+                ConversationType.USER_DEF.toString()) as String
+        conversation_engine_selector.setSelection(ConversationType.valueOf(conversation).ordinal)
+
     }
 
     override fun onPause() {
         if (IS_DEBUG) debugLog("onPause() : E")
 
-        saveKeywordProtocols()
+        // NOP.
 
         super.onPause()
         if (IS_DEBUG) debugLog("onPause() : X")
     }
 
-    private fun saveKeywordProtocols() {
-        val protocolSet = mutableSetOf<String>()
-
-        keywordProtocols.forEach { protocol: KeywordProtocol ->
-            protocolSet.add("${protocol.inKeyword}=${protocol.outKeyword}")
-        }
-
-        PetApplication.getSP().edit().putStringSet(
-                Constants.KEY_KEYWORD_PROTOCOLS,
-                protocolSet)
-                .apply()
-    }
-
     override fun onDestroy() {
         if (IS_DEBUG) debugLog("onDestroy() : E")
 
-
+        // NOP.
 
         super.onDestroy()
         if (IS_DEBUG) debugLog("onDestroy() : X")
-    }
-
-    class ConversationProtocolListViewAdapter(
-            context: Context,
-            private val itemLayoutId: Int,
-            private val keywordProtocols: MutableList<KeywordProtocol>) : BaseAdapter() {
-        private val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
-        override fun getView(position: Int, view: View?, parent: ViewGroup?): View {
-            // Initialize.
-            val itemView = view ?: inflater.inflate(itemLayoutId, parent, false)
-
-            val protocol = keywordProtocols[position]
-            itemView.in_keyword.text = protocol.inKeyword
-            itemView.out_keyword.text = protocol.outKeyword
-
-            itemView.del_button.setOnClickListener {
-                keywordProtocols.removeAt(position)
-                notifyDataSetChanged()
-            }
-
-            return itemView
-        }
-
-        override fun getItem(position: Int): Any? {
-            return null
-        }
-
-        override fun getItemId(position: Int): Long {
-            return 0
-        }
-
-        override fun getCount(): Int {
-            return keywordProtocols.size
-        }
     }
 
     //// RUNTIME PERMISSION SUPPORT.

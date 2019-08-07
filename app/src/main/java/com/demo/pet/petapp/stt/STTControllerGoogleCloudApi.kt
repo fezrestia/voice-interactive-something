@@ -1,11 +1,11 @@
-@file:Suppress("ConstantConditionIf")
+@file:Suppress(
+        "ConstantConditionIf",
+        "SimplifyBooleanWithConstants")
 
 package com.demo.pet.petapp.stt
 
 import android.content.Context
-import android.graphics.Color
-import android.view.View
-import android.widget.TextView
+import com.demo.pet.petapp.Log
 import com.demo.pet.petapp.debugLog
 
 /**
@@ -13,17 +13,15 @@ import com.demo.pet.petapp.debugLog
  */
 class STTControllerGoogleCloudApi(val context: Context, speakThreshold: Int) : STTController {
     @Suppress("PrivatePropertyName")
-    private val IS_DEBUG = true // Log.IS_DEBUG
+    private val IS_DEBUG = true || Log.IS_DEBUG
 
     private var voiceRec: VoiceRecorder? = null
     private var webApi: GoogleSpeechApi? = null
 
-    private val keywordVsFilter: MutableMap<String, STTController.KeywordFilterCallback> = HashMap()
+    private val keywords: MutableList<String> = ArrayList()
 
-    private var isActive = false
-
-    var debugMsg: TextView? = null
-    var voiceLevel: View? = null
+    override var callback: STTController.Callback? = null
+    override var isActive: Boolean = false
 
     init {
         val api = GoogleSpeechApi(context)
@@ -43,25 +41,25 @@ class STTControllerGoogleCloudApi(val context: Context, speakThreshold: Int) : S
         voiceRec = null
     }
 
-    override fun registerKeywordFilter(
-            keywords: List<String>,
-            filter: STTController.KeywordFilterCallback) {
+    override fun registerKeywords(keywords: List<String>) {
         keywords.forEach { keyword: String ->
-            keywordVsFilter[keyword] = filter
+            if (!this.keywords.contains(keyword)) {
+                this.keywords.add(keyword)
+            }
         }
     }
 
-    override fun unregisterKeywordFilter(keywords: List<String>) {
+    override fun unregisterKeywords(keywords: List<String>) {
         keywords.forEach { keyword: String ->
-            keywordVsFilter.remove(keyword)
+            this.keywords.remove(keyword)
         }
     }
 
-    override fun clearKeywordFilter() {
-        keywordVsFilter.clear()
+    override fun clearKeywords() {
+        keywords.clear()
     }
 
-    override fun ready() {
+    override fun prepare() {
         // NOP.
     }
 
@@ -76,7 +74,7 @@ class STTControllerGoogleCloudApi(val context: Context, speakThreshold: Int) : S
             isActive = true
             webApi?.startRecog(samplingRate)
 
-            voiceLevel?.setBackgroundColor(Color.RED)
+            callback?.onSoundRecStarted()
         }
 
         override fun onStopped() {
@@ -85,17 +83,11 @@ class STTControllerGoogleCloudApi(val context: Context, speakThreshold: Int) : S
             isActive = false
             webApi?.stopRecog()
 
-            voiceLevel?.setBackgroundColor(Color.WHITE)
+            callback?.onSoundRecStopped()
         }
 
         override fun onSoundLevelChanged(level: Int, min: Int, max: Int) {
-            // Debug.
-            val target = voiceLevel
-            if (target != null) {
-                val rate = level.toFloat() / (max.toFloat() - min.toFloat())
-                target.pivotX = 0.0f
-                target.scaleX = rate
-            }
+            callback?.onSoundLevelChanged(level, min, max)
         }
 
         override fun onRecorded(buffer: ByteArray, format: Int, size: Int) {
@@ -114,25 +106,22 @@ class STTControllerGoogleCloudApi(val context: Context, speakThreshold: Int) : S
                 if (IS_DEBUG) debugLog("RECOG = $text")
             }
 
-            // Debug.
-            debugMsg?.text = text
+            callback?.onDetecting(text)
 
             if (isEnd) {
-                keywordVsFilter.forEach { key, filter ->
-                    if (text.contains(key)) {
-                        filter.onDetected(key)
+                val detectedKeywords: MutableList<String> = ArrayList()
+                keywords.forEach { keyword ->
+                    if (text.contains(keyword)) {
+                        detectedKeywords.add(keyword)
                     }
                 }
+                callback?.onDetected(text, detectedKeywords)
             }
         }
     }
 
     override fun stopRecog() {
         voiceRec?.stop()
-    }
-
-    override fun isActive(): Boolean {
-        return isActive
     }
 
 }

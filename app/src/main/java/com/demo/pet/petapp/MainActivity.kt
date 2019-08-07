@@ -1,3 +1,8 @@
+@file:Suppress(
+        "ConstantConditionIf",
+        "PrivatePropertyName",
+        "SimplifyBooleanWithConstants")
+
 package com.demo.pet.petapp
 
 import android.annotation.SuppressLint
@@ -10,10 +15,11 @@ import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
-import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.*
 import com.demo.pet.petapp.stt.STTType
+import com.demo.pet.petapp.tts.TTSController
+import com.demo.pet.petapp.tts.TTSControllerAndroid
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -21,20 +27,19 @@ class MainActivity : AppCompatActivity() {
     private val IS_DEBUG = false || Log.IS_DEBUG
 
     private var ttsCtrl: TTSController? = null
-    private lateinit var installedEngines: List<TextToSpeech.EngineInfo>
 
     private lateinit var soundPool: SoundPool
     private var soundWan: Int = 0
     private var soundKuun: Int = 0
+
+    private val DEFAULT_ENGINE = "default"
 
     companion object {
         init {
             System.loadLibrary("native-lib")
         }
 
-        var userTtsEngine: String = TTSController.DEFAULT_ENGINE
-
-        public fun togglePet(isEnabled: Boolean, context:Context) {
+        fun togglePet(isEnabled: Boolean, context:Context) {
             val action: String = if (isEnabled) {
                 REQUEST_START_OVERLAY
             } else {
@@ -59,18 +64,12 @@ class MainActivity : AppCompatActivity() {
         overlay_switch.isChecked = OverlayRootView.isActive()
         overlay_switch.setOnCheckedChangeListener(OnCheckedChangeListenerImpl())
 
-        speak_input_text.setOnClickListener( { speakInputText() } )
+        speak_input_text.setOnClickListener { speakInputText() }
 
-        // Supported engines.
-        installedEngines = TTSController.getSupportedEngines(this)
-        installedEngines.forEach {
-            if (IS_DEBUG) debugLog("Installed Engine = ${it.label}")
-        }
-
-        setupSTTEngineSelector(this)
+        setupSTTEngineSelector()
     }
 
-    private fun setupSTTEngineSelector(context: Context) {
+    private fun setupSTTEngineSelector() {
         val spinner: Spinner = findViewById(R.id.stt_eigine_selector)
         spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -81,8 +80,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val item: String = parent?.getSelectedItem() as String
-                when (item) {
+                when (parent?.selectedItem as String) {
                     "Android" -> {
                         PetApplication.getSP().edit().putString(
                                 Constants.KEY_STT_TYPE,
@@ -138,7 +136,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // TTS.
-        ttsCtrl = TTSController(this)
+        ttsCtrl = TTSControllerAndroid(this)
 
         prepareButtons()
 
@@ -156,9 +154,9 @@ class MainActivity : AppCompatActivity() {
                 .setAudioAttributes(audioAttr)
                 .setMaxStreams(2)
                 .build()
-        soundPool.setOnLoadCompleteListener(SoundPool.OnLoadCompleteListener() { soundPool, sampleId, status ->
+        soundPool.setOnLoadCompleteListener { _, sampleId, _ ->
             if (IS_DEBUG) debugLog("SoundPool.onLoadComplete() : ID=$sampleId")
-        } )
+        }
 
         soundWan = soundPool.load(this, R.raw.wan_wan, 1)
         soundKuun = soundPool.load(this, R.raw.wan_kuun, 1)
@@ -166,52 +164,37 @@ class MainActivity : AppCompatActivity() {
 
     private fun prepareButtons() {
         // Engine selector.
-        engine_selector.setOnCheckedChangeListener(
-                { _: RadioGroup, selectedId: Int ->
-                    userTtsEngine = when (selectedId) {
-                        -1 -> {
-                            TTSController.DEFAULT_ENGINE
-                        }
-                        else -> {
-                            val radioButton: RadioButton = this@MainActivity.findViewById(selectedId)
-                            radioButton.text.toString()
-                        }
-                    }
-
-                    ttsCtrl = TTSController(this@MainActivity, userTtsEngine)
-
-                    if (IS_DEBUG) debugLog("TTS Engine selected = $userTtsEngine")
-                })
-        engine_selector.removeAllViews()
-        installedEngines.forEach {
-            val radioButton = RadioButton(this)
-            radioButton.text = it.name
-            engine_selector.addView(radioButton)
+        engine_selector.setOnCheckedChangeListener { _, _ ->
+            ttsCtrl = TTSControllerAndroid(this@MainActivity)
         }
+        engine_selector.removeAllViews()
+        val radioButton = RadioButton(this)
+        radioButton.text = DEFAULT_ENGINE
+        engine_selector.addView(radioButton)
 
         // Speak buttons.
-        key_q.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_q)) } )
-        key_w.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_w)) } )
-        key_e.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_e)) } )
-        key_r.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_r)) } )
-        key_t.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_t)) } )
+        key_q.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_q)) }
+        key_w.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_w)) }
+        key_e.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_e)) }
+        key_r.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_r)) }
+        key_t.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_t)) }
 
-        key_a.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_a)) } )
-        key_s.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_s)) } )
-        key_d.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_d)) } )
-        key_f.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_f)) } )
-        key_g.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_g)) } )
-        key_h.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_h)) } )
-        key_j.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_j)) } )
-        key_k.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_k)) } )
-        key_l.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_l)) } )
+        key_a.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_a)) }
+        key_s.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_s)) }
+        key_d.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_d)) }
+        key_f.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_f)) }
+        key_g.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_g)) }
+        key_h.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_h)) }
+        key_j.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_j)) }
+        key_k.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_k)) }
+        key_l.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_l)) }
 
-        key_z.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_z)) } )
+        key_z.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_z)) }
 
-        key_1.setOnClickListener( { soundPool.play(soundWan, 1.0f, 1.0f, 0, 0, 1.0f) } )
-        key_2.setOnClickListener( { soundPool.play(soundKuun, 1.0f, 1.0f, 0, 0, 1.0f) } )
+        key_1.setOnClickListener { soundPool.play(soundWan, 1.0f, 1.0f, 0, 0, 1.0f) }
+        key_2.setOnClickListener { soundPool.play(soundKuun, 1.0f, 1.0f, 0, 0, 1.0f) }
 
-        key_5.setOnClickListener( { ttsCtrl?.speak(getString(R.string.key_5)) } )
+        key_5.setOnClickListener { ttsCtrl?.speak(getString(R.string.key_5)) }
 
     }
 
@@ -235,6 +218,7 @@ class MainActivity : AppCompatActivity() {
 
     private val REQ_CODE_OVERLAY_PERMISSION: Int = 1000
 
+    @SuppressLint("ObsoleteSdkInt")
     private fun isSystemAlertWindowPermissionGranted(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Settings.canDrawOverlays(this)
@@ -243,7 +227,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("InlinedApi")
+    @SuppressLint("InlinedApi", "ObsoleteSdkInt")
     private fun checkMandatoryPermissions(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                 && !isSystemAlertWindowPermissionGranted()) {
@@ -272,5 +256,5 @@ class MainActivity : AppCompatActivity() {
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
      */
-    private external fun stringFromJNI(): String
+//    private external fun stringFromJNI(): String
 }
