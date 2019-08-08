@@ -63,7 +63,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SST Engine"
+                    android:text="STT Engine"
                 />
                 <Spinner
                     android:id="@+id/stt_engine_selector"
