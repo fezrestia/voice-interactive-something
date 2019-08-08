@@ -13,6 +13,8 @@ class TTSControllerAndroid(var context: Context?) : TTSController {
 
     override var callback: TTSController.Callback? = null
 
+    override var isSpeaking: Boolean = false
+
     private val tts: TextToSpeech
     private val MAX_TEXT_SIZE = TextToSpeech.getMaxSpeechInputLength()
     private var sequenceId = 0
@@ -95,12 +97,14 @@ class TTSControllerAndroid(var context: Context?) : TTSController {
         override fun onError(utteranceId: String?, errorCode: Int) {
             if (IS_DEBUG) debugLog("TTSCtrl.Progress.onError()")
 
+            isSpeaking = false
             callback?.onSpeechDone(false)
         }
 
         override fun onDone(utteranceId: String?) {
             if (IS_DEBUG) debugLog("TTSCtrl.Progress.onDone()")
 
+            isSpeaking = false
             callback?.onSpeechDone(true)
         }
     }
@@ -114,6 +118,8 @@ class TTSControllerAndroid(var context: Context?) : TTSController {
     }
 
     override fun speak(text: String) {
+        isSpeaking = true
+
         if (tts.isSpeaking) {
             tts.stop()
         }

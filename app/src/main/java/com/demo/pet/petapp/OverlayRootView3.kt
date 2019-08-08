@@ -6,12 +6,12 @@
 package com.demo.pet.petapp
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Handler
 import android.util.AttributeSet
 import android.view.Gravity
-import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -29,6 +29,8 @@ class OverlayRootView3 : RelativeLayout {
 
     lateinit var pet: Pet
     private lateinit var renderer: RenderingTask
+
+    val voiceLevel = VoiceLevel()
 
     private val uiHandler: Handler
 
@@ -97,10 +99,6 @@ class OverlayRootView3 : RelativeLayout {
         return debug_msg
     }
 
-    fun getVoiceLevel(): View {
-        return voice_level
-    }
-
     fun addToOverlayWindow() {
         isActive = true
         winMng.addView(this, winParams)
@@ -111,8 +109,24 @@ class OverlayRootView3 : RelativeLayout {
         isActive = false
     }
 
+    fun changeSoundLevel(level: Int, min: Int, max: Int) {
+        val rate = level.toFloat() / (max.toFloat() - min.toFloat())
+        voice_level.pivotX = 0.0f
+        voice_level.scaleX = rate
+    }
+
+    inner class VoiceLevel {
+        fun changeToIdle() {
+            voice_level?.setBackgroundColor(Color.WHITE)
+        }
+
+        fun changeToRec() {
+            voice_level?.setBackgroundColor(Color.RED)
+        }
+    }
+
     inner class Pet(private val targetView: ImageView) {
-        private val standDrawable = R.drawable.dog_stand_4
+//        private val standDrawable = R.drawable.dog_stand_4
         private val sitDrawable = R.drawable.dog_sit
         private val sitSpeakDrawable = R.drawable.dog_sit_speaking
 

@@ -37,6 +37,8 @@ interface TTSController {
 
     var callback: Callback?
 
+    var isSpeaking: Boolean
+
     /**
      * Release ALL references.
      */

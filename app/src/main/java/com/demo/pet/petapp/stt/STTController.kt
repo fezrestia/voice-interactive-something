@@ -87,6 +87,8 @@ interface STTController {
 
     fun startRecog()
     fun stopRecog()
+    fun resumeRecog()
+    fun pauseRecog()
     var isActive: Boolean
 
     fun release()
@@ -118,6 +120,14 @@ private class STTControllerUnAvailable : STTController {
     }
 
     override fun stopRecog() {
+        debugLog("Function UnAvailable")
+    }
+
+    override fun resumeRecog() {
+        debugLog("Function UnAvailable")
+    }
+
+    override fun pauseRecog() {
         debugLog("Function UnAvailable")
     }
 

@@ -12,7 +12,6 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
 import android.view.View
@@ -190,11 +189,17 @@ class OverlayService3 : Service() {
 
     private inner class TTSCallbackImpl : TTSController.Callback {
         override fun onSpeechStarted() {
+            // Katchy speaking voice is also recognized. So, stop recognition during speaking.
+            stt?.pauseRecog()
+
             vfx?.pet?.startSpeak()
         }
 
         override fun onSpeechDone(isSucceeded: Boolean) {
             vfx?.pet?.stopSpeak()
+
+            // During speaking, voice recognition is stopped.
+            stt?.resumeRecog()
         }
     }
 
@@ -204,24 +209,27 @@ class OverlayService3 : Service() {
         }
 
         override fun onDetected(sentence: String, keywords: List<String>) {
-            val outText = itx?.conversate(sentence, keywords)
-            if (outText != null) {
-                tts?.speak(outText)
+            if (tts?.isSpeaking ?: return) {
+                // NOP. Now on speaking.
+            } else {
+                val outText = itx?.conversate(sentence, keywords)
+
+                if (outText != null) {
+                    tts?.speak(outText)
+                }
             }
         }
 
         override fun onSoundRecStarted() {
-            vfx?.getVoiceLevel()?.setBackgroundColor(Color.RED)
+            vfx?.voiceLevel?.changeToRec()
         }
 
         override fun onSoundRecStopped() {
-            vfx?.getVoiceLevel()?.setBackgroundColor(Color.WHITE)
+            vfx?.voiceLevel?.changeToIdle()
         }
 
         override fun onSoundLevelChanged(level: Int, min: Int, max: Int) {
-            val rate = level.toFloat() / (max.toFloat() - min.toFloat())
-            vfx?.getVoiceLevel()?.pivotX = 0.0f
-            vfx?.getVoiceLevel()?.scaleX = rate
+            vfx?.changeSoundLevel(level, min, max)
         }
 
     }

@@ -180,4 +180,12 @@ class STTControllerAndroid(context: Context) : STTController {
         isActive = false
     }
 
+    override fun resumeRecog() {
+        startRecog()
+    }
+
+    override fun pauseRecog() {
+        stopRecog()
+    }
+
 }

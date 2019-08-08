@@ -1,4 +1,4 @@
-@file:Suppress("ConstantConditionIf")
+@file:Suppress("ConstantConditionIf", "RedundantLambdaArrow")
 
 package com.demo.pet.petapp.stt
 
@@ -14,6 +14,7 @@ import com.demo.pet.petapp.errorLog
 import com.demo.pet.petapp.debugLog
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import kotlin.math.abs
 
 /**
  * Continuous sound (voice) recorder.
@@ -467,7 +468,7 @@ class VoiceRecorder(context: Context, private val speakThreshold: Int) {
 
             if (s < 0) s *= -1
             s = s shl 8 // Shift to left
-            s += Math.abs(buf[i].toInt())
+            s += abs(buf[i].toInt())
 
             total += s
         }

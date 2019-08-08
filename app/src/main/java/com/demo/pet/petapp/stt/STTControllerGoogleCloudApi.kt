@@ -23,6 +23,8 @@ class STTControllerGoogleCloudApi(val context: Context, speakThreshold: Int) : S
     override var callback: STTController.Callback? = null
     override var isActive: Boolean = false
 
+    private var isPaused = false
+
     init {
         val api = GoogleSpeechApi(context)
         api.callback = GoogleSpeechApiCallback()
@@ -67,6 +69,18 @@ class STTControllerGoogleCloudApi(val context: Context, speakThreshold: Int) : S
         voiceRec?.start()
     }
 
+    override fun stopRecog() {
+        voiceRec?.stop()
+    }
+
+    override fun resumeRecog() {
+        isPaused = false
+    }
+
+    override fun pauseRecog() {
+        isPaused = true
+    }
+
     private inner class VoiceRecorderCallback : VoiceRecorder.Callback {
         override fun onStarted(samplingRate: Int) {
             if (IS_DEBUG) debugLog("VoiceRecorderCallback.onStarted()")
@@ -93,7 +107,9 @@ class STTControllerGoogleCloudApi(val context: Context, speakThreshold: Int) : S
         override fun onRecorded(buffer: ByteArray, format: Int, size: Int) {
 //            if (IS_DEBUG) debugLog("VoiceRecorderCallback.onRecorded()")
 
-            webApi?.recognize(buffer, size)
+            if (!isPaused) {
+                webApi?.recognize(buffer, size)
+            }
         }
     }
 
@@ -118,10 +134,6 @@ class STTControllerGoogleCloudApi(val context: Context, speakThreshold: Int) : S
                 callback?.onDetected(text, detectedKeywords)
             }
         }
-    }
-
-    override fun stopRecog() {
-        voiceRec?.stop()
     }
 
 }

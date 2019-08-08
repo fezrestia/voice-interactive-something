@@ -88,6 +88,14 @@ class STTControllerPocketSphinx(val context: Context) : STTController {
         startRecog()
     }
 
+    override fun resumeRecog() {
+        startRecog()
+    }
+
+    override fun pauseRecog() {
+        stopRecog()
+    }
+
     private inner class RecognitionListenerImpl : RecognitionListener {
         override fun onResult(hypothesis: Hypothesis?) {
             if (hypothesis == null) {
