@@ -1,6 +1,7 @@
 package com.demo.pet.petapp.conversations
 
 import android.content.Context
+import android.os.Handler
 
 enum class ConversationType {
     OHAYOU_KATCHY,
@@ -32,6 +33,10 @@ interface ConversationStrategy {
         const val SILENT_RESPONSE: String = ""
     }
 
+    interface Callback {
+        fun onCompleted(response: String)
+    }
+
     /**
      * Get input filtered keywords.
      */
@@ -39,8 +44,24 @@ interface ConversationStrategy {
 
     /**
      * Convert Request INPUT text to Response OUTPUT text.
+     * This is blocking API.
      */
     fun conversate(sentence: String, keywords: List<String>): String
+
+    /**
+     * Convert request from INPUT text to OUTPUT text on background thread.
+     * This is asynchronous API. Callback will be invoked on callbackHandler.
+     *
+     * @param sentence INPUT text.
+     * @param keywords INPUT keywords
+     * @param callback
+     * @param callbackHandler If null, callback will be invoked on internal background thread.
+     */
+    fun asyncConversate(
+            sentence: String,
+            keywords: List<String>,
+            callback: Callback,
+            callbackHandler: Handler?)
 
     /**
      * Release ALL references.

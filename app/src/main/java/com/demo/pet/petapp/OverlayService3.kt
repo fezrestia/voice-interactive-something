@@ -212,11 +212,17 @@ class OverlayService3 : Service() {
             if (tts?.isSpeaking ?: return) {
                 // NOP. Now on speaking.
             } else {
-                val outText = itx?.conversate(sentence, keywords)
+                itx?.asyncConversate(
+                        sentence,
+                        keywords,
+                        ConversationCallbackImpl(),
+                        null)
+            }
+        }
 
-                if (outText != null) {
-                    tts?.speak(outText)
-                }
+        private inner class ConversationCallbackImpl : ConversationStrategy.Callback {
+            override fun onCompleted(response: String) {
+                tts?.speak(response)
             }
         }
 

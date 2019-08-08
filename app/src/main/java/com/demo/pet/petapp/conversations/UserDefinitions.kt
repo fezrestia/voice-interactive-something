@@ -1,6 +1,7 @@
 package com.demo.pet.petapp.conversations
 
 import android.content.Context
+import android.os.Handler
 import android.widget.Toast
 import com.demo.pet.petapp.Constants
 import com.demo.pet.petapp.MainActivity2.KeywordProtocol
@@ -63,4 +64,13 @@ class UserDefinitions(var context: Context?) : ConversationStrategy {
         }
     }
 
+    override fun asyncConversate(
+            sentence: String,
+            keywords: List<String>,
+            callback: ConversationStrategy.Callback,
+            callbackHandler: Handler?) {
+        val response = conversate(sentence, keywords)
+        val handler = callbackHandler ?: Handler()
+        handler.post { callback.onCompleted(response) }
+    }
 }

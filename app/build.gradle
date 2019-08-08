@@ -16,7 +16,7 @@ android {
         applicationId "com.demo.pet.petapp"
         minSdkVersion 24
         targetSdkVersion 27
-        versionCode 14
+        versionCode 15
         versionName '3.x'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
