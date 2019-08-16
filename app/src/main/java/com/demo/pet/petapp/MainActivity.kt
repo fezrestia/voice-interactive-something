@@ -35,10 +35,6 @@ class MainActivity : AppCompatActivity() {
     private val DEFAULT_ENGINE = "default"
 
     companion object {
-        init {
-            System.loadLibrary("native-lib")
-        }
-
         fun togglePet(isEnabled: Boolean, context:Context) {
             val action: String = if (isEnabled) {
                 REQUEST_START_OVERLAY
@@ -250,11 +246,4 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, intent)
     }
 
-
-
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-//    private external fun stringFromJNI(): String
 }

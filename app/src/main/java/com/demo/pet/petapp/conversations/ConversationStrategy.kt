@@ -6,6 +6,7 @@ import android.os.Handler
 enum class ConversationType {
     OHAYOU_KATCHY,
     USER_DEF,
+    KATCHY_ONLINE,
 }
 
 fun createConversationStrategy(
@@ -17,6 +18,9 @@ fun createConversationStrategy(
         }
         ConversationType.USER_DEF -> {
             UserDefinitions(context)
+        }
+        ConversationType.KATCHY_ONLINE -> {
+            KatchyOnline()
         }
     }
 }
