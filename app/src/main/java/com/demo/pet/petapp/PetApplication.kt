@@ -12,6 +12,9 @@ class PetApplication : Application() {
         fun getSP(): SharedPreferences {
             return gsp
         }
+
+        var isKatchy3Active = false
+
     }
 
     override fun onCreate() {

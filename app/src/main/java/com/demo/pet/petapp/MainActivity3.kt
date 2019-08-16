@@ -1,4 +1,4 @@
-@file:Suppress("ConstantConditionIf")
+@file:Suppress("ConstantConditionIf", "SimplifyBooleanWithConstants")
 
 package com.demo.pet.petapp
 
@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.activity_main_3.*
 
 class MainActivity3 : AppCompatActivity() {
     @Suppress("PrivatePropertyName")
-    private val IS_DEBUG = Log.IS_DEBUG
+    private val IS_DEBUG = Log.IS_DEBUG || false
 
     companion object {
         fun togglePet(isEnabled: Boolean, context: Context) {
@@ -47,7 +47,6 @@ class MainActivity3 : AppCompatActivity() {
         setContentView(R.layout.activity_main_3)
 
         // En/Disable switch.
-        overlay_switch.isChecked = OverlayRootView.isActive()
         overlay_switch.setOnCheckedChangeListener(OnCheckedChangeListenerImpl())
 
         // Sound level threshold.
@@ -168,6 +167,9 @@ class MainActivity3 : AppCompatActivity() {
                 Constants.KEY_CONVERSATION_TYPE,
                 ConversationType.USER_DEF.toString()) as String
         conversation_engine_selector.setSelection(ConversationType.valueOf(conversation).ordinal)
+
+        // Current state.
+        overlay_switch.isChecked = PetApplication.isKatchy3Active
 
     }
 

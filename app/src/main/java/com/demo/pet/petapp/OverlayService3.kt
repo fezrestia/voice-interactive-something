@@ -31,7 +31,7 @@ const val REQUEST_STOP_OVERLAY_3 = "com.demo.pet.petapp.action.REQUEST_STOP_OVER
 
 class OverlayService3 : Service() {
     @Suppress("SimplifyBooleanWithConstants")
-    private val IS_DEBUG = false || Log.IS_DEBUG
+    private val IS_DEBUG = Log.IS_DEBUG || false
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -42,6 +42,7 @@ class OverlayService3 : Service() {
 
     private var vfx: OverlayRootView3? = null
 
+
     private var itx: ConversationStrategy? = null
 
     private var tts: TTSController? = null
@@ -51,7 +52,7 @@ class OverlayService3 : Service() {
 
     @SuppressLint("NewApi")
     override fun onCreate() {
-        if (IS_DEBUG) debugLog("OverlayService.onCreate()")
+        if (IS_DEBUG) debugLog("OverlayService3.onCreate()")
         super.onCreate()
 
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -78,7 +79,7 @@ class OverlayService3 : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if (IS_DEBUG) debugLog("OverlayService.onStartCommand()")
+        if (IS_DEBUG) debugLog("OverlayService3.onStartCommand()")
 
         val action = intent.action
 
@@ -100,7 +101,7 @@ class OverlayService3 : Service() {
     }
 
     override fun onDestroy() {
-        if (IS_DEBUG) debugLog("OverlayService.onDestroy()")
+        if (IS_DEBUG) debugLog("OverlayService3.onDestroy()")
         super.onDestroy()
 
         stopForeground(true)
@@ -108,6 +109,10 @@ class OverlayService3 : Service() {
     }
 
     private fun startKatchy() {
+        if (IS_DEBUG) debugLog("OverlayService3.startKatchy() : E")
+
+        PetApplication.isKatchy3Active = true
+
         // TTS
         val ttsType = PetApplication.getSP().getString(
                 Constants.KEY_TTS_TYPE,
@@ -156,9 +161,12 @@ class OverlayService3 : Service() {
         faceTrigger?.resume()
         faceTrigger?.setCallback(FaceTriggerCallback())
 
+        if (IS_DEBUG) debugLog("OverlayService3.startKatchy() : X")
     }
 
     private fun stopKatchy() {
+        if (IS_DEBUG) debugLog("OverlayService3.stopKatchy() : E")
+
         val vfx = this.vfx
         if (vfx != null) {
             vfx.release()
@@ -185,6 +193,9 @@ class OverlayService3 : Service() {
 
         stopSelf()
 
+        PetApplication.isKatchy3Active = false
+
+        if (IS_DEBUG) debugLog("OverlayService3.stopKatchy() : X")
     }
 
     private inner class TTSCallbackImpl : TTSController.Callback {
