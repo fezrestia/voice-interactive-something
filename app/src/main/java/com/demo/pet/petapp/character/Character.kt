@@ -41,7 +41,7 @@ interface Character {
 
     var isOnOverlay: Boolean
 
-    fun startSpeack()
+    fun startSpeak()
     fun stopSpeak()
 
     //// For DEBUG

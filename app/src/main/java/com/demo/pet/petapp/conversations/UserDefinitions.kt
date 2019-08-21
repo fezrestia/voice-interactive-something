@@ -4,15 +4,16 @@ import android.content.Context
 import android.os.Handler
 import android.widget.Toast
 import com.demo.pet.petapp.Constants
-import com.demo.pet.petapp.MainActivity2.KeywordProtocol
 import com.demo.pet.petapp.PetApplication
-import com.demo.pet.petapp.debugLog
+import com.demo.pet.petapp.util.debugLog
 
 class UserDefinitions(var context: Context?) : ConversationStrategy {
     private val keywordProtocols: Set<KeywordProtocol>
     private val detectTargets: List<String>
     private val keywordMap: Map<String, String>
     private var speakOutCallback: ((String) -> Unit)? = null
+
+    data class KeywordProtocol(val inKeyword: String, val outKeyword: String)
 
     init {
         val protocolSet = PetApplication.getSP().getStringSet(

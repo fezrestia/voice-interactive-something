@@ -1,7 +1,7 @@
 package com.demo.pet.petapp.stt
 
 import android.content.Context
-import com.demo.pet.petapp.debugLog
+import com.demo.pet.petapp.util.debugLog
 import edu.cmu.pocketsphinx.*
 
 import java.io.File

@@ -1,4 +1,4 @@
-package com.demo.pet.petapp
+package com.demo.pet.petapp.util
 
 object Log {
     const val IS_DEBUG = false

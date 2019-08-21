@@ -8,8 +8,8 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.media.ImageReader
 import android.view.Surface
-import com.demo.pet.petapp.Log
-import com.demo.pet.petapp.debugLog
+import com.demo.pet.petapp.util.Log
+import com.demo.pet.petapp.util.debugLog
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 

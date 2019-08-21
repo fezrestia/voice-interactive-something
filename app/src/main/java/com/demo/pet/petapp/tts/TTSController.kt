@@ -48,7 +48,7 @@ fun loadTTSEngineOptions(
 }
 
 /**
- * Callback for loadig engine options.
+ * Callback for loading engine options.
  */
 interface OnTtsEngineOptionLoadedCallback {
     fun onLoaded(labelVsPackage: Map<String, String>)

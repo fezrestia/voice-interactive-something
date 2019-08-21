@@ -9,9 +9,9 @@ import android.media.AudioManager
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.os.SystemClock
-import com.demo.pet.petapp.Log
-import com.demo.pet.petapp.errorLog
-import com.demo.pet.petapp.debugLog
+import com.demo.pet.petapp.util.Log
+import com.demo.pet.petapp.util.errorLog
+import com.demo.pet.petapp.util.debugLog
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.math.abs

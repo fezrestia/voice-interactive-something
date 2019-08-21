@@ -7,9 +7,9 @@ package com.demo.pet.petapp.conversations
 
 import android.os.Handler
 import android.os.HandlerThread
-import com.demo.pet.petapp.Log
-import com.demo.pet.petapp.debugLog
-import com.demo.pet.petapp.errorLog
+import com.demo.pet.petapp.util.Log
+import com.demo.pet.petapp.util.debugLog
+import com.demo.pet.petapp.util.errorLog
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.OkHttpClient

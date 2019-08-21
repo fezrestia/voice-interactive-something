@@ -5,8 +5,8 @@
 package com.demo.pet.petapp.stt
 
 import android.content.Context
-import com.demo.pet.petapp.Log
-import com.demo.pet.petapp.debugLog
+import com.demo.pet.petapp.util.Log
+import com.demo.pet.petapp.util.debugLog
 
 /**
  * Speech to Text function controller on Android API.

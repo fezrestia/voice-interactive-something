@@ -20,6 +20,9 @@ import com.demo.pet.petapp.stt.STTType
 import com.demo.pet.petapp.tts.OnTtsEngineOptionLoadedCallback
 import com.demo.pet.petapp.tts.TTSType
 import com.demo.pet.petapp.tts.loadTTSEngineOptions
+import com.demo.pet.petapp.util.Log
+import com.demo.pet.petapp.util.debugLog
+import com.demo.pet.petapp.util.errorLog
 import kotlinx.android.synthetic.main.activity_main_3.*
 
 class MainActivity3 : AppCompatActivity() {

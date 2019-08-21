@@ -27,6 +27,8 @@ import com.demo.pet.petapp.stt.createSTTController
 import com.demo.pet.petapp.tts.TTSController
 import com.demo.pet.petapp.tts.TTSType
 import com.demo.pet.petapp.tts.createTTSController
+import com.demo.pet.petapp.util.Log
+import com.demo.pet.petapp.util.debugLog
 
 const val REQUEST_START_OVERLAY_3 = "com.demo.pet.petapp.action.REQUEST_START_OVERLAY_3"
 const val REQUEST_STOP_OVERLAY_3 = "com.demo.pet.petapp.action.REQUEST_STOP_OVERLAY_3"
@@ -206,7 +208,7 @@ class OverlayService3 : Service() {
             // Katchy speaking voice is also recognized. So, stop recognition during speaking.
             stt?.pauseRecog()
 
-            chara?.startSpeack()
+            chara?.startSpeak()
         }
 
         override fun onSpeechDone(isSucceeded: Boolean) {
@@ -263,7 +265,7 @@ class OverlayService3 : Service() {
             if (now - lastFaceDetectedTimeMillis > FACE_DETECTION_TIMEOUT_MILLIS) {
                 lastFaceDetectedTimeMillis = now
 
-                tts?.speak(this@OverlayService3.getString(R.string.key_a))
+                tts?.speak(this@OverlayService3.getString(R.string.face_trigger_msg))
 
             }
         }

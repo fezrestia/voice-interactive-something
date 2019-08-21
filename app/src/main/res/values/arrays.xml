@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string-array name="stt_engine_options">
-        <item>GoogleWebApi</item>
-        <item>Android</item>
-        <item>PocketSphinx</item>
-    </string-array>
-</resources>

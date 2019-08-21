@@ -34,9 +34,9 @@ import io.grpc.internal.DnsNameResolverProvider
 import io.grpc.okhttp.OkHttpChannelProvider
 import io.grpc.stub.StreamObserver
 
-import com.demo.pet.petapp.errorLog
+import com.demo.pet.petapp.util.errorLog
 import com.demo.pet.petapp.R
-import com.demo.pet.petapp.debugLog
+import com.demo.pet.petapp.util.debugLog
 import com.google.cloud.speech.v1.RecognitionConfig
 import com.google.cloud.speech.v1.SpeechGrpc
 import com.google.cloud.speech.v1.StreamingRecognitionConfig

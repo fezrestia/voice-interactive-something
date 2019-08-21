@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Handler
 import android.widget.Toast
 import com.demo.pet.petapp.R
-import com.demo.pet.petapp.debugLog
+import com.demo.pet.petapp.util.debugLog
 
 class OhayouKatchy(var context: Context?) : ConversationStrategy {
     private val keywords: List<String>
@@ -33,7 +33,7 @@ class OhayouKatchy(var context: Context?) : ConversationStrategy {
 
         Toast.makeText(context, "KATCHY << $keyword", Toast.LENGTH_SHORT).show()
 
-        val outword = when (keyword) {
+        return when (keyword) {
             // Sphinx
             "ohayou" -> {
                 "おはようございます"
@@ -54,8 +54,6 @@ class OhayouKatchy(var context: Context?) : ConversationStrategy {
                 "よくわかりません"
             }
         }
-
-        return outword
     }
 
     override fun asyncConversate(

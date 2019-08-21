@@ -11,8 +11,8 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import com.demo.pet.petapp.Log
-import com.demo.pet.petapp.debugLog
+import com.demo.pet.petapp.util.Log
+import com.demo.pet.petapp.util.debugLog
 
 /**
  * Speech to Text function controller on Android API.

@@ -15,10 +15,10 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import com.demo.pet.petapp.Log
+import com.demo.pet.petapp.util.Log
 import com.demo.pet.petapp.R
-import com.demo.pet.petapp.debugLog
-import com.demo.pet.petapp.errorLog
+import com.demo.pet.petapp.util.debugLog
+import com.demo.pet.petapp.util.errorLog
 import kotlinx.android.synthetic.main.character_katchy_dog.view.*
 
 class CharacterKatchyDog(val context: Context) : Character {
@@ -98,7 +98,7 @@ class CharacterKatchyDog(val context: Context) : Character {
         renderer.stop()
     }
 
-    override fun startSpeack() {
+    override fun startSpeak() {
         model.startSpeak()
     }
 

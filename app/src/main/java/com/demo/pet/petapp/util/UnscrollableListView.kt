@@ -1,4 +1,4 @@
-package com.demo.pet.petapp
+package com.demo.pet.petapp.util
 
 import android.content.Context
 import android.util.AttributeSet

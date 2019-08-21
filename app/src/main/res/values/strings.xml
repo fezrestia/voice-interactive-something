@@ -2,71 +2,9 @@
     <string name="app_name">PetApp</string>
 
     <string name="overlay_switch_label">En/Disable overlay pet</string>
-    <string name="title_activity_black_screen">BlackScreenActivity</string>
 
-    <string name="main_activity_label">PetApp</string>
-    <string name="main_activity_2_label">PetApp2</string>
     <string name="main_activity_3_label">PetApp3</string>
 
-    <!--
-    <string name="script_a_0">hello</string>
-    <string name="script_a_1">world</string>
-    <string name="script_a_2">it</string>
-    <string name="script_a_3">is</string>
-    <string name="script_a_4">fine</string>
-    <string name="script_a_5">today</string>
-
-    <string name="script_a_0">おはよう</string>
-    <string name="script_a_1">こんにちわ</string>
-    <string name="script_a_2">こんばんわ</string>
-    <string name="script_a_3">きょうのてんきは</string>
-    <string name="script_a_4">さんぽにいきたいー</string>
-    <string name="script_a_5">おなかすいたー</string>
--->
-
-    <!-- DEBUG
-    <string name="key_q">hello there it is fine today. this is a long sentence speaking test and verification.</string>
-    <string name="key_w">passive speaking</string>
-    <string name="key_e">active speak ?</string>
-    -->
-    <string name="key_q">おはよう</string>
-    <string name="key_w">いまは、はれてるけど、あめがふるかもしれないから、かさをもっていったほうがいいよ</string>
-    <string name="key_e">ぜっこうのさんぽびよりだよ、いってらっしゃい</string>
-    <string name="key_r">だいじょうぶ？ むりしないでね、びょういんいったら？</string>
-    <string name="key_t">すぐに、いいひとをみつけて、けっこんするよ</string>
-
-    <string name="key_a">おはよう、きょうはいいてんきだね、でも、ゆうがたからあめがふるみたい</string>
-    <string name="key_s">たいへん！ おおすぎれんさんがなくなったんだって、かなしいね</string>
-    <string name="key_d">さいきん、だいぶあたたかくなってきたね、かふんしょうのひとはだいじょうぶかな？</string>
-    <string name="key_f">たけのこがしゅんのきせつだね、どんなりょうりにするとおいしいかなぁ？</string>
-    <string name="key_g">おなかがへったよー</string>
-    <string name="key_h">きょうは、おおずもうの、せんしゅうらくだね。きせのさとぜきは、ゆうしょうできるかなぁ？</string>
-    <string name="key_j">きょうは、たなばただね。よるのてんきはいいみたい。あまのがわがキレイにみえるかなぁ？</string>
-    <string name="key_k">きょうは、3ちょうめの、おにくやさんで、とくばいセールがあるよ</string>
-    <string name="key_l">きょうは、2ちょうめの、おてらで、おまつりがあるよ。たのしみだね！</string>
-
-    <string name="key_z">はにゅうくん、オリンピック2たいかいれんぞくきんメダルだね、スゴイね！</string>
-
-    <string name="key_5">ぼくに任せてよ</string>
-
-    <!--
-    <string name="key_q">おはよう！</string>
-    <string name="key_w">今は晴れてるけど、雨が降るかもしれないから傘を持って行った方がいいよ！</string>
-    <string name="key_e">絶好の散歩日和だよ、いってらっしゃい！</string>
-    <string name="key_r">大丈夫？無理しないでね！病院行ったら？</string>
-    <string name="key_t">すぐに良い人見つけて結婚するよ！</string>
-
-    <string name="key_a">おはよう、今日はいい天気だね。でも夕方から雨が降るみたい</string>
-    <string name="key_s">大変！大杉漣さんが亡くなったんだって。悲しいね。</string>
-    <string name="key_d">最近だいぶ暖かくなってきたね。花粉症の人は大丈夫かな？</string>
-    <string name="key_f">タケノコが旬の季節だね。どんな料理にするとおいしいかなぁ？</string>
-    <string name="key_g">お腹が減ったよー</string>
-    <string name="key_h">今日は大相撲の千秋楽だね。 稀勢の里関は優勝出来るかなぁ？</string>
-    <string name="key_j">今日は七夕だね。夜の天気はいいみたい。天の川がキレイに見えるかなぁ？</string>
-    <string name="key_k">今日は3丁目のお肉屋さんで特売セールがあるよ</string>
-    <string name="key_l">今日は２丁目のお寺でお祭りがあるよ。楽しみだね！</string>
-
-    <string name="key_z">羽生君、オリンピック2大会連続金メダルだね、スゴイね！</string>
--->
+    <string name="face_trigger_msg">おはよう</string>
 
 </resources>

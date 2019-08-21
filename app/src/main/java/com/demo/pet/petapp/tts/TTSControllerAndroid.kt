@@ -6,11 +6,9 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import com.demo.pet.petapp.Constants
-import com.demo.pet.petapp.Log
-import com.demo.pet.petapp.debugLog
-import com.demo.pet.petapp.errorLog
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import com.demo.pet.petapp.util.Log
+import com.demo.pet.petapp.util.debugLog
+import com.demo.pet.petapp.util.errorLog
 
 class TTSControllerAndroid(var context: Context?, enginePackage: String) : TTSController {
     private val IS_DEBUG = Log.IS_DEBUG || false

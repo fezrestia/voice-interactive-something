@@ -25,39 +25,9 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name=".MainActivity"
-            android:icon="@drawable/icon_type_1"
-            android:label="@string/main_activity_label"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:launchMode="singleTask"
-            android:exported="true"
-            android:banner="@drawable/dog_sit_speaking">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:theme="@style/AppTheme.Fullscreen"
-            android:name=".MainActivity2"
-            android:icon="@drawable/icon_type_2"
-            android:label="@string/main_activity_2_label"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:launchMode="singleTask"
-            android:exported="true"
-            android:banner="@drawable/dog_sit_speaking">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:theme="@style/AppTheme.Fullscreen"
             android:name=".MainActivity3"
-            android:icon="@drawable/icon_type_3"
+            android:icon="@drawable/dog_sit_speaking"
             android:label="@string/main_activity_3_label"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:launchMode="singleTask"
@@ -72,27 +42,10 @@
         </activity>
 
         <service
-            android:name=".OverlayService"
-            android:enabled="true"
-            android:exported="false"/>
-
-        <service
             android:name=".OverlayService3"
             android:enabled="true"
             android:exported="false"/>
 
-        <activity
-            android:name=".BlackScreenActivity"
-            android:label="@string/title_activity_black_screen"
-            android:icon="@mipmap/ic_launcher_blackscreen"
-            android:banner="@mipmap/ic_launcher_blackscreen"
-            android:theme="@style/AppTheme.Fullscreen"
-            android:launchMode="singleTask"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>
