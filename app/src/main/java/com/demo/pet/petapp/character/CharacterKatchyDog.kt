@@ -187,6 +187,7 @@ class CharacterKatchyDog(val context: Context) : Character {
     //// For DEBUG
 
     override fun updateDebugMsg(msg: String) {
+        rootView.debug_msg.text = msg
     }
 
     override fun updateVoiceLevel(level: Int, min: Int, max: Int) {
