@@ -8,6 +8,7 @@ object Constants {
     val KEY_TTS_TYPE_OPTION_LABEL = "key-tts-type-option-label"
     val KEY_TTS_TYPE_OPTION_PACKAGE = "key-tts-type-option-package"
     val KEY_CONVERSATION_TYPE = "key-conversation-type"
+    val KEY_CHARACTER_TYPE = "key-character-type"
 
     val KEY_KEYWORD_PROTOCOLS = "key-keyword-protocols"
 

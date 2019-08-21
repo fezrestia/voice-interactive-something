@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.*
+import com.demo.pet.petapp.character.CharacterType
 import com.demo.pet.petapp.conversations.ConversationType
 import com.demo.pet.petapp.stt.STTType
 import com.demo.pet.petapp.tts.OnTtsEngineOptionLoadedCallback
@@ -83,6 +84,15 @@ class MainActivity3 : AppCompatActivity() {
         conversationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         conversation_engine_selector.adapter = conversationAdapter
         conversation_engine_selector.onItemSelectedListener = OnItemSelectedListenerImpl(Constants.KEY_CONVERSATION_TYPE)
+
+        // Character model selector.
+        val characterAdapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                CharacterType.values().map { type -> type.toString() } )
+        characterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        character_model_selector.adapter = characterAdapter
+        character_model_selector.onItemSelectedListener = OnItemSelectedListenerImpl(Constants.KEY_CHARACTER_TYPE)
 
         if (IS_DEBUG) debugLog("onCreate() : X")
     }

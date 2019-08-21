@@ -14,8 +14,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
-import android.view.View
 import com.demo.pet.petapp.activespeak.FaceTrigger
+import com.demo.pet.petapp.character.Character
+import com.demo.pet.petapp.character.CharacterType
+import com.demo.pet.petapp.character.createCharacter
 import com.demo.pet.petapp.conversations.ConversationStrategy
 import com.demo.pet.petapp.conversations.ConversationType
 import com.demo.pet.petapp.conversations.createConversationStrategy
@@ -40,8 +42,7 @@ class OverlayService3 : Service() {
     private val NOTIFICATION_CHANNEL_ONGOING = "ongoing"
     private val NOTIFICATION_ID = 1003
 
-    private var vfx: OverlayRootView3? = null
-
+    private var chara: Character? = null
 
     private var itx: ConversationStrategy? = null
 
@@ -152,13 +153,14 @@ class OverlayService3 : Service() {
         stt?.prepare()
         stt?.startRecog()
 
-        // UI.
-        vfx = View.inflate(
-                this,
-                R.layout.overlay_root_view_3,
-                null) as OverlayRootView3
-        vfx?.initialize()
-        vfx?.addToOverlayWindow()
+        // Character.
+        val charaTypeString = PetApplication.getSP().getString(
+                Constants.KEY_CHARACTER_TYPE,
+                CharacterType.KATCHY_DOG.toString()) as String
+        val charaType = CharacterType.valueOf(charaTypeString)
+        chara = createCharacter(this, charaType)
+        chara?.initialize()
+        chara?.addToOverlayWindow()
 
         // External triggers.
 //        faceTrigger = FaceTrigger(this)
@@ -171,14 +173,11 @@ class OverlayService3 : Service() {
     private fun stopKatchy() {
         if (IS_DEBUG) debugLog("OverlayService3.stopKatchy() : E")
 
-        val vfx = this.vfx
-        if (vfx != null) {
-            vfx.release()
-            if (vfx.isActive) {
-                vfx.removeFromOverlayWindow()
-            }
+        if (chara?.isOnOverlay == true) {
+            chara?.removeFromOverlayWindow()
         }
-        this.vfx = null
+        chara?.release()
+        chara = null
 
         faceTrigger?.setCallback(null)
         faceTrigger?.pause()
@@ -207,11 +206,11 @@ class OverlayService3 : Service() {
             // Katchy speaking voice is also recognized. So, stop recognition during speaking.
             stt?.pauseRecog()
 
-            vfx?.pet?.startSpeak()
+            chara?.startSpeack()
         }
 
         override fun onSpeechDone(isSucceeded: Boolean) {
-            vfx?.pet?.stopSpeak()
+            chara?.stopSpeak()
 
             // During speaking, voice recognition is stopped.
             stt?.resumeRecog()
@@ -220,7 +219,7 @@ class OverlayService3 : Service() {
 
     private inner class STTCallbackImpl : STTController.Callback {
         override fun onDetecting(detecting: String) {
-            vfx?.getDebugMsg()?.text = detecting
+            chara?.updateDebugMsg(detecting)
         }
 
         override fun onDetected(sentence: String, keywords: List<String>) {
@@ -242,15 +241,15 @@ class OverlayService3 : Service() {
         }
 
         override fun onSoundRecStarted() {
-            vfx?.voiceLevel?.changeToRec()
+            chara?.changeVoiceLevelToRec()
         }
 
         override fun onSoundRecStopped() {
-            vfx?.voiceLevel?.changeToIdle()
+            chara?.changeVoiceLevelToIdle()
         }
 
         override fun onSoundLevelChanged(level: Int, min: Int, max: Int) {
-            vfx?.changeSoundLevel(level, min, max)
+            chara?.updateVoiceLevel(level, min, max)
         }
 
     }
