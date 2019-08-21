@@ -41,6 +41,20 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:theme="@style/AppTheme.Fullscreen"
+            android:name=".UserDefinitionConversationsEditorActivity"
+            android:icon="@drawable/dog_sit"
+            android:label="@string/user_definition_conversations_editor_activity_label"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:launchMode="singleTask"
+        >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".OverlayService3"
             android:enabled="true"

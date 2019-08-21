@@ -4,6 +4,7 @@
     <string name="overlay_switch_label">En/Disable overlay pet</string>
 
     <string name="main_activity_3_label">PetApp3</string>
+    <string name="user_definition_conversations_editor_activity_label">Protocols</string>
 
     <string name="face_trigger_msg">おはよう</string>
 
