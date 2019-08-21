@@ -5,11 +5,15 @@ package com.demo.pet.petapp.tts
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import com.demo.pet.petapp.Constants
 import com.demo.pet.petapp.Log
 import com.demo.pet.petapp.debugLog
+import com.demo.pet.petapp.errorLog
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
-class TTSControllerAndroid(var context: Context?) : TTSController {
-    private val IS_DEBUG = false || Log.IS_DEBUG
+class TTSControllerAndroid(var context: Context?, enginePackage: String) : TTSController {
+    private val IS_DEBUG = Log.IS_DEBUG || false
 
     override var callback: TTSController.Callback? = null
 
@@ -22,7 +26,13 @@ class TTSControllerAndroid(var context: Context?) : TTSController {
     init {
         if (IS_DEBUG) debugLog("TTSCtrl.init()")
         if (IS_DEBUG) debugLog("Init TTS with Default Engine.")
-        tts = TextToSpeech(context, TTSOnInitCallback())
+
+        tts = if (enginePackage == Constants.VAL_DEFAULT) {
+            TextToSpeech(context, TTSOnInitCallback())
+        } else {
+            TextToSpeech(context, TTSOnInitCallback(), enginePackage)
+        }
+
         tts.setOnUtteranceProgressListener(TTSOnProgressCallback())
     }
 
@@ -150,4 +160,71 @@ class TTSControllerAndroid(var context: Context?) : TTSController {
         return "${context?.packageName}-TTS-$sequenceId"
     }
 
+    companion object {
+        private const val IS_DEBUG = Log.IS_DEBUG || false
+
+        private var ttsForLoadOption: TextToSpeech? = null
+
+        private class OnTtsInitCallback(
+                val callback: OnTtsEngineOptionLoadedCallback): TextToSpeech.OnInitListener {
+            override fun onInit(status: Int) {
+                if (status == TextToSpeech.SUCCESS) {
+                    val tts = ttsForLoadOption!!
+                    if (IS_DEBUG) {
+                        debugLog("Default Engine = ${tts.defaultEngine}")
+                        debugLog("Installed Engines:")
+                        tts.engines.forEach {
+                            debugLog("    Engine = ${it.label}")
+                        }
+
+                        debugLog("Default Lang = ${tts.defaultVoice?.locale?.displayName}")
+                        debugLog("Available Languages:")
+                        tts.availableLanguages.forEach {
+                            debugLog("    Lang = ${it.displayName}")
+                        }
+
+                        debugLog("Default Voice = ${tts.defaultVoice.name}")
+                        debugLog("Voices:")
+                        tts.voices.forEach {
+                            debugLog("    Voice = ${it.name} / ${it.locale.displayName}")
+                            it.features.forEach { f ->
+                                debugLog("        Feature = $f")
+                            }
+                        }
+                    }
+
+                    callback.onLoaded(getOptionLabelVsPkg(tts))
+                } else {
+                    errorLog("TTS init failed for get options")
+
+                    callback.onLoaded(mapOf(Pair(Constants.VAL_DEFAULT, Constants.VAL_DEFAULT)))
+                }
+
+                ttsForLoadOption?.shutdown()
+                ttsForLoadOption = null
+
+            }
+        }
+
+        fun loadLabelVsPackage(context: Context, callback: OnTtsEngineOptionLoadedCallback) {
+            if (IS_DEBUG) debugLog("TTSControllerAndroid.getLabelVsPackage()")
+
+            if (ttsForLoadOption == null) {
+                ttsForLoadOption = TextToSpeech(context, OnTtsInitCallback(callback))
+            }
+
+        }
+
+        private fun getOptionLabelVsPkg(tts: TextToSpeech): Map<String, String> {
+            val labelVsPkg = HashMap<String, String>()
+
+            tts.engines.forEach {
+                val label = it.label
+                val pkg = it.name
+                labelVsPkg[label] = pkg
+            }
+
+            return labelVsPkg
+        }
+    }
 }

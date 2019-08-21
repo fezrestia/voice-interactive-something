@@ -16,7 +16,9 @@ import android.view.View
 import android.widget.*
 import com.demo.pet.petapp.conversations.ConversationType
 import com.demo.pet.petapp.stt.STTType
+import com.demo.pet.petapp.tts.OnTtsEngineOptionLoadedCallback
 import com.demo.pet.petapp.tts.TTSType
+import com.demo.pet.petapp.tts.loadTTSEngineOptions
 import kotlinx.android.synthetic.main.activity_main_3.*
 
 class MainActivity3 : AppCompatActivity() {
@@ -39,6 +41,8 @@ class MainActivity3 : AppCompatActivity() {
             }
         }
     }
+
+    private var ttsLabelVsPackage: Map<String, String> = mapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (IS_DEBUG) debugLog("onCreate() : E")
@@ -113,6 +117,22 @@ class MainActivity3 : AppCompatActivity() {
             val spinner = parent as Spinner
             val selected: String = spinner.selectedItem as String
 
+            when (spKey) {
+                Constants.KEY_TTS_TYPE -> {
+                    val ttsType = TTSType.valueOf(selected)
+                    updateTtsSubOption(ttsType)
+                }
+
+                Constants.KEY_TTS_TYPE_OPTION_LABEL -> {
+                    // Also update TTS package.
+                    val pkg = ttsLabelVsPackage[selected]
+                    PetApplication.getSP().edit().putString(
+                            Constants.KEY_TTS_TYPE_OPTION_PACKAGE,
+                            pkg)
+                            .apply()
+                }
+            }
+
             PetApplication.getSP().edit().putString(spKey, selected).apply()
         }
 
@@ -154,7 +174,10 @@ class MainActivity3 : AppCompatActivity() {
         val tts = PetApplication.getSP().getString(
                 Constants.KEY_TTS_TYPE,
                 TTSType.ANDROID.toString()) as String
-        tts_engine_selector.setSelection(TTSType.valueOf(tts).ordinal)
+        val ttsType = TTSType.valueOf(tts)
+        tts_engine_selector.setSelection(ttsType.ordinal)
+        // After then, onItemSelected callback will be invoked.
+        // So, do NOT call updateTtsSubOption() here.
 
         // STT.
         val stt = PetApplication.getSP().getString(
@@ -171,6 +194,28 @@ class MainActivity3 : AppCompatActivity() {
         // Current state.
         overlay_switch.isChecked = PetApplication.isKatchy3Active
 
+    }
+
+    private fun updateTtsSubOption(ttsType: TTSType) {
+        loadTTSEngineOptions(
+                this,
+                ttsType,
+                object : OnTtsEngineOptionLoadedCallback {
+                    override fun onLoaded(labelVsPackage: Map<String, String>) {
+                        ttsLabelVsPackage = labelVsPackage
+
+                        val ttsOptionAdapter = ArrayAdapter(
+                                this@MainActivity3,
+                                android.R.layout.simple_spinner_item,
+                                ttsLabelVsPackage.keys.sorted())
+
+                        ttsOptionAdapter.setDropDownViewResource(
+                                android.R.layout.simple_spinner_dropdown_item)
+                        tts_engine_option_selector.adapter = ttsOptionAdapter
+                        tts_engine_option_selector.onItemSelectedListener =
+                                OnItemSelectedListenerImpl(Constants.KEY_TTS_TYPE_OPTION_LABEL)
+                    }
+                } )
     }
 
     override fun onPause() {

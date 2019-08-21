@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // TTS.
-        ttsCtrl = TTSControllerAndroid(this)
+        ttsCtrl = TTSControllerAndroid(this, Constants.VAL_DEFAULT)
 
         prepareButtons()
 
@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity() {
     private fun prepareButtons() {
         // Engine selector.
         engine_selector.setOnCheckedChangeListener { _, _ ->
-            ttsCtrl = TTSControllerAndroid(this@MainActivity)
+            ttsCtrl = TTSControllerAndroid(this@MainActivity, Constants.VAL_DEFAULT)
         }
         engine_selector.removeAllViews()
         val radioButton = RadioButton(this)

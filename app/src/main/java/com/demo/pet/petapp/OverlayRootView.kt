@@ -101,6 +101,7 @@ class OverlayRootView : RelativeLayout {
         ttsCtrl = createTTSController(
                 context,
                 TTSType.valueOf(ttsType),
+                Constants.VAL_DEFAULT,
                 TTSCallbackImpl())
 
         // STT

@@ -117,9 +117,13 @@ class OverlayService3 : Service() {
         val ttsType = PetApplication.getSP().getString(
                 Constants.KEY_TTS_TYPE,
                 TTSType.ANDROID.toString()) as String
+        val ttsTypePackage = PetApplication.getSP().getString(
+                Constants.KEY_TTS_TYPE_OPTION_PACKAGE,
+                Constants.VAL_DEFAULT) as String
         tts = createTTSController(
                 this,
                 TTSType.valueOf(ttsType),
+                ttsTypePackage,
                 TTSCallbackImpl())
 
         // STT
