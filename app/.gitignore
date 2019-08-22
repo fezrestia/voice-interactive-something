@@ -1,3 +1,4 @@
 /build
 /src/main/res/raw/credential.json
 /src/main/cpp/private.h
+/.cxx
