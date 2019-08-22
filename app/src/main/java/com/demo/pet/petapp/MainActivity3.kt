@@ -216,17 +216,28 @@ class MainActivity3 : AppCompatActivity() {
                 object : OnTtsEngineOptionLoadedCallback {
                     override fun onLoaded(labelVsPackage: Map<String, String>) {
                         ttsLabelVsPackage = labelVsPackage
+                        val options = ttsLabelVsPackage.keys.sorted()
 
                         val ttsOptionAdapter = ArrayAdapter(
                                 this@MainActivity3,
                                 android.R.layout.simple_spinner_item,
-                                ttsLabelVsPackage.keys.sorted())
+                                options)
 
                         ttsOptionAdapter.setDropDownViewResource(
                                 android.R.layout.simple_spinner_dropdown_item)
                         tts_engine_option_selector.adapter = ttsOptionAdapter
                         tts_engine_option_selector.onItemSelectedListener =
                                 OnItemSelectedListenerImpl(Constants.KEY_TTS_TYPE_OPTION_LABEL)
+
+                        // Update selected state.
+                        val storedOption = PetApplication.getSP().getString(
+                                Constants.KEY_TTS_TYPE_OPTION_LABEL,
+                                Constants.VAL_DEFAULT) as String
+                        val idx = options.indexOf(storedOption)
+                        if (idx >= 0) {
+                            // Stored option is available.
+                            tts_engine_option_selector.setSelection(idx)
+                        }
                     }
                 } )
     }
