@@ -1,12 +1,14 @@
 package com.demo.pet.petapp.tts
 
 import android.content.Context
+import com.demo.pet.petapp.Constants
 
 /**
  * Text to Speech implementation type.
  */
 enum class TTSType {
     ANDROID,
+    GOOGLE_CLOUD_API,
 }
 
 /**
@@ -20,6 +22,9 @@ fun createTTSController(
     val tts = when (type) {
         TTSType.ANDROID -> {
             TTSControllerAndroid(context, pkg)
+        }
+        TTSType.GOOGLE_CLOUD_API -> {
+            TTSControllerGoogleCloudApi(context, pkg)
         }
     }
     tts.callback = callback
@@ -37,12 +42,22 @@ fun loadTTSEngineOptions(
         context: Context,
         type: TTSType,
         callback: OnTtsEngineOptionLoadedCallback) {
-    return when (type) {
+    when (type) {
         TTSType.ANDROID -> {
             TTSControllerAndroid.loadLabelVsPackage(context, callback)
         }
+        TTSType.GOOGLE_CLOUD_API -> {
+            val tts = TTSControllerGoogleCloudApi(context, Constants.VAL_DEFAULT)
+            tts.loadLabelVsPackage( object : OnTtsEngineOptionLoadedCallback {
+                override fun onLoaded(labelVsPackage: Map<String, String>) {
+                    tts.release()
+                    callback.onLoaded(labelVsPackage)
+                }
+            } )
+        }
 //        else -> {
-//            listOf("default")
+//            val defaultMap = mapOf(Pair(Constants.VAL_DEFAULT, Constants.VAL_DEFAULT))
+//            Handler().post { callback.onLoaded(defaultMap) }
 //        }
     }
 }
