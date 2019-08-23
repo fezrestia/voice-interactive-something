@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.provider.Settings
 import android.view.View
 import android.widget.*
@@ -28,6 +29,8 @@ import kotlinx.android.synthetic.main.activity_main_3.*
 class MainActivity3 : AppCompatActivity() {
     @Suppress("PrivatePropertyName")
     private val IS_DEBUG = Log.IS_DEBUG || false
+
+    private val uiHandler = Handler()
 
     companion object {
         fun togglePet(isEnabled: Boolean, context: Context) {
@@ -216,27 +219,40 @@ class MainActivity3 : AppCompatActivity() {
                 object : OnTtsEngineOptionLoadedCallback {
                     override fun onLoaded(labelVsPackage: Map<String, String>) {
                         ttsLabelVsPackage = labelVsPackage
-                        val options = ttsLabelVsPackage.keys.sorted()
 
-                        val ttsOptionAdapter = ArrayAdapter(
-                                this@MainActivity3,
-                                android.R.layout.simple_spinner_item,
-                                options)
+                        uiHandler.post {
+                            val options = ttsLabelVsPackage.keys.sorted()
 
-                        ttsOptionAdapter.setDropDownViewResource(
-                                android.R.layout.simple_spinner_dropdown_item)
-                        tts_engine_option_selector.adapter = ttsOptionAdapter
-                        tts_engine_option_selector.onItemSelectedListener =
-                                OnItemSelectedListenerImpl(Constants.KEY_TTS_TYPE_OPTION_LABEL)
+                            val ttsOptionAdapter = ArrayAdapter(
+                                    this@MainActivity3,
+                                    android.R.layout.simple_spinner_item,
+                                    options)
 
-                        // Update selected state.
-                        val storedOption = PetApplication.getSP().getString(
-                                Constants.KEY_TTS_TYPE_OPTION_LABEL,
-                                Constants.VAL_DEFAULT) as String
-                        val idx = options.indexOf(storedOption)
-                        if (idx >= 0) {
-                            // Stored option is available.
-                            tts_engine_option_selector.setSelection(idx)
+                            ttsOptionAdapter.setDropDownViewResource(
+                                    android.R.layout.simple_spinner_dropdown_item)
+                            tts_engine_option_selector.adapter = ttsOptionAdapter
+                            tts_engine_option_selector.onItemSelectedListener =
+                                    OnItemSelectedListenerImpl(Constants.KEY_TTS_TYPE_OPTION_LABEL)
+
+                            // Update selected state.
+                            val storedOption = PetApplication.getSP().getString(
+                                    Constants.KEY_TTS_TYPE_OPTION_LABEL,
+                                    Constants.VAL_DEFAULT) as String
+                            val idx = options.indexOf(storedOption)
+                            if (idx >= 0) {
+                                // Stored option is available.
+                                tts_engine_option_selector.setSelection(idx)
+                            } else {
+                                // Stored option is NOT available. Reset to default.
+                                PetApplication.getSP().edit().putString(
+                                        Constants.KEY_TTS_TYPE_OPTION_LABEL,
+                                        Constants.VAL_DEFAULT)
+                                        .apply()
+                                PetApplication.getSP().edit().putString(
+                                        Constants.KEY_TTS_TYPE_OPTION_PACKAGE,
+                                        Constants.VAL_DEFAULT)
+                                        .apply()
+                            }
                         }
                     }
                 } )
