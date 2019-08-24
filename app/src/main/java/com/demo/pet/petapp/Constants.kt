@@ -3,6 +3,10 @@
 package com.demo.pet.petapp
 
 object Constants {
+    val KEY_VERSION = "version"
+    val VAL_INVALID_VERSION = -1
+    val VAL_VERSION = 1
+
     val KEY_STT_TYPE = "key-stt-type"
     val KEY_TTS_TYPE = "key-tts-type"
     val KEY_TTS_TYPE_OPTION_LABEL = "key-tts-type-option-label"
