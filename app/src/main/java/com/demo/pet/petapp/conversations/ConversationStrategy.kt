@@ -7,6 +7,7 @@ enum class ConversationType {
     OHAYOU_KATCHY,
     USER_DEF,
     KATCHY_ONLINE,
+    ECHO_BACK,
 }
 
 fun createConversationStrategy(
@@ -21,6 +22,9 @@ fun createConversationStrategy(
         }
         ConversationType.KATCHY_ONLINE -> {
             KatchyOnline()
+        }
+        ConversationType.ECHO_BACK -> {
+            EchoBack()
         }
     }
 }
