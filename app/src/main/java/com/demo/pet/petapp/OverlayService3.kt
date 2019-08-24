@@ -132,7 +132,7 @@ class OverlayService3 : Service() {
         // STT
         val sttType = PetApplication.getSP().getString(
                 Constants.KEY_STT_TYPE,
-                STTType.GOOGLE_WEB_API.toString()) as String
+                STTType.GOOGLE_CLOUD_PLATFORM.toString()) as String
         stt = createSTTController(
                 this,
                 STTType.valueOf(sttType),

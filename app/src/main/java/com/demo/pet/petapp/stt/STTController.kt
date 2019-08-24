@@ -11,7 +11,7 @@ import com.demo.pet.petapp.util.debugLog
 enum class STTType {
     ANDROID_SPEECH_RECOGNIZER,
     POCKET_SPHINX,
-    GOOGLE_WEB_API,
+    GOOGLE_CLOUD_PLATFORM,
 }
 
 /**
@@ -32,7 +32,7 @@ fun createSTTController(
         STTType.POCKET_SPHINX -> {
             STTControllerPocketSphinx(context)
         }
-        STTType.GOOGLE_WEB_API -> {
+        STTType.GOOGLE_CLOUD_PLATFORM -> {
             val speakThreshold = PetApplication.getSP().getInt(
                     Constants.KEY_SPEAK_THRESHOLD,
                     Constants.SPEAK_THRESHOLD_DEFAULT)

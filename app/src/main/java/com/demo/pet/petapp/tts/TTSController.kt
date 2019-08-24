@@ -8,7 +8,7 @@ import com.demo.pet.petapp.Constants
  */
 enum class TTSType {
     ANDROID,
-    GOOGLE_CLOUD_API,
+    GOOGLE_CLOUD_PLATFORM,
 }
 
 /**
@@ -23,7 +23,7 @@ fun createTTSController(
         TTSType.ANDROID -> {
             TTSControllerAndroid(context, pkg)
         }
-        TTSType.GOOGLE_CLOUD_API -> {
+        TTSType.GOOGLE_CLOUD_PLATFORM -> {
             TTSControllerGoogleCloudApi(context, pkg)
         }
     }
@@ -46,7 +46,7 @@ fun loadTTSEngineOptions(
         TTSType.ANDROID -> {
             TTSControllerAndroid.loadLabelVsPackage(context, callback)
         }
-        TTSType.GOOGLE_CLOUD_API -> {
+        TTSType.GOOGLE_CLOUD_PLATFORM -> {
             val tts = TTSControllerGoogleCloudApi(context, Constants.VAL_DEFAULT)
             tts.loadLabelVsPackage( object : OnTtsEngineOptionLoadedCallback {
                 override fun onLoaded(labelVsPackage: Map<String, String>) {
