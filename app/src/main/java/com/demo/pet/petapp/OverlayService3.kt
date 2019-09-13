@@ -1,7 +1,8 @@
 @file:Suppress(
         "PrivatePropertyName",
         "ConstantConditionIf",
-        "PropertyName")
+        "PropertyName",
+        "SimplifyBooleanWithConstants")
 
 package com.demo.pet.petapp
 
@@ -34,7 +35,6 @@ const val REQUEST_START_OVERLAY_3 = "com.demo.pet.petapp.action.REQUEST_START_OV
 const val REQUEST_STOP_OVERLAY_3 = "com.demo.pet.petapp.action.REQUEST_STOP_OVERLAY_3"
 
 class OverlayService3 : Service() {
-    @Suppress("SimplifyBooleanWithConstants")
     private val IS_DEBUG = Log.IS_DEBUG || false
 
     override fun onBind(intent: Intent): IBinder? {
@@ -117,9 +117,10 @@ class OverlayService3 : Service() {
         PetApplication.isKatchy3Active = true
 
         // TTS
+        val defaultTtsType = TTSType.ANDROID
         val ttsType = PetApplication.getSP().getString(
                 Constants.KEY_TTS_TYPE,
-                TTSType.ANDROID.toString()) as String
+                defaultTtsType.toString()) as String
         val ttsTypePackage = PetApplication.getSP().getString(
                 Constants.KEY_TTS_TYPE_OPTION_PACKAGE,
                 Constants.VAL_DEFAULT) as String
@@ -130,18 +131,20 @@ class OverlayService3 : Service() {
                 TTSCallbackImpl())
 
         // STT
+        val defaultSttType = STTType.GOOGLE_CLOUD_PLATFORM
         val sttType = PetApplication.getSP().getString(
                 Constants.KEY_STT_TYPE,
-                STTType.GOOGLE_CLOUD_PLATFORM.toString()) as String
+                defaultSttType.toString()) as String
         stt = createSTTController(
                 this,
                 STTType.valueOf(sttType),
                 STTCallbackImpl())
 
         // Strategy.
+        val defaultConversationType = ConversationType.USER_DEF
         val conversationType = PetApplication.getSP().getString(
                 Constants.KEY_CONVERSATION_TYPE,
-                ConversationType.USER_DEF.toString()) as String
+                defaultConversationType.toString()) as String
         itx = createConversationStrategy(
                 this,
                 ConversationType.valueOf(conversationType))
@@ -156,9 +159,10 @@ class OverlayService3 : Service() {
         stt?.startRecog()
 
         // Character.
+        val defaultCharType = CharacterType.KATCHY_DOG
         val charaTypeString = PetApplication.getSP().getString(
                 Constants.KEY_CHARACTER_TYPE,
-                CharacterType.KATCHY_DOG.toString()) as String
+                defaultCharType.toString()) as String
         val charaType = CharacterType.valueOf(charaTypeString)
         chara = createCharacter(this, charaType)
         chara?.initialize()
@@ -226,7 +230,7 @@ class OverlayService3 : Service() {
 
         override fun onDetected(sentence: String, keywords: List<String>) {
             if (tts?.isSpeaking ?: return) {
-                // NOP. Now on speaking.
+                if (IS_DEBUG) debugLog("onDetected() : Now on Speaking...")
             } else {
                 itx?.asyncConversate(
                         sentence,

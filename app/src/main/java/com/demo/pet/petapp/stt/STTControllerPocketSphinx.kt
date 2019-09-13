@@ -17,10 +17,6 @@ class STTControllerPocketSphinx(val context: Context) : STTController {
     override var callback: STTController.Callback? = null
     override var isActive: Boolean = false
 
-    init {
-        // NOP.
-    }
-
     override fun prepare() {
         val assets = Assets(context)
         val assetsDir = assets.syncAssets()

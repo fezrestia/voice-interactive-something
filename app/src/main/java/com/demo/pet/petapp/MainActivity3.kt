@@ -1,4 +1,4 @@
-@file:Suppress("ConstantConditionIf", "SimplifyBooleanWithConstants")
+@file:Suppress("ConstantConditionIf", "SimplifyBooleanWithConstants", "PrivatePropertyName")
 
 package com.demo.pet.petapp
 
@@ -27,7 +27,6 @@ import com.demo.pet.petapp.util.errorLog
 import kotlinx.android.synthetic.main.activity_main_3.*
 
 class MainActivity3 : AppCompatActivity() {
-    @Suppress("PrivatePropertyName")
     private val IS_DEBUG = Log.IS_DEBUG || false
 
     private val uiHandler = Handler()
@@ -187,24 +186,27 @@ class MainActivity3 : AppCompatActivity() {
 
     private fun loadConfigs() {
         // TTS.
+        val defaultTtsType = TTSType.ANDROID
         val tts = PetApplication.getSP().getString(
                 Constants.KEY_TTS_TYPE,
-                TTSType.ANDROID.toString()) as String
+                defaultTtsType.toString()) as String
         val ttsType = TTSType.valueOf(tts)
         tts_engine_selector.setSelection(ttsType.ordinal)
         // After then, onItemSelected callback will be invoked.
         // So, do NOT call updateTtsSubOption() here.
 
         // STT.
+        val defaultSttType = STTType.GOOGLE_CLOUD_PLATFORM
         val stt = PetApplication.getSP().getString(
                 Constants.KEY_STT_TYPE,
-                STTType.GOOGLE_CLOUD_PLATFORM.toString()) as String
+                defaultSttType.toString()) as String
         stt_engine_selector.setSelection(STTType.valueOf(stt).ordinal)
 
         // Conversation.
+        val defaultConversationType = ConversationType.USER_DEF
         val conversation = PetApplication.getSP().getString(
                 Constants.KEY_CONVERSATION_TYPE,
-                ConversationType.USER_DEF.toString()) as String
+                defaultConversationType.toString()) as String
         conversation_engine_selector.setSelection(ConversationType.valueOf(conversation).ordinal)
 
         // Current state.

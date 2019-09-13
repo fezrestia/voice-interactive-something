@@ -20,7 +20,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 class KatchyOnline : ConversationStrategy {
-    private val IS_DEBUG = Log.IS_DEBUG || true
+    private val IS_DEBUG = Log.IS_DEBUG || false
 
     companion object {
         init {

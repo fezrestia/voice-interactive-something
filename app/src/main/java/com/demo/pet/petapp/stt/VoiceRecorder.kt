@@ -440,7 +440,7 @@ class VoiceRecorder(context: Context, private val speakThreshold: Int) {
             callback?.onStarted(samplingRate)
             soundUpTimeMillis = now
 
-            // Callback last recored audio frames before speak started.
+            // Callback last recorded audio frames before speak started.
             lastBufCaches.forEach { buf ->
                 callback?.onRecorded(buf, ENCODING, buf.size)
             }
@@ -454,6 +454,7 @@ class VoiceRecorder(context: Context, private val speakThreshold: Int) {
     }
 
     // Detect current sound frame includes sound or not.
+    @Suppress("SameParameterValue")
     private fun isSounded(buf: ByteArray, size: Int, format: Int): Boolean {
         if (format != AudioFormat.ENCODING_PCM_16BIT) {
             throw RuntimeException("Unsupported Format")

@@ -43,12 +43,13 @@ import com.google.cloud.speech.v1.StreamingRecognitionConfig
 import com.google.cloud.speech.v1.StreamingRecognizeRequest
 import com.google.cloud.speech.v1.StreamingRecognizeResponse
 import com.google.protobuf.ByteString
+import kotlin.math.max
 
 /**
  * Google Cloud Platform natural language API client.
  */
 class GoogleSpeechApi(val context: Context) {
-    private val IS_DEBUG = true // Log.IS_DEBUG
+    private val IS_DEBUG = false // Log.IS_DEBUG
 
     private val mainHandler = Handler(context.mainLooper)
     private val backThread = HandlerThread("back-worker")
@@ -207,7 +208,7 @@ class GoogleSpeechApi(val context: Context) {
             api = getWebApi(token)
 
             // Schedule next AccessToken refresh.
-            val interval = Math.max(
+            val interval = max(
                     token.expirationTime.time - System.currentTimeMillis() - ACCESS_TOKEN_REFRESH_MARGIN_MILLIS,
                     ACCESS_TOKEN_EXPIRATION_TIMEOUT_MILLIS)
             backHandler.postDelayed(SetupWebApiTask(), interval)
@@ -279,7 +280,7 @@ class GoogleSpeechApi(val context: Context) {
 
                     @Throws(StatusException::class)
                     override fun checkedStart(
-                            responseListener: ClientCall.Listener<RespT>,
+                            responseListener: Listener<RespT>,
                             headers: Metadata) {
                         val uri = serviceUri(next, method)
 

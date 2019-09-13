@@ -13,7 +13,7 @@ import com.demo.pet.petapp.util.debugLog
  */
 class STTControllerGoogleCloudApi(val context: Context, speakThreshold: Int) : STTController {
     @Suppress("PrivatePropertyName")
-    private val IS_DEBUG = true || Log.IS_DEBUG
+    private val IS_DEBUG = false || Log.IS_DEBUG
 
     private var voiceRec: VoiceRecorder? = null
     private var webApi: GoogleSpeechApi? = null
