@@ -8,6 +8,7 @@ enum class ConversationType {
     USER_DEF,
     KATCHY_ONLINE,
     ECHO_BACK,
+    RECRUIT_SMALL_TALK,
 }
 
 fun createConversationStrategy(
@@ -25,6 +26,9 @@ fun createConversationStrategy(
         }
         ConversationType.ECHO_BACK -> {
             EchoBack()
+        }
+        ConversationType.RECRUIT_SMALL_TALK -> {
+            RecruitSmallTalk()
         }
     }
 }

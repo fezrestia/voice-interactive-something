@@ -42,6 +42,12 @@ JNIEXPORT jstring JNICALL Java_com_demo_pet_petapp_tts_TTSControllerGoogleCloudA
     return env->NewStringUTF(GCP_TTS_REFRESH_TOKEN);
 }
 
+JNIEXPORT jstring JNICALL Java_com_demo_pet_petapp_conversations_RecruitSmallTalk_getApiKey(
+        JNIEnv *env,
+        jobject __unused thiz) {
+    return env->NewStringUTF(RECRUIT_SMALL_TALK_API_KEY);
+}
+
 } // extern "C"
 
 #pragma clang diagnostic pop
