@@ -104,15 +104,15 @@ class FaceTrigger(val context: Context) {
         }
 
         private inner class StateCallback : CameraDevice.StateCallback() {
-            override fun onDisconnected(camera: CameraDevice?) {
+            override fun onDisconnected(camera: CameraDevice) {
                 if (Log.IS_DEBUG) debugLog("FaceTrigger.OpenTask.onDisconnected()")
             }
 
-            override fun onError(camera: CameraDevice?, error: Int) {
+            override fun onError(camera: CameraDevice, error: Int) {
                 if (Log.IS_DEBUG) debugLog("FaceTrigger.OpenTask.onError()")
             }
 
-            override fun onOpened(camera: CameraDevice?) {
+            override fun onOpened(camera: CameraDevice) {
                 if (Log.IS_DEBUG) debugLog("FaceTrigger.OpenTask.onOpened() : E")
 
                 cameraDevice = camera
@@ -158,11 +158,11 @@ class FaceTrigger(val context: Context) {
         }
 
         private inner class CaptureSessionCallback : CameraCaptureSession.StateCallback() {
-            override fun onConfigureFailed(session: CameraCaptureSession?) {
-
+            override fun onConfigureFailed(session: CameraCaptureSession) {
+                if (Log.IS_DEBUG) debugLog("FaceTrigger.CaptureSessionCallback.onConfigureFailed()")
             }
 
-            override fun onConfigured(session: CameraCaptureSession?) {
+            override fun onConfigured(session: CameraCaptureSession) {
                 val device = cameraDevice ?: throw RuntimeException("cameraDevice is null")
                 val ps = previewStream ?: throw RuntimeException("PreviewStream is null")
 
@@ -184,7 +184,7 @@ class FaceTrigger(val context: Context) {
 
                 val request = builder.build()
 
-                session?.setRepeatingRequest(
+                session.setRepeatingRequest(
                         request,
                         CaptureCallback(),
                         callbackHandler)
@@ -193,17 +193,13 @@ class FaceTrigger(val context: Context) {
 
         private inner class CaptureCallback : CameraCaptureSession.CaptureCallback() {
             override fun onCaptureCompleted(
-                    session: CameraCaptureSession?,
-                    request: CaptureRequest?,
-                    result: TotalCaptureResult?) {
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    result: TotalCaptureResult) {
                 if (Log.IS_DEBUG) debugLog("FaceTrigger.CaptureCallback.onCaptureCompleted() : E")
-                val s = session ?: throw RuntimeException("session is null")
-                val req = request ?: throw RuntimeException("request is null")
-                val res = result ?: throw RuntimeException("result is null")
+                super.onCaptureCompleted(session, request, result)
 
-                super.onCaptureCompleted(s, req, res)
-
-                val faces = res.get(CaptureResult.STATISTICS_FACES)
+                val faces = result.get(CaptureResult.STATISTICS_FACES)
 
                 if (Log.IS_DEBUG) debugLog("FaceTrigger DETECTED FACES = " + faces?.size)
 
