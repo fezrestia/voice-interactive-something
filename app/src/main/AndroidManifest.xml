@@ -5,8 +5,8 @@
 
     package="com.demo.pet.petapp"
 
-    android:versionCode="115"
-    android:versionName="3.1.3-115"
+    android:versionCode="133"
+    android:versionName="3.1.4-133"
 >
 <!--                     | | | |-> incremental build count
                          | | |-> patch
