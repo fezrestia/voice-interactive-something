@@ -11,11 +11,11 @@ import com.demo.pet.petapp.util.Log
 import com.demo.pet.petapp.util.debugLog
 import com.demo.pet.petapp.util.errorLog
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.squareup.okhttp.MediaType
-import com.squareup.okhttp.OkHttpClient
-import com.squareup.okhttp.Request
-import com.squareup.okhttp.RequestBody
-import java.util.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -54,12 +54,12 @@ class KatchyOnline : ConversationStrategy {
     }
 
     private inner class RefreshAccessTokenTask : Runnable {
-        private val CONTENT_TYPE = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8")
+        private val CONTENT_TYPE = "application/x-www-form-urlencoded; charset=utf-8".toMediaTypeOrNull()
         private val BODY = "refresh_token=$refresh&client_id=$id&client_secret=$sec&grant_type=refresh_token"
 
         override fun run() {
             val client = OkHttpClient()
-            val requestBody = RequestBody.create(CONTENT_TYPE, BODY)
+            val requestBody = BODY.toRequestBody(CONTENT_TYPE)
             val request = Request.Builder()
                     .url(REFRESH_URL)
                     .post(requestBody)
@@ -70,23 +70,26 @@ class KatchyOnline : ConversationStrategy {
             if (response.isSuccessful) {
                 if (IS_DEBUG) debugLog("KatchyOnline.RefreshAccessTokenTask: OK")
 
-                val responseBody: String = response.body().string()
+                response.body?.let {
+                    val responseBody = it.string()
 
-                if (IS_DEBUG) {
-                    debugLog("#### RESPONSE")
-                    debugLog(responseBody)
-                }
+                    if (IS_DEBUG) {
+                        debugLog("#### RESPONSE")
+                        debugLog(responseBody)
+                    }
 
-                val mapper = jacksonObjectMapper()
-                val rootNode = mapper.readTree(responseBody)
+                    val mapper = jacksonObjectMapper()
+                    val rootNode = mapper.readTree(responseBody)
 
-                // Parse access token.
-                accessToken = rootNode.get("access_token").asText()
+                    // Parse access token.
+                    accessToken = rootNode.get("access_token").asText()
 
-                // Parse expiration timeout and register next refresh task.
-                if (backThread.isAlive) {
-                    val expireSec: Long = rootNode.get("expires_in").asLong()
-                    backHandler.postDelayed(this, expireSec * 1000)
+                    // Parse expiration timeout and register next refresh task.
+                    if (backThread.isAlive) {
+                        val expireSec: Long = rootNode.get("expires_in").asLong()
+                        backHandler.postDelayed(this, expireSec * 1000)
+                    }
+
                 }
 
             } else {
@@ -127,7 +130,7 @@ class KatchyOnline : ConversationStrategy {
             val message: String,
             val callback: ConversationStrategy.Callback?,
             val callbackHandler: Handler?) : Runnable {
-        private val CONTENT_TYPE: MediaType = MediaType.parse("application/json; charset=utf-8")
+        private val CONTENT_TYPE = "application/json; charset=utf-8".toMediaTypeOrNull()
 
         private val countdown = CountDownLatch(1)
 
@@ -153,7 +156,7 @@ class KatchyOnline : ConversationStrategy {
 
         override fun run() {
             val client = OkHttpClient()
-            val requestBody = RequestBody.create(CONTENT_TYPE, getJson(message))
+            val requestBody = getJson(message).toRequestBody(CONTENT_TYPE)
             val request = Request.Builder()
                     .url(GET_URL)
                     .header("Authorization", "Bearer $accessToken")
@@ -163,7 +166,7 @@ class KatchyOnline : ConversationStrategy {
             if (IS_DEBUG) {
                 debugLog("Request to Dialogflow of Katchy Online")
                 debugLog("URL = $GET_URL")
-                debugLog("Header = ${request.headers()}")
+                debugLog("Header = ${request.headers}")
                 debugLog("Message = $message")
                 debugLog("Body = ${getJson(message)}")
             }
@@ -173,19 +176,22 @@ class KatchyOnline : ConversationStrategy {
             if (response.isSuccessful) {
                 if (IS_DEBUG) debugLog("KatchyOnline: OK")
 
-                val responseBody: String = response.body().string()
+                response.body?.let {
+                    val responseBody = it.string()
 
-                if (IS_DEBUG) {
-                    debugLog("#### RESPONSE")
-                    debugLog(responseBody)
+                    if (IS_DEBUG) {
+                        debugLog("#### RESPONSE")
+                        debugLog(responseBody)
+                    }
+
+                    val mapper = jacksonObjectMapper()
+                    val rootNode = mapper.readTree(responseBody)
+
+                    // Parse response.
+                    resMsg = rootNode.get("queryResult").get("fulfillmentText").asText()
+                    if (IS_DEBUG) debugLog("Raw response = $resMsg")
+
                 }
-
-                val mapper = jacksonObjectMapper()
-                val rootNode = mapper.readTree(responseBody)
-
-                // Parse response.
-                resMsg = rootNode.get("queryResult").get("fulfillmentText").asText()
-                if (IS_DEBUG) debugLog("Raw response = $resMsg")
 
             } else {
                 errorLog("KatchyOnline: NG")

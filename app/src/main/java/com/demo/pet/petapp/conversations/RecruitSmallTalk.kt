@@ -8,10 +8,10 @@ import com.demo.pet.petapp.util.Log
 import com.demo.pet.petapp.util.debugLog
 import com.demo.pet.petapp.util.errorLog
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.squareup.okhttp.MediaType
-import com.squareup.okhttp.OkHttpClient
-import com.squareup.okhttp.Request
-import com.squareup.okhttp.RequestBody
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -66,7 +66,7 @@ class RecruitSmallTalk : ConversationStrategy {
             private val callback: ConversationStrategy.Callback?,
             private val callbackHandler: Handler?) : Runnable {
         private val POST_URL = "https://api.a3rt.recruit-tech.co.jp/talk/v1/smalltalk"
-        private val CONTENT_TYPE = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8")
+        private val CONTENT_TYPE = "application/x-www-form-urlencoded; charset=utf-8".toMediaTypeOrNull()
 
         private val countdown = CountDownLatch(1)
 
@@ -78,7 +78,7 @@ class RecruitSmallTalk : ConversationStrategy {
 
         override fun run() {
             val client = OkHttpClient()
-            val requestBody = RequestBody.create(CONTENT_TYPE, getBody(message))
+            val requestBody = getBody(message).toRequestBody(CONTENT_TYPE)
             val request = Request.Builder()
                     .url(POST_URL)
                     .post(requestBody)
@@ -87,7 +87,7 @@ class RecruitSmallTalk : ConversationStrategy {
             if (IS_DEBUG) {
                 debugLog("Request to Recruit Small Talk API")
                 debugLog("URL = $POST_URL")
-                debugLog("Header = ${request.headers()}")
+                debugLog("Header = ${request.headers}")
                 debugLog("Message = $message")
                 debugLog("Body = ${getBody(message)}")
             }
@@ -97,28 +97,30 @@ class RecruitSmallTalk : ConversationStrategy {
             if (response.isSuccessful) {
                 if (IS_DEBUG) debugLog("OK")
 
-                val responseBody: String = response.body().string()
+                response.body?.let {
+                    val responseBody = it.string()
 
-                if (IS_DEBUG) {
-                    debugLog("#### RESPONSE")
-                    debugLog(responseBody)
+                    if (IS_DEBUG) {
+                        debugLog("#### RESPONSE")
+                        debugLog(responseBody)
+                    }
+
+                    val mapper = jacksonObjectMapper()
+                    val rootNode = mapper.readTree(responseBody)
+
+                    // Parse response.
+                    val status = rootNode.get("status").asInt()
+                    val message = rootNode.get("message").asText()
+                    val reply = rootNode.get("results").first().get("reply").asText()
+
+                    if (IS_DEBUG) {
+                        debugLog("Res status  = $status")
+                        debugLog("Res message = $message")
+                        debugLog("Res reply   = $reply")
+                    }
+
+                    resMsg = reply
                 }
-
-                val mapper = jacksonObjectMapper()
-                val rootNode = mapper.readTree(responseBody)
-
-                // Parse response.
-                val status = rootNode.get("status").asInt()
-                val message = rootNode.get("message").asText()
-                val reply = rootNode.get("results").first().get("reply").asText()
-
-                if (IS_DEBUG) {
-                    debugLog("Res status  = $status")
-                    debugLog("Res message = $message")
-                    debugLog("Res reply   = $reply")
-                }
-
-                resMsg = reply
 
             } else {
                 errorLog("NG")

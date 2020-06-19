@@ -17,10 +17,11 @@ import com.demo.pet.petapp.util.Log
 import com.demo.pet.petapp.util.debugLog
 import com.demo.pet.petapp.util.errorLog
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.squareup.okhttp.MediaType
-import com.squareup.okhttp.OkHttpClient
-import com.squareup.okhttp.Request
-import com.squareup.okhttp.RequestBody
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+
 import java.nio.ByteBuffer
 
 class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : TTSController {
@@ -73,13 +74,13 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
     }
 
     private inner class RefreshAccessTokenTask : Runnable {
-        private val CONTENT_TYPE = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8")
+        private val CONTENT_TYPE = "application/x-www-form-urlencoded; charset=utf-8".toMediaTypeOrNull()
         private val BODY = "refresh_token=$refresh&client_id=$id&client_secret=$sec&grant_type=refresh_token"
         private val REFRESH_URL = "https://www.googleapis.com/oauth2/v4/token"
 
         override fun run() {
             val client = OkHttpClient()
-            val requestBody = RequestBody.create(CONTENT_TYPE, BODY)
+            val requestBody = BODY.toRequestBody(CONTENT_TYPE)
             val request = Request.Builder()
                     .url(REFRESH_URL)
                     .post(requestBody)
@@ -90,23 +91,25 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
             if (response.isSuccessful) {
                 if (IS_DEBUG) debugLog("TTSController.GCP.RefreshAccessTokenTask: OK")
 
-                val responseBody: String = response.body().string()
+                response.body?.let {
+                    val responseBody = it.string()
 
-                if (IS_DEBUG) {
-                    debugLog("#### RESPONSE")
-                    debugLog(responseBody)
-                }
+                    if (IS_DEBUG) {
+                        debugLog("#### RESPONSE")
+                        debugLog(responseBody)
+                    }
 
-                val mapper = jacksonObjectMapper()
-                val rootNode = mapper.readTree(responseBody)
+                    val mapper = jacksonObjectMapper()
+                    val rootNode = mapper.readTree(responseBody)
 
-                // Parse access token.
-                accessToken = rootNode.get("access_token").asText()
+                    // Parse access token.
+                    accessToken = rootNode.get("access_token").asText()
 
-                // Parse expiration timeout and register next refresh task.
-                if (backThread.isAlive) {
-                    val expireSec: Long = rootNode.get("expires_in").asLong()
-                    backHandler.postDelayed(this, expireSec * 1000)
+                    // Parse expiration timeout and register next refresh task.
+                    if (backThread.isAlive) {
+                        val expireSec: Long = rootNode.get("expires_in").asLong()
+                        backHandler.postDelayed(this, expireSec * 1000)
+                    }
                 }
 
             } else {
@@ -143,38 +146,41 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
             if (response.isSuccessful) {
                 if (IS_DEBUG) debugLog("TTSController.GCP.GetVoiceListTask: OK")
 
-                val responseBody: String = response.body().string()
+                response.body?.let {
+                    val responseBody = it.string()
 
-                if (IS_DEBUG) {
-                    debugLog("#### RESPONSE")
-                    debugLog(responseBody)
-                }
-
-                val mapper = jacksonObjectMapper()
-                val rootNode = mapper.readTree(responseBody)
-
-                val voiceList = rootNode.get("voices").toList()
-                if (voiceList.isNotEmpty()) {
-                    voices.clear()
-                    voiceList.forEach { voice ->
-                        val name = voice.get("name").asText()
-                        val ssmlGender = voice.get("ssmlGender").asText()
-                        val naturalSampleRateHertz = voice.get("naturalSampleRateHertz").asInt()
-                        voices.add(Voice(name, ssmlGender, naturalSampleRateHertz))
+                    if (IS_DEBUG) {
+                        debugLog("#### RESPONSE")
+                        debugLog(responseBody)
                     }
 
-                    if (option != Constants.VAL_DEFAULT) {
-                        run loop@ {
-                            voices.forEach { voice ->
-                                if (voice.name == option) {
-                                    selectedVoice = voice
-                                    return@loop
+                    val mapper = jacksonObjectMapper()
+                    val rootNode = mapper.readTree(responseBody)
+
+                    val voiceList = rootNode.get("voices").toList()
+                    if (voiceList.isNotEmpty()) {
+                        voices.clear()
+                        voiceList.forEach { voice ->
+                            val name = voice.get("name").asText()
+                            val ssmlGender = voice.get("ssmlGender").asText()
+                            val naturalSampleRateHertz = voice.get("naturalSampleRateHertz").asInt()
+                            voices.add(Voice(name, ssmlGender, naturalSampleRateHertz))
+                        }
+
+                        if (option != Constants.VAL_DEFAULT) {
+                            run loop@ {
+                                voices.forEach { voice ->
+                                    if (voice.name == option) {
+                                        selectedVoice = voice
+                                        return@loop
+                                    }
                                 }
                             }
                         }
+                        if (IS_DEBUG) debugLog("Selected Voice = ${selectedVoice?.name}")
                     }
-                    if (IS_DEBUG) debugLog("Selected Voice = ${selectedVoice?.name}")
                 }
+
             } else {
                 if (IS_DEBUG) debugLog("TTSController.GCP.GetVoiceListTask: NG")
                 errorLog("NG Response = $response")
@@ -244,7 +250,7 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
     private inner class RequestTtsTask(
             val text: String,
             val callback: TTSController.Callback?) : Runnable {
-        private val CONTENT_TYPE: MediaType = MediaType.parse("application/json; charset=utf-8")
+        private val CONTENT_TYPE = "application/json; charset=utf-8".toMediaTypeOrNull()
         private val POST_URL = "https://texttospeech.googleapis.com/v1/text:synthesize"
 
         private fun getJson(text: String, voice: Voice): String {
@@ -269,7 +275,7 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
             val voice: Voice = selectedVoice ?: voices.first()
 
             val client = OkHttpClient()
-            val requestBody = RequestBody.create(CONTENT_TYPE, getJson(text, voice))
+            val requestBody = getJson(text, voice).toRequestBody(CONTENT_TYPE)
             val request = Request.Builder()
                     .url(POST_URL)
                     .header("Authorization", "Bearer $accessToken")
@@ -279,7 +285,7 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
             if (IS_DEBUG) {
                 debugLog("Request to GCP-TTS")
                 debugLog("URL = $POST_URL")
-                debugLog("Header = ${request.headers()}")
+                debugLog("Header = ${request.headers}")
                 debugLog("Text = $text")
                 debugLog("Body = ${getJson(text, voice)}")
             }
@@ -289,68 +295,71 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
             if (response.isSuccessful) {
                 if (IS_DEBUG) debugLog("GCP-TTS: OK")
 
-                val responseBody: String = response.body().string()
-
-                if (IS_DEBUG) {
-                    debugLog("#### RESPONSE")
-                    debugLog(responseBody)
-                }
-
-                val mapper = jacksonObjectMapper()
-                val rootNode = mapper.readTree(responseBody)
-
-                // Parse response.
-                val base64pcm16 = rootNode.get("audioContent").asText()
-                val pcm16Buffer: ByteArray = Base64.decode(base64pcm16, Base64.DEFAULT)
-
-                if (IS_DEBUG) {
-                    debugLog("Audio Content BASE64 = $base64pcm16")
-                    debugLog("Audio Buffer Size = ${pcm16Buffer.size}")
-                    val rateBytes = byteArrayOf(
-                            pcm16Buffer[27],
-                            pcm16Buffer[26],
-                            pcm16Buffer[25],
-                            pcm16Buffer[24])
-                    val rate = ByteBuffer.wrap(rateBytes).int
-                    if (IS_DEBUG) debugLog("WAVE Sample Rate = $rate")
-                }
-
-                val p = player
-                if (p != null) {
-                    p.setPlaybackPositionUpdateListener(PlayDoneCallback())
-
-                    // Steaming.
-                    var offset = 44 // Depends on RIFF WAVE file format.
-
-                    val frameCount = (pcm16Buffer.size - offset) / frameSizeInBytes
-
-                    val ret = p.setNotificationMarkerPosition(frameCount)
+                response.body?.let {
+                    val responseBody = it.string()
 
                     if (IS_DEBUG) {
-                        debugLog("Frame Count = $frameCount")
-                        debugLog("Result of setNotificationMarkerPosition() = $ret")
+                        debugLog("#### RESPONSE")
+                        debugLog(responseBody)
                     }
 
-                    do {
-                        val writeSize = if (offset + playerBufSize > pcm16Buffer.size) {
-                            pcm16Buffer.size - offset
-                        } else {
-                            playerBufSize
+                    val mapper = jacksonObjectMapper()
+                    val rootNode = mapper.readTree(responseBody)
+
+                    // Parse response.
+                    val base64pcm16 = rootNode.get("audioContent").asText()
+                    val pcm16Buffer: ByteArray = Base64.decode(base64pcm16, Base64.DEFAULT)
+
+                    if (IS_DEBUG) {
+                        debugLog("Audio Content BASE64 = $base64pcm16")
+                        debugLog("Audio Buffer Size = ${pcm16Buffer.size}")
+                        val rateBytes = byteArrayOf(
+                                pcm16Buffer[27],
+                                pcm16Buffer[26],
+                                pcm16Buffer[25],
+                                pcm16Buffer[24])
+                        val rate = ByteBuffer.wrap(rateBytes).int
+                        if (IS_DEBUG) debugLog("WAVE Sample Rate = $rate")
+                    }
+
+                    val p = player
+                    if (p != null) {
+                        p.setPlaybackPositionUpdateListener(PlayDoneCallback())
+
+                        // Steaming.
+                        var offset = 44 // Depends on RIFF WAVE file format.
+
+                        val frameCount = (pcm16Buffer.size - offset) / frameSizeInBytes
+
+                        val ret = p.setNotificationMarkerPosition(frameCount)
+
+                        if (IS_DEBUG) {
+                            debugLog("Frame Count = $frameCount")
+                            debugLog("Result of setNotificationMarkerPosition() = $ret")
                         }
 
-                        val writtenCount = p.write(pcm16Buffer, offset, writeSize)
+                        do {
+                            val writeSize = if (offset + playerBufSize > pcm16Buffer.size) {
+                                pcm16Buffer.size - offset
+                            } else {
+                                playerBufSize
+                            }
 
-                        if (IS_DEBUG) debugLog("Player written count = $writtenCount")
+                            val writtenCount = p.write(pcm16Buffer, offset, writeSize)
 
-                        offset += writtenCount
+                            if (IS_DEBUG) debugLog("Player written count = $writtenCount")
 
-                    } while (writtenCount > 0)
+                            offset += writtenCount
 
-                } else {
-                    // Player is null, maybe already released.
-                    errorLog("GCP-TTS : NG, Maybe already released.")
-                    backHandler.post { callback?.onSpeechDone(false) }
+                        } while (writtenCount > 0)
+
+                    } else {
+                        // Player is null, maybe already released.
+                        errorLog("GCP-TTS : NG, Maybe already released.")
+                        backHandler.post { callback?.onSpeechDone(false) }
+                    }
                 }
+
             } else {
                 errorLog("GCP-TTS : NG")
                 errorLog("NG Response = $response")
