@@ -12,6 +12,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.view.View
 import android.widget.*
@@ -29,7 +30,7 @@ import kotlinx.android.synthetic.main.activity_main_3.*
 class MainActivity3 : AppCompatActivity() {
     private val IS_DEBUG = Log.IS_DEBUG || false
 
-    private val uiHandler = Handler()
+    private val uiHandler = Handler(Looper.getMainLooper())
 
     companion object {
         fun togglePet(isEnabled: Boolean, context: Context) {
@@ -40,11 +41,7 @@ class MainActivity3 : AppCompatActivity() {
             }
             val service = Intent(action)
             service.setClass(context , OverlayService3::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(service)
-            } else {
-                context.startService(service)
-            }
+            context.startForegroundService(service)
         }
     }
 
@@ -175,11 +172,6 @@ class MainActivity3 : AppCompatActivity() {
                 Constants.KEY_SPEAK_THRESHOLD,
                 Constants.SPEAK_THRESHOLD_DEFAULT)
         sound_level_threshold.progress = curThreshold - Constants.SPEAK_THRESHOLD_MIN
-
-        // Immersive mode.
-        root_view.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_IMMERSIVE)
 
         if (IS_DEBUG) debugLog("onResume() : X")
     }
@@ -350,6 +342,7 @@ class MainActivity3 : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         if (Log.IS_DEBUG) debugLog("onActivityResult()")
+        super.onActivityResult(requestCode, resultCode, intent)
 
         if (requestCode == requestCodeManageOverlayPermission) {
             if (!isSystemAlertWindowPermissionGranted) {

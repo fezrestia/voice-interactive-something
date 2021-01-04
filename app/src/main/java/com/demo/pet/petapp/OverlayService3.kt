@@ -13,7 +13,6 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.IBinder
 import com.demo.pet.petapp.activespeak.FaceTrigger
 import com.demo.pet.petapp.character.Character
@@ -59,18 +58,14 @@ class OverlayService3 : Service() {
         super.onCreate()
 
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val builder: Notification.Builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                    NOTIFICATION_CHANNEL_ONGOING,
-                    "overlay on-going",
-                    NotificationManager.IMPORTANCE_MIN)
-            manager.createNotificationChannel(channel)
 
-            Notification.Builder(this, NOTIFICATION_CHANNEL_ONGOING)
-        } else {
-            @Suppress("DEPRECATION")
-            Notification.Builder(this)
-        }
+        val channel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ONGOING,
+                "overlay on-going",
+                NotificationManager.IMPORTANCE_MIN)
+        manager.createNotificationChannel(channel)
+
+        val builder = Notification.Builder(this, NOTIFICATION_CHANNEL_ONGOING)
 
         val notification = builder
                 .setContentTitle(getText(R.string.app_name))

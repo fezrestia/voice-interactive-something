@@ -2,6 +2,7 @@ package com.demo.pet.petapp.conversations
 
 import android.content.Context
 import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import com.demo.pet.petapp.R
 import com.demo.pet.petapp.util.debugLog
@@ -11,11 +12,8 @@ class OhayouKatchy(var context: Context?) : ConversationStrategy {
 
     init {
         val ctx = context
-        if (ctx != null) {
-            keywords = ctx.resources.getStringArray(R.array.ohayou_katchy_keywords).toList()
-        } else {
-            keywords = ArrayList()
-        }
+        keywords = ctx?.resources?.getStringArray(R.array.ohayou_katchy_keywords)?.toList()
+                ?: ArrayList()
     }
 
     override fun getFilterKeywords(): List<String> {
@@ -66,7 +64,7 @@ class OhayouKatchy(var context: Context?) : ConversationStrategy {
             callback: ConversationStrategy.Callback,
             callbackHandler: Handler?) {
         val response = conversate(sentence, keywords)
-        val handler = callbackHandler ?: Handler()
+        val handler = callbackHandler ?: Handler(Looper.getMainLooper())
         handler.post { callback.onCompleted(response) }
     }
 }

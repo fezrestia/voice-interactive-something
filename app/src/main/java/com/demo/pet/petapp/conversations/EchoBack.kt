@@ -1,6 +1,7 @@
 package com.demo.pet.petapp.conversations
 
 import android.os.Handler
+import android.os.Looper
 
 class EchoBack : ConversationStrategy {
     override fun getFilterKeywords(): List<String> {
@@ -16,7 +17,7 @@ class EchoBack : ConversationStrategy {
             keywords: List<String>,
             callback: ConversationStrategy.Callback,
             callbackHandler: Handler?) {
-        val handler = callbackHandler ?: Handler()
+        val handler = callbackHandler ?: Handler(Looper.getMainLooper())
         handler.post { callback.onCompleted(sentence) }
     }
 

@@ -8,8 +8,8 @@ package com.demo.pet.petapp.character
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PixelFormat
-import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -41,15 +41,10 @@ class CharacterKatchyDog(val context: Context) : Character {
                 null) as RelativeLayout
 
         model = Model(rootView.model)
-        renderer = Renderer(model, Handler())
+        renderer = Renderer(model, Handler(Looper.getMainLooper()))
 
         // Window params for overlay
-        val overlayType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            @Suppress("DEPRECATION")
-            WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
-        }
+        val overlayType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
         winParams = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -62,12 +57,6 @@ class CharacterKatchyDog(val context: Context) : Character {
                 PixelFormat.TRANSLUCENT)
         winParams.gravity = Gravity.BOTTOM
         winParams.y = 0
-
-        // Immersive mode.
-        rootView.systemUiVisibility = (RelativeLayout.SYSTEM_UI_FLAG_FULLSCREEN
-                or RelativeLayout.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or RelativeLayout.SYSTEM_UI_FLAG_IMMERSIVE)
-
     }
 
     override fun addToOverlayWindow() {

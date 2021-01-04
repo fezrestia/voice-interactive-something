@@ -2,6 +2,7 @@ package com.demo.pet.petapp.conversations
 
 import android.content.Context
 import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import com.demo.pet.petapp.Constants
 import com.demo.pet.petapp.PetApplication
@@ -71,7 +72,7 @@ class UserDefinitions(var context: Context?) : ConversationStrategy {
             callback: ConversationStrategy.Callback,
             callbackHandler: Handler?) {
         val response = conversate(sentence, keywords)
-        val handler = callbackHandler ?: Handler()
+        val handler = callbackHandler ?: Handler(Looper.getMainLooper())
         handler.post { callback.onCompleted(response) }
     }
 }
