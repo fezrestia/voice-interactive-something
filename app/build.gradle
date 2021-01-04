@@ -91,6 +91,8 @@ android {
         exclude 'META-INF/INDEX.LIST'
         exclude 'META-INF/DEPENDENCIES'
     }
+
+    ndkVersion '22.0.7026061'
 }
 
 dependencies {
