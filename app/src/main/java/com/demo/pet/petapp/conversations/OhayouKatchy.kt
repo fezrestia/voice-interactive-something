@@ -27,7 +27,11 @@ class OhayouKatchy(var context: Context?) : ConversationStrategy {
     }
 
     override fun conversate(sentence: String, keywords: List<String>): String {
-        val keyword = keywords.first()
+        val keyword = if (keywords.isEmpty()) {
+            ""
+        } else {
+            keywords.first()
+        }
 
         debugLog("## KEYWORD = $keyword is DETECTED")
 

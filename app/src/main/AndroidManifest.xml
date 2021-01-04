@@ -5,8 +5,8 @@
 
     package="com.demo.pet.petapp"
 
-    android:versionCode="221"
-    android:versionName="3.1.6-221"
+    android:versionCode="222"
+    android:versionName="3.1.7-222"
 >
 <!--                     | | | |-> incremental build count
                          | | |-> patch
