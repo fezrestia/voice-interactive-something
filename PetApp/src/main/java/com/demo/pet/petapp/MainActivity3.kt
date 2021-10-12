@@ -16,6 +16,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.view.View
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import com.demo.pet.petapp.character.CharacterType
 import com.demo.pet.petapp.conversations.ConversationType
 import com.demo.pet.petapp.stt.STTType
@@ -24,7 +25,6 @@ import com.demo.pet.petapp.tts.TTSType
 import com.demo.pet.petapp.tts.loadTTSEngineOptions
 import com.demo.pet.petapp.util.Log
 import com.demo.pet.petapp.util.debugLog
-import com.demo.pet.petapp.util.errorLog
 import kotlinx.android.synthetic.main.activity_main_3.*
 
 class MainActivity3 : AppCompatActivity() {
@@ -272,7 +272,6 @@ class MainActivity3 : AppCompatActivity() {
 
     //// RUNTIME PERMISSION SUPPORT.
 
-    private val requestCodeManageOverlayPermission = 100
     private val requestCodeManagePermissions = 200
 
     private val isRuntimePermissionRequired: Boolean
@@ -292,6 +291,15 @@ class MainActivity3 : AppCompatActivity() {
         get() = (checkSelfPermission(Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED)
 
+    private val startOverlayPermissionRequest = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) { result ->
+        if (Log.IS_DEBUG) debugLog("overlay permission result = $result")
+        if (!isSystemAlertWindowPermissionGranted) {
+            if (Log.IS_DEBUG) debugLog("  Overlay permission is not granted yet.")
+            finish()
+        }
+    }
+
     /**
      * Check permission.
      *
@@ -308,12 +316,7 @@ class MainActivity3 : AppCompatActivity() {
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:$packageName"))
 
-                try {
-                    startActivityForResult(intent, requestCodeManageOverlayPermission)
-                } catch (e: RuntimeException) {
-                    errorLog("startActivityForResult ERR : ${e.printStackTrace()}")
-                    return false
-                }
+                startOverlayPermissionRequest.launch(intent)
 
                 return true
             }
@@ -340,23 +343,12 @@ class MainActivity3 : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
-        if (Log.IS_DEBUG) debugLog("onActivityResult()")
-        super.onActivityResult(requestCode, resultCode, intent)
-
-        if (requestCode == requestCodeManageOverlayPermission) {
-            if (!isSystemAlertWindowPermissionGranted) {
-                if (Log.IS_DEBUG) debugLog("  Overlay permission is not granted yet.")
-                finish()
-            }
-        }
-    }
-
     override fun onRequestPermissionsResult(
             requestCode: Int,
             permissions: Array<String>,
             grantResults: IntArray) {
         if (Log.IS_DEBUG) debugLog("onRequestPermissionsResult()")
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == requestCodeManagePermissions) {
             if (!isCameraPermissionGranted) {

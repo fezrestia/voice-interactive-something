@@ -4,13 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.ImageFormat
 import android.hardware.camera2.*
+import android.hardware.camera2.params.OutputConfiguration
+import android.hardware.camera2.params.SessionConfiguration
 import android.os.Handler
 import android.os.HandlerThread
 import android.media.ImageReader
-import android.view.Surface
 import com.demo.pet.petapp.util.Log
 import com.demo.pet.petapp.util.debugLog
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 @Suppress("ConstantConditionIf")
@@ -133,17 +135,23 @@ class FaceTrigger(val context: Context) {
                     640,
                     480,
                     ImageFormat.PRIVATE,
-                    4)
-            previewStream?.setOnImageAvailableListener(
-                    ImageAvailableCallback(),
-                    callbackHandler)
+                    4).apply {
+                setOnImageAvailableListener(
+                        ImageAvailableCallback(),
+                        callbackHandler)
 
-            val streams: List<Surface?> = listOf(previewStream?.surface)
+                val outputs: List<OutputConfiguration> = listOf(
+                        OutputConfiguration(this.surface)
+                )
 
-            cameraDevice?.createCaptureSession(
-                    streams,
-                    CaptureSessionCallback(),
-                    callbackHandler)
+                cameraDevice?.createCaptureSession(
+                        SessionConfiguration(
+                                SessionConfiguration.SESSION_REGULAR,
+                                outputs,
+                                Executors.newSingleThreadExecutor(),
+                                CaptureSessionCallback())
+                )
+            }
 
             if (Log.IS_DEBUG) debugLog("FaceTrigger.StartFaceDetectionTask : X")
         }

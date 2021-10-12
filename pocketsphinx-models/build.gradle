@@ -1,17 +1,21 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 30
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion 29
+        targetSdkVersion 30
     }
     buildTypes {
         release {
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildToolsVersion '31.0.0'
+    ndkVersion '23.0.7599858'
 }
 
 ant.importBuild 'assets.xml'

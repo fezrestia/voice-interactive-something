@@ -5,8 +5,8 @@
 
     package="com.demo.pet.petapp"
 
-    android:versionCode="262"
-    android:versionName="3.1.10-262"
+    android:versionCode="307"
+    android:versionName="3.1.11-307"
 >
 <!--                     | | | |-> incremental build count
                          | | |-> patch
@@ -60,6 +60,7 @@
             android:label="@string/user_definition_conversations_editor_activity_label"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:launchMode="singleTask"
+            android:exported="true"
         >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

@@ -383,7 +383,7 @@ class VoiceRecorder(context: Context, private val speakThreshold: Int) {
                 val size = ar.read(buf, 0, buf.size)
 
                 // Cache last buffer.
-                val totalCacheBytes = lastBufCaches.sumBy { it ->
+                val totalCacheBytes = lastBufCaches.sumOf { it ->
                     it.size
                 }
                 if (lastBufSizeBytes < totalCacheBytes) {
