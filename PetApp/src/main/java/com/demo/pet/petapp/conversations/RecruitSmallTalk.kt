@@ -65,7 +65,7 @@ class RecruitSmallTalk : ConversationStrategy {
             private val message: String,
             private val callback: ConversationStrategy.Callback?,
             private val callbackHandler: Handler?) : Runnable {
-        private val POST_URL = "https://api.a3rt.recruit-tech.co.jp/talk/v1/smalltalk"
+        private val POST_URL = "https://api.a3rt.recruit.co.jp/talk/v1/smalltalk"
         private val CONTENT_TYPE = "application/x-www-form-urlencoded; charset=utf-8".toMediaTypeOrNull()
 
         private val countdown = CountDownLatch(1)
