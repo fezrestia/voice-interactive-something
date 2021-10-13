@@ -22,7 +22,7 @@
             <include layout="@layout/scroll_view_separator" />
 
             <!-- En/Disable -->
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/overlay_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Speak Threshold = "
+                    android:text="@string/speak_threshold_label"
                 />
                 <TextView
                     android:id="@+id/speak_threshold_indicator"
@@ -63,7 +63,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="STT Engine"
+                    android:text="@string/stt_engine_label"
                 />
                 <Spinner
                     android:id="@+id/stt_engine_selector"
@@ -87,7 +87,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="TTS Engine"
+                        android:text="@string/tts_engine_label"
                     />
                     <Spinner
                         android:id="@+id/tts_engine_selector"
@@ -103,7 +103,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Service"
+                        android:text="@string/tts_service_label"
                     />
                     <Spinner
                         android:id="@+id/tts_engine_option_selector"
@@ -123,7 +123,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Conversation Engine"
+                    android:text="@string/conversation_engine_label"
                 />
                 <Spinner
                     android:id="@+id/conversation_engine_selector"
@@ -142,7 +142,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Character Model"
+                    android:text="@string/character_model_label"
                 />
                 <Spinner
                     android:id="@+id/character_model_selector"

@@ -8,4 +8,18 @@
 
     <string name="face_trigger_msg">おはよう</string>
 
+    <string name="speak_threshold_label">Speak Threshold = </string>
+    <string name="stt_engine_label">STT Engine</string>
+    <string name="tts_engine_label">TTS Engine</string>
+    <string name="tts_service_label">Service</string>
+    <string name="conversation_engine_label">Conversation Engine</string>
+    <string name="character_model_label">Character Model</string>
+
+    <string name="add_label">ADD</string>
+    <string name="del_label">DEL</string>
+    <string name="in_label">IN = </string>
+    <string name="out_label">OUT = </string>
+
+    <string name="model_description">Model</string>
+
 </resources>

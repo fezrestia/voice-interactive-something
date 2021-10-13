@@ -10,6 +10,7 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_alignParentEnd="true"
+        android:contentDescription="@string/model_description"
     />
 
     <TextView
@@ -26,19 +27,19 @@
     <LinearLayout
         android:id="@+id/voice_level_indicator"
         android:layout_width="match_parent"
-        android:layout_height="64px"
+        android:layout_height="24dp"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/debug_msg"
     >
         <View
             android:layout_width="match_parent"
-            android:layout_height="64px"
+            android:layout_height="24dp"
             android:layout_weight="20"
             android:background="#AAFFAA"
         />
         <View
             android:layout_width="match_parent"
-            android:layout_height="64px"
+            android:layout_height="24dp"
             android:layout_weight="80"
             android:background="#FFAAAA"
         />
@@ -48,9 +49,9 @@
     <View
         android:id="@+id/voice_level"
         android:layout_width="match_parent"
-        android:layout_height="48px"
+        android:layout_height="18dp"
         android:layout_alignBottom="@id/voice_level_indicator"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:background="#FFFFFF"
     />
 
