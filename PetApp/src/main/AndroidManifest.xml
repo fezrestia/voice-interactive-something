@@ -3,10 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
 
-    package="com.demo.pet.petapp"
-
-    android:versionCode="319"
-    android:versionName="3.1.12-319"
+    android:versionCode="345"
+    android:versionName="3.2.0-345"
 >
 <!--                     | | | |-> incremental build count
                          | | |-> patch
@@ -33,7 +31,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:allowBackup="true"
-        android:fullBackupContent="true"
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
