@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
 
-    android:versionCode="345"
-    android:versionName="3.2.0-345"
+    android:versionCode="356"
+    android:versionName="3.2.1-356"
 >
 <!--                     | | | |-> incremental build count
                          | | |-> patch
