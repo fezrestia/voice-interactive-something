@@ -65,12 +65,18 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
         backHandler = Handler(backThread.looper)
 
         refreshTask = RefreshAccessTokenTask()
+    }
+
+    fun refreshAccessToken() {
         backHandler.post(refreshTask)
+        while (backHandler.hasCallbacks(refreshTask)) {
+            Thread.sleep(100)
+        }
+    }
 
+    fun prepareToSpeak() {
         backHandler.post(GetVoiceListTask())
-
         backHandler.post(StartAudioTrackPlayerTask())
-
     }
 
     private inner class RefreshAccessTokenTask : Runnable {
@@ -165,6 +171,13 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
                             val ssmlGender = voice.get("ssmlGender").asText()
                             val naturalSampleRateHertz = voice.get("naturalSampleRateHertz").asInt()
                             voices.add(Voice(name, ssmlGender, naturalSampleRateHertz))
+                        }
+
+                        if (IS_DEBUG) {
+                            debugLog("GCP TTS Voice added.")
+                            voices.forEach { voice ->
+                                debugLog("    voice = $voice")
+                            }
                         }
 
                         if (option != Constants.VAL_DEFAULT) {
@@ -319,7 +332,7 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
                                 pcm16Buffer[25],
                                 pcm16Buffer[24])
                         val rate = ByteBuffer.wrap(rateBytes).int
-                        if (IS_DEBUG) debugLog("WAVE Sample Rate = $rate")
+                        debugLog("WAVE Sample Rate = $rate")
                     }
 
                     val p = player

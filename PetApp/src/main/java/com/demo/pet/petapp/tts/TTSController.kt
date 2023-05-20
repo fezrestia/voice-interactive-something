@@ -24,7 +24,10 @@ fun createTTSController(
             TTSControllerAndroid(context, pkg)
         }
         TTSType.GOOGLE_CLOUD_PLATFORM -> {
-            TTSControllerGoogleCloudApi(context, pkg)
+            TTSControllerGoogleCloudApi(context, pkg).apply {
+                refreshAccessToken()
+                prepareToSpeak()
+            }
         }
     }
     tts.callback = callback
@@ -48,6 +51,8 @@ fun loadTTSEngineOptions(
         }
         TTSType.GOOGLE_CLOUD_PLATFORM -> {
             val tts = TTSControllerGoogleCloudApi(context, Constants.VAL_DEFAULT)
+            tts.refreshAccessToken()
+            tts.prepareToSpeak()
             tts.loadLabelVsPackage( object : OnTtsEngineOptionLoadedCallback {
                 override fun onLoaded(labelVsPackage: Map<String, String>) {
                     tts.release()
