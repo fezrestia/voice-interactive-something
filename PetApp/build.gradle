@@ -13,7 +13,7 @@ android {
     namespace 'com.demo.pet.petapp'
 
     compileSdk 33
-    buildToolsVersion '33.0.1'
+    buildToolsVersion '33.0.2'
 
     defaultConfig {
         applicationId "com.demo.pet.petapp"
@@ -114,16 +114,15 @@ android {
         }
     }
 
-    ndkVersion '25.1.8937393'
+    ndkVersion '25.2.9519653'
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.14.1'
-    implementation 'androidx.appcompat:appcompat:1.6.0'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.activity:activity-ktx:1.6.1'
 
@@ -139,10 +138,10 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.2'
 
     // gRPC for Google Cloud API.
-    implementation 'io.grpc:grpc-okhttp:1.52.1'
+    implementation 'io.grpc:grpc-okhttp:1.55.1'
 
     // Google Cloud API.
-    implementation 'com.google.cloud:google-cloud-speech:4.3.0'
+    implementation 'com.google.cloud:google-cloud-speech:4.12.0'
 }
 
 task copySecretKey(type: Copy) {
