@@ -9,6 +9,7 @@ enum class ConversationType {
     KATCHY_ONLINE,
     ECHO_BACK,
     RECRUIT_SMALL_TALK,
+    RINNA,
 }
 
 fun createConversationStrategy(
@@ -29,6 +30,9 @@ fun createConversationStrategy(
         }
         ConversationType.RECRUIT_SMALL_TALK -> {
             RecruitSmallTalk()
+        }
+        ConversationType.RINNA -> {
+            Rinna()
         }
     }
 }

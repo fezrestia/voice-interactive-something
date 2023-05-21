@@ -48,6 +48,12 @@ JNIEXPORT jstring JNICALL Java_com_demo_pet_petapp_conversations_RecruitSmallTal
     return env->NewStringUTF(RECRUIT_SMALL_TALK_API_KEY);
 }
 
+JNIEXPORT jstring JNICALL Java_com_demo_pet_petapp_conversations_Rinna_getPrimaryApiKey(
+        JNIEnv *env,
+        jobject __unused thiz) {
+    return env->NewStringUTF(RINNA_PRIMARY_API_KEY);
+}
+
 } // extern "C"
 
 #pragma clang diagnostic pop
