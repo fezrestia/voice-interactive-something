@@ -9,6 +9,7 @@ import com.demo.pet.petapp.Constants
 enum class TTSType {
     ANDROID,
     GOOGLE_CLOUD_PLATFORM,
+    RINNA,
 }
 
 /**
@@ -28,6 +29,9 @@ fun createTTSController(
                 refreshAccessToken()
                 prepareToSpeak()
             }
+        }
+        TTSType.RINNA -> {
+            TTSControllerRinna(pkg.toInt())
         }
     }
     tts.callback = callback
@@ -59,6 +63,9 @@ fun loadTTSEngineOptions(
                     callback.onLoaded(labelVsPackage)
                 }
             } )
+        }
+        TTSType.RINNA -> {
+            callback.onLoaded(TTSControllerRinna.getVoiceLabelVsVoiceId())
         }
 //        else -> {
 //            val defaultMap = mapOf(Pair(Constants.VAL_DEFAULT, Constants.VAL_DEFAULT))

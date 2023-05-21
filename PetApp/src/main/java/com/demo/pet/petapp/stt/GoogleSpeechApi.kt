@@ -1,4 +1,4 @@
-@file:Suppress("PrivatePropertyName", "ConstantConditionIf")
+@file:Suppress("PrivatePropertyName", "ConstantConditionIf", "SimplifyBooleanWithConstants")
 
 package com.demo.pet.petapp.stt
 
@@ -12,6 +12,7 @@ import android.text.TextUtils
 import com.google.auth.oauth2.GoogleCredentials
 
 import com.demo.pet.petapp.R
+import com.demo.pet.petapp.util.Log
 import com.demo.pet.petapp.util.debugLog
 import com.demo.pet.petapp.util.errorLog
 import com.google.api.gax.rpc.ClientStream
@@ -29,7 +30,7 @@ import com.google.protobuf.ByteString
  * Google Cloud Platform natural language API client.
  */
 class GoogleSpeechApi(val context: Context) {
-    private val IS_DEBUG = true // Log.IS_DEBUG
+    private val IS_DEBUG = false || Log.IS_DEBUG
 
     private val mainHandler = Handler(context.mainLooper)
     private val backThread = HandlerThread("back-worker")
