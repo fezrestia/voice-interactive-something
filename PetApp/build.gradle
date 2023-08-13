@@ -13,7 +13,6 @@ android {
     namespace 'com.demo.pet.petapp'
 
     compileSdk 33
-    buildToolsVersion '33.0.2'
 
     defaultConfig {
         applicationId "com.demo.pet.petapp"
@@ -48,12 +47,12 @@ android {
     productFlavors {
     }
 
-    configurations.all {
+    configurations.configureEach {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
         resolutionStrategy.force "com.android.support:support-annotations:$supportLibraryVersion"
     }
 
-    task incrementVersionCode {
+    tasks.register('incrementVersionCode') {
         def file = file("src/main/AndroidManifest.xml")
         def text = file.getText()
 
@@ -88,14 +87,14 @@ android {
         }
     }
 
-    tasks.whenTaskAdded { task ->
+    tasks.configureEach { task ->
         if (task.name == "generateReleaseBuildConfig" || task.name == "generateDebugBuildConfig") {
             task.dependsOn("incrementVersionCode")
         }
     }
 
     // Define APK name and replace.
-    applicationVariants.all { variant ->
+    applicationVariants.configureEach { variant ->
         variant.outputs.each { output ->
             if (output.outputFileName.endsWith(".apk")) {
                 def name = getArchivesBaseName()
@@ -144,7 +143,7 @@ dependencies {
     implementation 'com.google.cloud:google-cloud-speech:4.12.0'
 }
 
-task copySecretKey(type: Copy) {
+tasks.register('copySecretKey', Copy) {
     File secretKey = file "$System.env.GOOGLE_APPLICATION_CREDENTIALS"
     from secretKey.getParent()
     include secretKey.getName()
