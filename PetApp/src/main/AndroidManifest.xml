@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
 
-    android:versionCode="468"
-    android:versionName="4.1.2-469"
+    android:versionCode="470"
+    android:versionName="4.1.3-470"
 >
 <!--                     | | | |-> incremental build count
                          | | |-> patch
