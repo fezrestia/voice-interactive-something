@@ -28,16 +28,21 @@ class UserDefinitionConversationsEditorActivity : AppCompatActivity() {
 
     private lateinit var protocolListAdapter: ConversationProtocolListViewAdapter
 
-    private val conversation_protocol_list = findViewById<UnscrollableListView>(R.id.conversation_protocol_list)
-    private val add_protocol = findViewById<Button>(R.id.add_protocol)
-    private val input_in_keyword = findViewById<EditText>(R.id.input_in_keyword)
-    private val input_out_keyword = findViewById<EditText>(R.id.input_out_keyword)
+    private lateinit var conversation_protocol_list: UnscrollableListView
+    private lateinit var add_protocol: Button
+    private lateinit var input_in_keyword: EditText
+    private lateinit var input_out_keyword: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (IS_DEBUG) debugLog("onCreate() : E")
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.user_definition_conversations_editor_activity)
+
+        conversation_protocol_list = findViewById<UnscrollableListView>(R.id.conversation_protocol_list)
+        add_protocol = findViewById<Button>(R.id.add_protocol)
+        input_in_keyword = findViewById<EditText>(R.id.input_in_keyword)
+        input_out_keyword = findViewById<EditText>(R.id.input_out_keyword)
 
         protocolListAdapter = ConversationProtocolListViewAdapter(
                 this,

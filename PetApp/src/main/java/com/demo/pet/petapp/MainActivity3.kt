@@ -30,14 +30,14 @@ class MainActivity3 : AppCompatActivity() {
 
     private val uiHandler = Handler(Looper.getMainLooper())
 
-    private val overlay_switch = findViewById<SwitchCompat>(R.id.overlay_switch)
-    private val sound_level_threshold = findViewById<SeekBar>(R.id.sound_level_threshold)
-    private val stt_engine_selector = findViewById<Spinner>(R.id.stt_engine_selector)
-    private val tts_engine_selector = findViewById<Spinner>(R.id.tts_engine_selector)
-    private val conversation_engine_selector = findViewById<Spinner>(R.id.conversation_engine_selector)
-    private val character_model_selector = findViewById<Spinner>(R.id.character_model_selector)
-    private val speak_threshold_indicator = findViewById<TextView>(R.id.speak_threshold_indicator)
-    private val tts_engine_option_selector = findViewById<Spinner>(R.id.tts_engine_option_selector)
+    private lateinit var overlay_switch: SwitchCompat
+    private lateinit var sound_level_threshold: SeekBar
+    private lateinit var stt_engine_selector: Spinner
+    private lateinit var tts_engine_selector: Spinner
+    private lateinit var conversation_engine_selector: Spinner
+    private lateinit var character_model_selector: Spinner
+    private lateinit var speak_threshold_indicator: TextView
+    private lateinit var tts_engine_option_selector: Spinner
 
     companion object {
         fun togglePet(isEnabled: Boolean, context: Context) {
@@ -59,6 +59,15 @@ class MainActivity3 : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main_3)
+
+        overlay_switch = findViewById(R.id.overlay_switch)
+        sound_level_threshold = findViewById(R.id.sound_level_threshold)
+        stt_engine_selector = findViewById(R.id.stt_engine_selector)
+        tts_engine_selector = findViewById(R.id.tts_engine_selector)
+        conversation_engine_selector = findViewById(R.id.conversation_engine_selector)
+        character_model_selector = findViewById(R.id.character_model_selector)
+        speak_threshold_indicator = findViewById(R.id.speak_threshold_indicator)
+        tts_engine_option_selector = findViewById(R.id.tts_engine_option_selector)
 
         // En/Disable switch.
         overlay_switch.setOnCheckedChangeListener(OnCheckedChangeListenerImpl())

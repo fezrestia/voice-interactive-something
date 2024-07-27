@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
 
-    android:versionCode="479"
-    android:versionName="4.1.5-479"
+    android:versionCode="482"
+    android:versionName="4.1.6-482"
 >
 <!--                     | | | |-> incremental build count
                          | | |-> patch
