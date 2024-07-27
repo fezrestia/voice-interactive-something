@@ -3,10 +3,10 @@ apply plugin: 'com.android.library'
 android {
     namespace 'edu.cmu.pocketsphinx.models'
 
-    compileSdk 33
+    compileSdk 34
     defaultConfig {
         minSdkVersion 29
-        targetSdk 33
+        targetSdk 34
     }
     buildTypes {
         release {
@@ -16,8 +16,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    buildToolsVersion '33.0.1'
-    ndkVersion '25.1.8937393'
+    ndkVersion '27.0.12077973'
 }
 
 ant.importBuild 'assets.xml'

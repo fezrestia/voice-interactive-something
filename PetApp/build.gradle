@@ -4,20 +4,14 @@ apply plugin: 'kotlin-android-extensions'
 
 import java.util.regex.Pattern
 
-ext {
-    supportLibraryVersion = '25.4.0'
-    grpcVersion = '1.4.0'
-}
-
 android {
     namespace 'com.demo.pet.petapp'
-
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.demo.pet.petapp"
         minSdkVersion 29
-        targetSdk 33
+        targetSdk 34
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         externalNativeBuild {
             cmake {
@@ -39,7 +33,6 @@ android {
 
     externalNativeBuild {
         cmake {
-            version "3.18.1"
             path "CMakeLists.txt"
         }
     }
@@ -49,7 +42,7 @@ android {
 
     configurations.configureEach {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
-        resolutionStrategy.force "com.android.support:support-annotations:$supportLibraryVersion"
+        resolutionStrategy.force "com.android.support:support-annotations:25.4.0"
     }
 
     tasks.register('incrementVersionCode') {
@@ -88,7 +81,7 @@ android {
     }
 
     tasks.configureEach { task ->
-        if (task.name == "generateReleaseBuildConfig" || task.name == "generateDebugBuildConfig") {
+        if (task.name == "preBuild") {
             task.dependsOn("incrementVersionCode")
         }
     }
@@ -113,21 +106,21 @@ android {
         }
     }
 
-    ndkVersion '25.2.9519653'
+    ndkVersion '27.0.12077973'
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.14.1'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.activity:activity-ktx:1.6.1'
+    implementation 'androidx.activity:activity-ktx:1.9.1'
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
     // Local library or pocket-sphinx.
     implementation project(':pocketsphinx-aar')
