@@ -12,13 +12,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ListAdapter
+import android.widget.TextView
 import com.demo.pet.petapp.conversations.UserDefinitions
 import com.demo.pet.petapp.util.Log
+import com.demo.pet.petapp.util.UnscrollableListView
 import com.demo.pet.petapp.util.debugLog
-import kotlinx.android.synthetic.main.conversation_protocol_list_item.view.*
-import kotlinx.android.synthetic.main.conversation_protocol_list_item_input.*
-import kotlinx.android.synthetic.main.user_definition_conversations_editor_activity.*
 
 class UserDefinitionConversationsEditorActivity : AppCompatActivity() {
     private val IS_DEBUG = Log.IS_DEBUG || false
@@ -26,6 +27,11 @@ class UserDefinitionConversationsEditorActivity : AppCompatActivity() {
     private val keywordProtocols = ArrayList<UserDefinitions.KeywordProtocol>()
 
     private lateinit var protocolListAdapter: ConversationProtocolListViewAdapter
+
+    private val conversation_protocol_list = findViewById<UnscrollableListView>(R.id.conversation_protocol_list)
+    private val add_protocol = findViewById<Button>(R.id.add_protocol)
+    private val input_in_keyword = findViewById<EditText>(R.id.input_in_keyword)
+    private val input_out_keyword = findViewById<EditText>(R.id.input_out_keyword)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (IS_DEBUG) debugLog("onCreate() : E")
@@ -124,10 +130,10 @@ class UserDefinitionConversationsEditorActivity : AppCompatActivity() {
             val itemView = view ?: inflater.inflate(itemLayoutId, parent, false)
 
             val protocol = keywordProtocols[position]
-            itemView.in_keyword.text = protocol.inKeyword
-            itemView.out_keyword.text = protocol.outKeyword
+            itemView.findViewById<TextView>(R.id.in_keyword).text = protocol.inKeyword
+            itemView.findViewById<TextView>(R.id.out_keyword).text = protocol.outKeyword
 
-            itemView.del_button.setOnClickListener {
+            itemView.findViewById<Button>(R.id.del_button).setOnClickListener {
                 keywordProtocols.removeAt(position)
                 notifyDataSetChanged()
             }

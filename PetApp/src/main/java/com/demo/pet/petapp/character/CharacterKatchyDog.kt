@@ -15,11 +15,11 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.TextView
 import com.demo.pet.petapp.util.Log
 import com.demo.pet.petapp.R
 import com.demo.pet.petapp.util.debugLog
 import com.demo.pet.petapp.util.errorLog
-import kotlinx.android.synthetic.main.character_katchy_dog.view.*
 
 class CharacterKatchyDog(val context: Context) : Character {
     private val IS_DEBUG = Log.IS_DEBUG || false
@@ -40,7 +40,7 @@ class CharacterKatchyDog(val context: Context) : Character {
                 R.layout.character_katchy_dog,
                 null) as RelativeLayout
 
-        model = Model(rootView.model)
+        model = Model(rootView.findViewById(R.id.model))
         renderer = Renderer(model, Handler(Looper.getMainLooper()))
 
         // Window params for overlay
@@ -176,20 +176,21 @@ class CharacterKatchyDog(val context: Context) : Character {
     //// For DEBUG
 
     override fun updateDebugMsg(msg: String) {
-        rootView.debug_msg.text = msg
+        rootView.findViewById<TextView>(R.id.debug_msg).text = msg
     }
 
     override fun updateVoiceLevel(level: Int, min: Int, max: Int) {
         val rate = level.toFloat() / (max.toFloat() - min.toFloat())
-        rootView.voice_level.pivotX = 0.0f
-        rootView.voice_level.scaleX = rate
+        val voiceLevel = rootView.findViewById<View>(R.id.voice_level)
+        voiceLevel.pivotX = 0.0f
+        voiceLevel.scaleX = rate
     }
 
     override fun changeVoiceLevelToIdle() {
-        rootView.voice_level.setBackgroundColor(Color.WHITE)
+        rootView.findViewById<View>(R.id.voice_level).setBackgroundColor(Color.WHITE)
     }
 
     override fun changeVoiceLevelToRec() {
-        rootView.voice_level.setBackgroundColor(Color.RED)
+        rootView.findViewById<View>(R.id.voice_level).setBackgroundColor(Color.RED)
     }
 }

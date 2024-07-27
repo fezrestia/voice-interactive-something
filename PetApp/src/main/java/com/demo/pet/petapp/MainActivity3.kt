@@ -3,12 +3,10 @@
 package com.demo.pet.petapp
 
 import android.Manifest
-import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -17,6 +15,7 @@ import android.provider.Settings
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.SwitchCompat
 import com.demo.pet.petapp.character.CharacterType
 import com.demo.pet.petapp.conversations.ConversationType
 import com.demo.pet.petapp.stt.STTType
@@ -25,12 +24,20 @@ import com.demo.pet.petapp.tts.TTSType
 import com.demo.pet.petapp.tts.loadTTSEngineOptions
 import com.demo.pet.petapp.util.Log
 import com.demo.pet.petapp.util.debugLog
-import kotlinx.android.synthetic.main.activity_main_3.*
 
 class MainActivity3 : AppCompatActivity() {
     private val IS_DEBUG = Log.IS_DEBUG || false
 
     private val uiHandler = Handler(Looper.getMainLooper())
+
+    private val overlay_switch = findViewById<SwitchCompat>(R.id.overlay_switch)
+    private val sound_level_threshold = findViewById<SeekBar>(R.id.sound_level_threshold)
+    private val stt_engine_selector = findViewById<Spinner>(R.id.stt_engine_selector)
+    private val tts_engine_selector = findViewById<Spinner>(R.id.tts_engine_selector)
+    private val conversation_engine_selector = findViewById<Spinner>(R.id.conversation_engine_selector)
+    private val character_model_selector = findViewById<Spinner>(R.id.character_model_selector)
+    private val speak_threshold_indicator = findViewById<TextView>(R.id.speak_threshold_indicator)
+    private val tts_engine_option_selector = findViewById<Spinner>(R.id.tts_engine_option_selector)
 
     companion object {
         fun togglePet(isEnabled: Boolean, context: Context) {
@@ -274,20 +281,14 @@ class MainActivity3 : AppCompatActivity() {
 
     private val requestCodeManagePermissions = 200
 
-    private val isRuntimePermissionRequired: Boolean
-        get() = Build.VERSION_CODES.M <= Build.VERSION.SDK_INT
-
     private val isSystemAlertWindowPermissionGranted: Boolean
-        @TargetApi(Build.VERSION_CODES.M)
         get() = Settings.canDrawOverlays(this)
 
     private val isCameraPermissionGranted: Boolean
-        @TargetApi(Build.VERSION_CODES.M)
         get() = (checkSelfPermission(Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED)
 
     private val isMicPermissionGranted: Boolean
-        @TargetApi(Build.VERSION_CODES.M)
         get() = (checkSelfPermission(Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED)
 
@@ -305,41 +306,36 @@ class MainActivity3 : AppCompatActivity() {
      *
      * @return immediateReturnRequired
      */
-    @TargetApi(Build.VERSION_CODES.M)
     private fun checkMandatoryPermissions(): Boolean {
         if (Log.IS_DEBUG) debugLog("checkMandatoryPermissions()")
 
-        if (isRuntimePermissionRequired) {
-            if (!isSystemAlertWindowPermissionGranted) {
-                // Start permission setting.
-                val intent = Intent(
-                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:$packageName"))
+        if (!isSystemAlertWindowPermissionGranted) {
+            // Start permission setting.
+            val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName"))
 
-                startOverlayPermissionRequest.launch(intent)
+            startOverlayPermissionRequest.launch(intent)
 
-                return true
-            }
+            return true
+        }
 
-            val permissions = mutableListOf<String>()
+        val permissions = mutableListOf<String>()
 
-            if (!isCameraPermissionGranted) {
-                permissions.add(Manifest.permission.CAMERA)
-            }
-            if (!isMicPermissionGranted) {
-                permissions.add(Manifest.permission.RECORD_AUDIO)
-            }
+        if (!isCameraPermissionGranted) {
+            permissions.add(Manifest.permission.CAMERA)
+        }
+        if (!isMicPermissionGranted) {
+            permissions.add(Manifest.permission.RECORD_AUDIO)
+        }
 
-            return if (permissions.isNotEmpty()) {
-                requestPermissions(
-                        permissions.toTypedArray(),
-                        requestCodeManagePermissions)
-                true
-            } else {
-                false
-            }
+        return if (permissions.isNotEmpty()) {
+            requestPermissions(
+                    permissions.toTypedArray(),
+                    requestCodeManagePermissions)
+            true
         } else {
-            return false
+            false
         }
     }
 
