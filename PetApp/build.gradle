@@ -55,12 +55,6 @@ android {
         }
     }
 
-    tasks.configureEach { task ->
-        if (task.name == "preBuild") {
-            task.dependsOn("incrementVersionCode")
-        }
-    }
-
     // Define APK name and replace.
     applicationVariants.configureEach { variant ->
         variant.outputs.each { output ->
