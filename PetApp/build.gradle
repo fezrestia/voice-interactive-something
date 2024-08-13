@@ -107,7 +107,7 @@ def incrementVersionCode() {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.14.1'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -122,13 +122,13 @@ dependencies {
     implementation project(':pocketsphinx-models')
 
     // Network.
-    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.2'
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.14'
 
     // gRPC for Google Cloud API.
-    implementation 'io.grpc:grpc-okhttp:1.55.1'
+    implementation 'io.grpc:grpc-okhttp:1.66.0'
 
     // Google Cloud API.
-    implementation 'com.google.cloud:google-cloud-speech:4.12.0'
+    implementation 'com.google.cloud:google-cloud-speech:4.42.0'
 }
 
 tasks.register('copySecretKey', Copy) {
