@@ -20,6 +20,7 @@ import com.demo.pet.petapp.character.CharacterType
 import com.demo.pet.petapp.conversations.ConversationType
 import com.demo.pet.petapp.stt.STTType
 import com.demo.pet.petapp.tts.OnTtsEngineOptionLoadedCallback
+import com.demo.pet.petapp.tts.TTSControllerGoogleCloudApi
 import com.demo.pet.petapp.tts.TTSType
 import com.demo.pet.petapp.tts.loadTTSEngineOptions
 import com.demo.pet.petapp.util.Log
@@ -30,6 +31,7 @@ class MainActivity3 : AppCompatActivity() {
 
     private val uiHandler = Handler(Looper.getMainLooper())
 
+    private lateinit var update_gcp_refresh_token_button: Button
     private lateinit var overlay_switch: SwitchCompat
     private lateinit var sound_level_threshold: SeekBar
     private lateinit var stt_engine_selector: Spinner
@@ -60,6 +62,7 @@ class MainActivity3 : AppCompatActivity() {
 
         setContentView(R.layout.activity_main_3)
 
+        update_gcp_refresh_token_button = findViewById(R.id.update_gcp_refresh_token_button)
         overlay_switch = findViewById(R.id.overlay_switch)
         sound_level_threshold = findViewById(R.id.sound_level_threshold)
         stt_engine_selector = findViewById(R.id.stt_engine_selector)
@@ -68,6 +71,9 @@ class MainActivity3 : AppCompatActivity() {
         character_model_selector = findViewById(R.id.character_model_selector)
         speak_threshold_indicator = findViewById(R.id.speak_threshold_indicator)
         tts_engine_option_selector = findViewById(R.id.tts_engine_option_selector)
+
+        // GCP Refresh Token.
+        update_gcp_refresh_token_button.setOnClickListener(OnUpdateGcpRefreshTokenButtonClickListener())
 
         // En/Disable switch.
         overlay_switch.setOnCheckedChangeListener(OnCheckedChangeListenerImpl())
@@ -112,7 +118,19 @@ class MainActivity3 : AppCompatActivity() {
         character_model_selector.adapter = characterAdapter
         character_model_selector.onItemSelectedListener = OnItemSelectedListenerImpl(Constants.KEY_CHARACTER_TYPE)
 
+
+        // Prepare.
+        TTSControllerGoogleCloudApi.onStaticCreate(this)
+
         if (IS_DEBUG) debugLog("onCreate() : X")
+    }
+
+    private inner class OnUpdateGcpRefreshTokenButtonClickListener : View.OnClickListener {
+        override fun onClick(v: View?) {
+            if (IS_DEBUG) debugLog("Update GCP Refresh Token")
+
+            TTSControllerGoogleCloudApi.updateRefreshToken()
+        }
     }
 
     private inner class OnCheckedChangeListenerImpl : CompoundButton.OnCheckedChangeListener {
@@ -180,6 +198,27 @@ class MainActivity3 : AppCompatActivity() {
         if (checkMandatoryPermissions()) {
             return
         }
+
+
+        val data = intent.data
+        if (IS_DEBUG) {
+            debugLog("## intent.data = ${data.toString()}")
+            debugLog("## intent = ${intent.toString()}")
+        }
+
+        val codeRegExp: Regex = "(?<=code=)[^&]+".toRegex()
+        val matched: MatchResult? = codeRegExp.find(intent.data.toString())
+
+        if (matched != null) {
+            if (IS_DEBUG) debugLog("### matched.value = ${matched.value}")
+
+            // Prepare.
+            TTSControllerGoogleCloudApi.onStaticResume(matched.value)
+
+        } else {
+            if (IS_DEBUG) debugLog("Can not match code in response, this is normal launch.")
+        }
+
 
         loadConfigs()
 

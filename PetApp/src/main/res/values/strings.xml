@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">PetApp</string>
 
+    <string name="update_gcp_refresh_token_button_label">Update GCP Refresh Token</string>
+
     <string name="overlay_switch_label">En/Disable overlay pet</string>
 
     <string name="main_activity_3_label">PetApp3</string>

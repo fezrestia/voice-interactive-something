@@ -6,13 +6,20 @@
 package com.demo.pet.petapp.tts
 
 import android.content.Context
+import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
+import android.net.Uri
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Base64
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.demo.pet.petapp.Constants
+import com.demo.pet.petapp.PetApplication
 import com.demo.pet.petapp.util.Log
 import com.demo.pet.petapp.util.debugLog
 import com.demo.pet.petapp.util.errorLog
@@ -24,14 +31,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 import java.nio.ByteBuffer
 
-class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : TTSController {
-    private val IS_DEBUG = Log.IS_DEBUG || false
-
+class TTSControllerGoogleCloudApi(var context: Context, val option: String) : TTSController {
     override var callback: TTSController.Callback? = null
     override var isSpeaking: Boolean = false
-
-    private val backThread = HandlerThread("gcp-tts", Thread.NORM_PRIORITY)
-    private val backHandler: Handler
 
     private val refreshTask: RefreshAccessTokenTask
 
@@ -44,27 +46,153 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
     private val voices: MutableList<Voice> = mutableListOf()
     private var selectedVoice: Voice? = null // null means default
 
-    private val id = getId()
-    private val sec = getSec()
-    private val refresh = getRefresh()
-
-    private var accessToken: String = ""
-
     private var player: AudioTrack? = null
     private var playerBufSize: Int = 0
     private var frameSizeInBytes: Int = 0
 
     companion object {
+        private const val IS_DEBUG = Log.IS_DEBUG || false
+
+        private val backThread = HandlerThread("gcp-tts", Thread.NORM_PRIORITY)
+        private val backHandler: Handler
+
+        private val authTask = RequestOAuth2AuthorizationCodeTask()
+        private val requestTokenTask = RequestTokenTask()
+
+        private val clientId: String
+        private var authorizationCode: String
+        private var refreshToken: String
+        private var accessToken: String
+
+        private external fun getId(): String
+
         init {
             System.loadLibrary("config")
+            clientId = getId()
+            authorizationCode = ""
+            refreshToken = ""
+            accessToken = ""
+
+            backThread.start()
+            backHandler = Handler(backThread.looper)
+
         }
+
+        private lateinit var getCodeActResLauncher: ActivityResultLauncher<Intent>
+
+        fun onStaticCreate(activity: AppCompatActivity) {
+            if (IS_DEBUG) debugLog("onStaticCreate() : E")
+
+            getCodeActResLauncher = activity.registerForActivityResult(
+                ActivityResultContracts.StartActivityForResult())
+            { result: ActivityResult ->
+                if (IS_DEBUG) {
+                    debugLog("getCodeActResLauncher.onActivityResult()")
+                    debugLog("## result = $result")
+                    debugLog("## result.data = ${result.data}")
+                }
+            }
+
+            if (IS_DEBUG) debugLog("onStaticCreate() : X")
+        }
+
+        fun onStaticResume(code: String) {
+            if (IS_DEBUG) debugLog("onStaticResume() : E")
+
+            authorizationCode = code;
+            backHandler.post(requestTokenTask)
+
+            if (IS_DEBUG) debugLog("onStaticResume() : X")
+        }
+
+        private class RequestTokenTask : Runnable {
+            private val TOKEN_URL = "https://oauth2.googleapis.com/token"
+
+            override fun run() {
+                if (IS_DEBUG) debugLog("RequestTokenTask.run() : E")
+
+                val body = "client_id=${clientId}&code=${authorizationCode}&code_verifier=${Constants.GCP_CODE_VERIFIER}&grant_type=authorization_code&redirect_uri=${Constants.GCP_REDIRECT_URI}"
+                if (IS_DEBUG) debugLog("RequestTokenTask.run() : body = $body")
+
+                val client = OkHttpClient()
+                val requestBody = body.toRequestBody(Constants.GCP_CONTENT_TYPE)
+                val request = Request.Builder()
+                    .url(TOKEN_URL)
+                    .post(requestBody)
+                    .build()
+
+                val response = client.newCall(request).execute()
+
+                if (response.isSuccessful) {
+                    if (IS_DEBUG) debugLog("RequestTokenTask.run() : Get access-token OK")
+
+                    response.body.let {
+                        val responseBody = it.string()
+
+                        if (IS_DEBUG) {
+                            debugLog("## RESPONSE")
+                            debugLog(responseBody)
+                        }
+
+                        val mapper = jacksonObjectMapper()
+                        val rootNode = mapper.readTree(responseBody)
+
+                        accessToken = rootNode.get("access_token").asText()
+                        refreshToken = rootNode.get("refresh_token").asText()
+
+                        if (IS_DEBUG) {
+                            debugLog("## rootNode = $rootNode")
+                            debugLog("## refreshToken = $refreshToken")
+                            debugLog("## accessToken = $accessToken")
+                        }
+
+                        PetApplication.getSP().edit().putString(Constants.KEY_GCP_REFRESH_TOKEN, refreshToken).apply()
+
+                    }
+                } else {
+                    errorLog("RequestTokeTask.run() : Get access-token NG")
+                    errorLog("## NG Response = $response")
+                    errorLog("## NG Response body = ${response.body}")
+                    errorLog("## NG Response headers = ${response.headers}")
+                    errorLog("## NG Response message = ${response.message}")
+                }
+
+                if (IS_DEBUG) debugLog("RequestTokenTask.run() : X")
+            }
+        }
+
+
+        fun updateRefreshToken() {
+            if (IS_DEBUG) debugLog("TTSController.GCP.updateRefreshToken() : E")
+
+            backHandler.post(authTask)
+
+            if (IS_DEBUG) debugLog("TTSController.GCP.updateRefreshToken() : X")
+        }
+
+        private class RequestOAuth2AuthorizationCodeTask : Runnable {
+            override fun run() {
+                if (IS_DEBUG) debugLog("RequestOAuth2AuthorizationCodeTask.run() : E")
+
+                val url = "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${Constants.GCP_REDIRECT_URI}&scope=${Constants.GCP_SCOPE}&code_challenge=${Constants.GCP_CODE_VERIFIER}&code_challenge_method=${Constants.GCP_CODE_CHALLENGE_METHOD}"
+                if (IS_DEBUG) debugLog("RequestOAuth2AuthorizationCodeTask.run() : url = $url")
+
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse(url)
+
+                getCodeActResLauncher.launch(intent)
+
+                if (IS_DEBUG) debugLog("RequestOAuth2AuthorizationCodeTask.run() : X")
+            }
+        }
+
     }
 
     init {
-        backThread.start()
-        backHandler = Handler(backThread.looper)
-
         refreshTask = RefreshAccessTokenTask()
+
+        refreshToken = PetApplication.getSP().getString(Constants.KEY_GCP_REFRESH_TOKEN, "")!!
+
     }
 
     fun refreshAccessToken() {
@@ -74,55 +202,61 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
         }
     }
 
-    fun prepareToSpeak() {
-        backHandler.post(GetVoiceListTask())
-        backHandler.post(StartAudioTrackPlayerTask())
-    }
-
     private inner class RefreshAccessTokenTask : Runnable {
-        private val CONTENT_TYPE = "application/x-www-form-urlencoded; charset=utf-8".toMediaTypeOrNull()
-        private val BODY = "refresh_token=$refresh&client_id=$id&client_secret=$sec&grant_type=refresh_token"
-        private val REFRESH_URL = "https://www.googleapis.com/oauth2/v4/token"
+        private val TOKEN_URL = "https://oauth2.googleapis.com/token"
 
         override fun run() {
+            if (IS_DEBUG) debugLog("RefreshAccessTokenTask.run() : E")
+
+            val body = "client_id=${clientId}&grant_type=refresh_token&refresh_token=$refreshToken&redirect_uri=${Constants.GCP_REDIRECT_URI}"
+            if (IS_DEBUG) debugLog("RefreshAccessTokenTask.run() : body = $body")
+
             val client = OkHttpClient()
-            val requestBody = BODY.toRequestBody(CONTENT_TYPE)
+            val requestBody = body.toRequestBody(Constants.GCP_CONTENT_TYPE)
             val request = Request.Builder()
-                    .url(REFRESH_URL)
-                    .post(requestBody)
-                    .build()
+                .url(TOKEN_URL)
+                .post(requestBody)
+                .build()
 
             val response = client.newCall(request).execute()
 
             if (response.isSuccessful) {
-                if (IS_DEBUG) debugLog("TTSController.GCP.RefreshAccessTokenTask: OK")
+                if (IS_DEBUG) debugLog("RefreshAccessTokenTask.run() : Get access token OK")
 
-                response.body?.let {
+                response.body.let {
                     val responseBody = it.string()
 
                     if (IS_DEBUG) {
-                        debugLog("#### RESPONSE")
+                        debugLog("## RESPONSE")
                         debugLog(responseBody)
                     }
 
                     val mapper = jacksonObjectMapper()
                     val rootNode = mapper.readTree(responseBody)
 
-                    // Parse access token.
-                    accessToken = rootNode.get("access_token").asText()
+                    Companion.accessToken = rootNode.get("access_token").toString()
 
-                    // Parse expiration timeout and register next refresh task.
-                    if (backThread.isAlive) {
-                        val expireSec: Long = rootNode.get("expires_in").asLong()
-                        backHandler.postDelayed(this, expireSec * 1000)
+                    if (IS_DEBUG) {
+                        debugLog("## rootNode = $rootNode")
+                        debugLog("## accessToken = ${Companion.accessToken}")
                     }
                 }
-
             } else {
-                if (IS_DEBUG) debugLog("TTSController.GCP.RefreshAccessTokenTask: NG")
-                errorLog("NG Response = $response")
+                errorLog("RefreshAccessTokenTask.run() : Get access-token NG")
+                errorLog("## NG Response = $response")
+                errorLog("## NG Response body = ${response.body}")
+                errorLog("## NG Response headers = ${response.headers}")
+                errorLog("## NG Response message = ${response.message}")
             }
+
+            if (IS_DEBUG) debugLog("RefreshAccessTokenTask.run() : X")
         }
+    }
+
+
+    fun prepareToSpeak() {
+        backHandler.post(GetVoiceListTask())
+        backHandler.post(StartAudioTrackPlayerTask())
     }
 
     fun loadLabelVsPackage(callback: OnTtsEngineOptionLoadedCallback) {
@@ -137,7 +271,7 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
     }
 
     private inner class GetVoiceListTask : Runnable {
-        private val GET_URL = "https://texttospeech.googleapis.com/v1/voices?languageCode=$LANG"
+        private val GET_URL = "https://texttospeech.googleapis.com/v1/voices?languageCode=$LANG&access_token=$accessToken"
 
         override fun run() {
             val client = OkHttpClient()
@@ -244,10 +378,7 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
 
     override fun release() {
         backHandler.removeCallbacks(refreshTask)
-
         backHandler.post(StopAudioTrackPlayerTask())
-
-        backThread.quitSafely()
 
     }
 
@@ -394,7 +525,4 @@ class TTSControllerGoogleCloudApi(var context: Context?, val option: String) : T
         }
     }
 
-    private external fun getId(): String
-    private external fun getSec(): String
-    private external fun getRefresh(): String
 }

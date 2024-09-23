@@ -18,6 +18,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
         >
+            <include layout="@layout/scroll_view_separator" />
+
+            <Button
+                android:id="@+id/update_gcp_refresh_token_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/update_gcp_refresh_token_button_label"
+            />
 
             <include layout="@layout/scroll_view_separator" />
 

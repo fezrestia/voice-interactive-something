@@ -2,6 +2,8 @@
 
 package com.demo.pet.petapp
 
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+
 object Constants {
     val KEY_VERSION = "version"
     val VAL_INVALID_VERSION = -1
@@ -23,4 +25,22 @@ object Constants {
     val SPEAK_THRESHOLD_DEFAULT: Int = 1000
 
     val VAL_DEFAULT = "default"
+
+    val KEY_GCP_REFRESH_TOKEN = "key-gcp-refresh-token"
+
+
+    // Google Cloud Platform constants.
+
+    val GCP_CONTENT_TYPE = "application/x-www-form-urlencoded".toMediaTypeOrNull()
+
+    val GCP_CODE_VERIFIER = "randomcodeverifierstringforgooglecloudplatformapiauthentication"
+    val GCP_CODE_CHALLENGE_METHOD = "plain"
+
+//    val GCP_REDIRECT_URI = "com.demo.pet.petapp.debug:oauth2redirect" // debug
+    val GCP_REDIRECT_URI = "com.demo.pet.petapp:oauth2redirect" // release
+
+    val GCP_SCOPE = "https://www.googleapis.com/auth/cloud-platform"
+
+
+
 }

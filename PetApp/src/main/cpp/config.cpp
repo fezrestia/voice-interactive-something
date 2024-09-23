@@ -24,22 +24,10 @@ JNIEXPORT jstring JNICALL Java_com_demo_pet_petapp_conversations_KatchyOnline_ge
     return env->NewStringUTF(KATCHY_ONLINE_REFRESH_TOKEN);
 }
 
-JNIEXPORT jstring JNICALL Java_com_demo_pet_petapp_tts_TTSControllerGoogleCloudApi_getId(
+JNIEXPORT jstring JNICALL Java_com_demo_pet_petapp_tts_TTSControllerGoogleCloudApi_00024Companion_getId(
         JNIEnv *env,
         jobject __unused thiz) {
     return env->NewStringUTF(GCP_TTS_CLIENT_ID);
-}
-
-JNIEXPORT jstring JNICALL Java_com_demo_pet_petapp_tts_TTSControllerGoogleCloudApi_getSec(
-        JNIEnv *env,
-        jobject __unused thiz) {
-    return env->NewStringUTF(GCP_TTS_CLIENT_SECRET);
-}
-
-JNIEXPORT jstring JNICALL Java_com_demo_pet_petapp_tts_TTSControllerGoogleCloudApi_getRefresh(
-        JNIEnv *env,
-        jobject __unused thiz) {
-    return env->NewStringUTF(GCP_TTS_REFRESH_TOKEN);
 }
 
 JNIEXPORT jstring JNICALL Java_com_demo_pet_petapp_conversations_RecruitSmallTalk_getApiKey(
